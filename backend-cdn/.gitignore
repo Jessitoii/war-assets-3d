@@ -22,3 +22,6 @@ benchmarks/graphs
 public/
 public/images
 public/models
+
+
+.env
