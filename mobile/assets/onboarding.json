@@ -1,0 +1,23 @@
+[
+  {
+    "id": "1",
+    "title": "Welcome to War Assets 3D",
+    "subtitle": "Discover detailed 3D models of historical military assets.",
+    "image": "https://images.unsplash.com/photo-1590740683459-3971da2dfcf2?auto=format&fit=crop&q=80&w=400",
+    "orderIndex": 0
+  },
+  {
+    "id": "2",
+    "title": "Interactive Viewing",
+    "subtitle": "Rotate, zoom, and inspect every detail in full 3D.",
+    "image": "https://images.unsplash.com/photo-1628126235206-5260b9ea6441?auto=format&fit=crop&q=80&w=400",
+    "orderIndex": 1
+  },
+  {
+    "id": "3",
+    "title": "AR Experience",
+    "subtitle": "Bring history to your room with Augmented Reality.",
+    "image": "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?auto=format&fit=crop&q=80&w=400",
+    "orderIndex": 2
+  }
+]
