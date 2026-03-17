@@ -1,0 +1,42 @@
+{
+  "common": {
+    "search": "Search Assets",
+    "technical_summary": "Technical Summary",
+    "view_3d": "View in 3-D",
+    "comparison": "Comparison",
+    "settings": "Settings",
+    "appearance": "Appearance",
+    "dark_mode": "Dark Mode",
+    "toggle_theme": "Toggle application theme",
+    "data_sync": "Data & Sync",
+    "offline_ready": "Offline Ready",
+    "online_only": "Online Only",
+    "db_size": "DB Size",
+    "last_sync": "Last Sync",
+    "sync_now": "Sync Data Now",
+    "syncing": "Syncing...",
+    "features": "Features",
+    "enable_ar": "Enable AR Features",
+    "ar_not_supported": "AR not supported on this device",
+    "allow_ar": "Allow placing models in AR",
+    "data_unavailable": "DATA UNAVAILABLE",
+    "geometry_unavailable": "3D Geometry for this asset is currently classified or unavailable in open repositories.",
+    "featured_assets": "Featured Assets",
+    "no_featured": "No featured assets yet",
+    "categories": "Categories",
+    "categories_loading": "Categories loading...",
+    "history_background": "History & Background",
+    "fetching_wiki": "Consulting Intelligence Archives...",
+    "wiki_error": "No technical intelligence available for this asset signature.",
+    "view_on_wiki_fallback": "View raw Wikipedia page",
+    "read_full_wiki": "Read Full Intel on Wikipedia",
+    "share_asset": "Share Asset Intelligence"
+  },
+  "specs": {
+    "classified": "CLASSIFIED",
+    "na": "N/A",
+    "title": "Technical Specifications",
+    "label": "Specification",
+    "value": "Value"
+  }
+}

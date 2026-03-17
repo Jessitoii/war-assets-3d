@@ -1,5 +1,5 @@
 import * as SQLite from 'expo-sqlite';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 const { documentDirectory } = FileSystem as any;
 
 /**
@@ -10,36 +10,54 @@ const { documentDirectory } = FileSystem as any;
 let dbInstance: SQLite.SQLiteDatabase | null = null;
 let initializationPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
-const DB_NAME = 'war-assets.db';
+const DB_NAME = 'war-assets-v24.db';
 
 export async function initDB(): Promise<SQLite.SQLiteDatabase> {
   // Return existing instance if available
-  if (dbInstance) return dbInstance;
+  if (dbInstance) {
+    try {
+      await dbInstance.getFirstAsync('PRAGMA user_version;');
+      return dbInstance;
+    } catch (e) {
+      console.warn('[DB] Existing instance check failed, resetting handle...', e);
+      try { await dbInstance.closeAsync(); } catch (err) {}
+      dbInstance = null;
+    }
+  }
   
-  // If initialization is already in progress, wait for it
   if (initializationPromise) return initializationPromise;
 
   initializationPromise = (async () => {
     try {
+      // Ensure SQLite directory exists (preventing path-not-found errors on some devices)
+      const dbDir = `${documentDirectory}SQLite`;
+      const dirInfo = await FileSystem.getInfoAsync(dbDir);
+      if (!dirInfo.exists) {
+        await FileSystem.makeDirectoryAsync(dbDir, { intermediates: true });
+        console.log('[DB] Created SQLite directory');
+      }
+
+      console.log(`[DB] Connecting to ${DB_NAME}...`);
       const db = await SQLite.openDatabaseAsync(DB_NAME);
       
-      // Basic configuration
+      // Verification
+      await db.getFirstAsync('PRAGMA user_version;');
+      
       try {
         await db.execAsync('PRAGMA foreign_keys = ON;');
         await db.execAsync('PRAGMA journal_mode = WAL;');
       } catch (e) {
-        console.warn('Database PRAGMA setup warning:', e);
+        console.warn('[DB] PRAGMA config warning:', e);
       }
 
-      // Apply Schema migrations safely
       await applyMigrations(db);
 
       dbInstance = db;
       return db;
     } catch (error: any) {
-      console.error('CRITICAL DATABASE INITIALIZATION FAILURE:', error);
-      initializationPromise = null; // Allow retry
-      // Error Boundary: Throw a structured error that the UI can catch to show an error state
+      console.error('CRITICAL DB FAILURE:', error);
+      dbInstance = null;
+      initializationPromise = null;
       throw new Error(`DB_INIT_FAILED: ${error.message || 'Unknown error'}`);
     }
   })();
@@ -48,25 +66,53 @@ export async function initDB(): Promise<SQLite.SQLiteDatabase> {
 }
 
 /**
- * Safe query execution wrapper to prevent NullPointerExceptions
+ * Safe query execution wrapper with automatic retry on native failures (NPE)
  */
-export async function runQuery<T>(queryFn: (db: SQLite.SQLiteDatabase) => Promise<T>): Promise<T> {
-  const db = await initDB();
-  if (!db) {
-    throw new Error('Database not initialized');
+export async function runQuery<T>(queryFn: (db: SQLite.SQLiteDatabase) => Promise<T>, retries = 1): Promise<T> {
+  try {
+    const db = await initDB();
+    if (!db) throw new Error('Database handle is null');
+    return await queryFn(db);
+  } catch (e: any) {
+    console.error(`[DB] Query failed (Attempt ${2 - retries}/2):`, e);
+    
+    // If it's a native error (like NPE), wipe the cached instance and retry once
+    if (e.message?.includes('NullPointerException') || e.message?.includes('Database is closed') || retries > 0) {
+      console.warn('[DB] Troubleshooting native failure, clearing instance and retrying...');
+      if (dbInstance) { 
+        try { await dbInstance.closeAsync(); } catch (err) {}
+      }
+      dbInstance = null;
+      initializationPromise = null;
+      
+      if (retries > 0) {
+        return runQuery(queryFn, retries - 1);
+      }
+    }
+    throw e;
   }
-  return await queryFn(db);
 }
 
 async function applyMigrations(db: SQLite.SQLiteDatabase) {
   const versionResult: any = await db.getFirstAsync('PRAGMA user_version;');
   const currentVersion = versionResult?.user_version || 0;
-
   console.log(`[DB] Engine. Version: ${currentVersion}`);
 
-  // v16 PROTOCOL: Audit Column Sync + Per-item Seeding Log
-  if (currentVersion < 16) {
-    console.log('[DB] v16 RE-SEED: Nuking for data integrity...');
+  // v20 PROTOCOL: Multi-image support
+  if (currentVersion < 20) {
+    if (currentVersion === 19) {
+      console.log('[DB] v20 Migration: Adding images support...');
+      try {
+        await db.execAsync("ALTER TABLE assets ADD COLUMN images TEXT;");
+        await db.execAsync('PRAGMA user_version = 20;');
+        console.log('[DB] Migration v20 complete. Proceeding to re-seed data...');
+        // We continue to re-seed to populate the new images column
+      } catch (e: any) {
+        console.warn('Migration failed, falling back to full re-seed', e);
+      }
+    }
+
+    console.log('[DB] v20 RE-SEED: Nuking for data integrity...');
     
     await db.execAsync('PRAGMA foreign_keys = OFF;');
     
@@ -88,6 +134,11 @@ async function applyMigrations(db: SQLite.SQLiteDatabase) {
             threatType TEXT,
             featured BOOLEAN DEFAULT 0,
             specs TEXT,
+            translations TEXT,
+            wikiUrl TEXT,
+            images TEXT,
+            country TEXT,
+            countryCode TEXT,
             FOREIGN KEY (catId) REFERENCES categories(id) ON DELETE CASCADE
           );
         `);
@@ -132,6 +183,7 @@ async function applyMigrations(db: SQLite.SQLiteDatabase) {
             id INTEGER PRIMARY KEY CHECK (id = 1),
             firstLaunch BOOLEAN NOT NULL DEFAULT 1,
             theme TEXT NOT NULL DEFAULT 'light',
+            language TEXT NOT NULL DEFAULT 'en',
             arEnabled BOOLEAN NOT NULL DEFAULT 0,
             onboardingProgress INTEGER NOT NULL DEFAULT 0,
             supportsAR BOOLEAN NOT NULL DEFAULT 0
@@ -167,9 +219,24 @@ async function applyMigrations(db: SQLite.SQLiteDatabase) {
           const isFeaturedAsset = a.featured ? 1 : 0;
           
           await db.runAsync(
-            `INSERT OR REPLACE INTO assets (id, name, catId, img, model, dangerLevel, threatType, featured, specs) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [a.id, a.name, a.catId, a.img, a.model, dLevel, a.threatType || '', isFeaturedAsset, a.specs ? JSON.stringify(a.specs) : null]
+            `INSERT OR REPLACE INTO assets (id, name, catId, img, model, dangerLevel, threatType, featured, specs, translations, wikiUrl, images, country, countryCode) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              a.id, 
+              a.name, 
+              a.catId, 
+              a.img, 
+              a.model, 
+              dLevel, 
+              a.threatType || '', 
+              isFeaturedAsset, 
+              a.specs ? JSON.stringify(a.specs) : null,
+              a.translations ? JSON.stringify(a.translations) : null,
+              a.wikiUrl || null,
+              a.images ? JSON.stringify(a.images) : null,
+              a.country || null,
+              a.countryCode || null
+            ]
           );
           console.log(`[DB] Inserted asset: ${a.name}`);
         }
@@ -184,11 +251,120 @@ async function applyMigrations(db: SQLite.SQLiteDatabase) {
           );
         }
 
-        await db.execAsync('PRAGMA user_version = 16;');
-        console.log('[DB] Migration and Seeding v16 complete.');
+        await db.execAsync('PRAGMA user_version = 20;');
+        console.log('[DB] Migration and Seeding v20 complete.');
       });
     } finally {
       await db.execAsync('PRAGMA foreign_keys = ON;');
+    }
+  }
+
+  // v23 PROTOCOL: Junk Purge & URL Standardization
+  if (currentVersion < 23) {
+    console.log('[DB] v23 Migration: Purging junk & standardizing 3D links...');
+    try {
+      await db.withExclusiveTransactionAsync(async () => {
+        // Hard Purge: Remove non-military or legacy placeholder records
+        await db.execAsync(`
+          DELETE FROM assets 
+          WHERE name LIKE '%Harley%' 
+          OR name LIKE '%Classified%' 
+          OR name LIKE '%Placeholder%'
+          OR catId IS NULL;
+        `);
+
+        // URL Standardization: Ensure all image/model paths follow the secure R2 pattern
+        const R2_BASE = 'https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev';
+        
+        // We can't easily iterate and update with direct SQL if we need logic, 
+        // but we can use REPLACE if they already have parts of it.
+        // Actually, the requirement says "Ensure all follow... structure".
+        // Let's force update the paths if they don't start with the R2_BASE
+        
+        await db.execAsync(`
+          UPDATE assets 
+          SET img = '${R2_BASE}/images/' || id || '.jpg'
+          WHERE img IS NOT NULL AND img NOT LIKE 'http%';
+        `);
+
+        await db.execAsync(`
+          UPDATE assets 
+          SET model = '${R2_BASE}/models/' || id || '.glb'
+          WHERE model IS NOT NULL AND model NOT LIKE 'http%';
+        `);
+
+        await db.execAsync('PRAGMA user_version = 23;');
+        console.log('[DB] Migration v23 complete.');
+      });
+    } catch (e) {
+      console.error('[DB] Migration v23 FAILED:', e);
+    }
+  }
+
+  // v24 PROTOCOL: Domain-Agnostic Sanitization (Migration to Worker Proxy)
+  if (currentVersion < 24) {
+    console.log('[DB] v24 Migration: Sanitizing asset paths for domain-agnostic logic...');
+    try {
+      await db.withExclusiveTransactionAsync(async () => {
+        // Scrubbing logic: Remove domain prefixes and leave only relative paths
+        // This allows cdnConfig.ts to dynamically append the Proxy or Local domain.
+        
+        await db.execAsync(`
+          UPDATE assets 
+          SET img = REPLACE(REPLACE(REPLACE(img, 'https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/images/', ''), 'http://localhost:3000/public/images/', ''), 'images/', '')
+          WHERE img IS NOT NULL;
+        `);
+
+        await db.execAsync(`
+          UPDATE assets 
+          SET model = REPLACE(REPLACE(REPLACE(model, 'https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/models/', ''), 'http://localhost:3000/public/models/', ''), 'models/', '')
+          WHERE model IS NOT NULL;
+        `);
+
+        // Handle images[] JSON array if technically possible via SQL, or just clear and let re-seed fix it?
+        // Re-seeding is usually safer for complex JSON transformations
+        // But let's try a simple replace for common domains
+        await db.execAsync(`
+          UPDATE assets 
+          SET images = REPLACE(images, 'https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/images/', '')
+          WHERE images IS NOT NULL;
+        `);
+
+        await db.execAsync('PRAGMA user_version = 24;');
+        console.log('[DB] Migration v24 complete.');
+      });
+    } catch (e) {
+      console.error('[DB] Migration v24 FAILED:', e);
+    }
+  }
+
+  // v25 PROTOCOL: Geospatial Intelligence (Country Mapping)
+  if (currentVersion < 25) {
+    console.log('[DB] v25 Migration: Adding country mapping columns...');
+    try {
+      await db.withExclusiveTransactionAsync(async () => {
+        // 1. ADD COLUMNS
+        try {
+          await db.execAsync("ALTER TABLE assets ADD COLUMN country TEXT;");
+        } catch (e) {} // Ignore if already exists
+        try {
+          await db.execAsync("ALTER TABLE assets ADD COLUMN countryCode TEXT;");
+        } catch (e) {} // Ignore if already exists
+
+        // 2. FORCE RE-SEED TO INJECT NEW DATA FROM JSON
+        const MILITARY_ASSETS = require('../assets/data/military-assets.json');
+        for (const a of MILITARY_ASSETS) {
+          await db.runAsync(
+            'UPDATE assets SET country = ?, countryCode = ? WHERE id = ?',
+            [a.country || null, a.countryCode || null, a.id]
+          );
+        }
+
+        await db.execAsync('PRAGMA user_version = 25;');
+        console.log('[DB] Migration v25 complete.');
+      });
+    } catch (e) {
+      console.error('[DB] Migration v25 FAILED:', e);
     }
   }
 }

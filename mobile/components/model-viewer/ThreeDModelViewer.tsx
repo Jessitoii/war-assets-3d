@@ -1,8 +1,10 @@
 import React, { Suspense, useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, LogBox } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Stage, useGLTF } from '@react-three/drei/native';
 import * as THREE from 'three';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { theme } from '../../styles/theme';
 import { AssetCDNService } from '../../services/AssetCDNService';
 import { dbHelper } from '../../scripts/init-db';
@@ -24,11 +26,12 @@ const Model: React.FC<ModelProps> = ({ url, onLoad, onError }) => {
     }
   }, [scene, onLoad]);
 
-  useFrame(() => {
-    if (modelRef.current) {
-      modelRef.current.rotation.y += 0.005;
-    }
-  });
+  // Manual rotation removed in favor of OrbitControls autoRotate for damping support
+  // useFrame(() => {
+  //   if (modelRef.current) {
+  //     modelRef.current.rotation.y += 0.005;
+  //   }
+  // });
 
   useEffect(() => {
     return () => {
@@ -138,17 +141,56 @@ export const ThreeDModelViewer: React.FC<Props> = ({
       isMounted = false;
     };
   }, [assetId, modelUrl, assetVersion, expectedChecksum]);
+  const [showGuide, setShowGuide] = useState(false);
+
+  useEffect(() => {
+    // Suppress non-critical EXGL warnings
+    LogBox.ignoreLogs([
+      'gl.pixelStorei: commands out of sequence',
+      'THREE.WebGLRenderer: Context Lost',
+    ]);
+  }, []);
+
+  const handleModelLoad = () => {
+    if (!isMini) {
+      setShowGuide(true);
+      setTimeout(() => setShowGuide(false), 2000);
+    }
+    setLoading(false);
+  };
 
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size={isMini ? "small" : "large"} color={theme.colors.primary} />
-        {!isMini && <Text style={styles.text}>Synchronizing Geometry...</Text>}
+        <View style={styles.skeletonContainer}>
+          <ActivityIndicator size={isMini ? "small" : "large"} color={theme.colors.primary} />
+          <View style={styles.pulseContainer}>
+            {!isMini && <Text style={styles.loadingTextPrimary}>ESTABLISHING NEURAL LINK</Text>}
+            {!isMini && <Text style={styles.loadingTextSecondary}>Streaming tactical geometry from R2 Node...</Text>}
+          </View>
+        </View>
       </View>
     );
   }
 
-  const showFallback = error || !localUrl;
+  // Handle Missing or Error states with the professional "Unavailable" UI
+  if (modelUrl === null || error || !localUrl) {
+    if (isMini) return null; // Don't show complex error UI in mini cards
+
+    return (
+      <View style={styles.noModelContainer}>
+        <Ionicons name="shield-outline" size={64} color={theme.colors.primary} style={styles.tacticalIcon} />
+        <Text style={styles.noModelTitle}>TACTICAL INTEL UNAVAILABLE</Text>
+        <Text style={styles.noModelDesc}>
+          3D visualization for {assetId} is currently restricted or geometry stream failed. 
+          Check satellite link or R2 storage status.
+        </Text>
+        <TouchableOpacity style={styles.retryBtn} onPress={() => { setError(false); setLoading(true); }}>
+          <Text style={styles.retryBtnText}>RE-ATTEMPT SYNC</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View 
@@ -162,24 +204,37 @@ export const ThreeDModelViewer: React.FC<Props> = ({
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} intensity={1} />
         <Suspense fallback={null}>
-          {showFallback ? (
-            <FallbackBox />
+          {isMini ? (
+            <Model url={localUrl!} />
           ) : (
-            isMini ? (
-              <Model url={localUrl!} />
-            ) : (
-              <Stage environment="city" intensity={0.5} adjustCamera={true}>
-                <Model url={localUrl!} />
-              </Stage>
-            )
+            <Stage environment="city" intensity={0.5} adjustCamera={true}>
+              <Model url={localUrl!} onLoad={handleModelLoad} />
+            </Stage>
           )}
         </Suspense>
-        {!isMini && <OrbitControls makeDefault minDistance={1} maxDistance={10} />}
+        {!isMini && (
+          <OrbitControls 
+            makeDefault 
+            minDistance={1} 
+            maxDistance={10} 
+            autoRotate={true}
+            autoRotateSpeed={1.5}
+            enableDamping={true}
+            dampingFactor={0.05}
+            rotateSpeed={0.5}
+          />
+        )}
       </Canvas>
-      {showFallback && !isMini && (
-        <View style={styles.fallbackLabel}>
-          <Text style={styles.fallbackText}>TACTICAL PLACEHOLDER: MODEL MISSING</Text>
-        </View>
+
+      {showGuide && (
+        <Animated.View 
+          entering={FadeIn} 
+          exiting={FadeOut} 
+          style={styles.guideOverlay}
+        >
+          <Ionicons name="finger-print-outline" size={40} color={theme.colors.primary} />
+          <Text style={styles.guideText}>SWIPE TO ROTATE • PINCH TO ZOOM</Text>
+        </Animated.View>
       )}
     </View>
   );
@@ -205,17 +260,103 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 20,
     alignSelf: 'center',
-    backgroundColor: 'rgba(255,0,0,0.3)',
+    backgroundColor: 'rgba(255,165,0,0.3)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: '#FF0000',
+    borderColor: '#FFA500',
   },
   fallbackText: {
-    color: '#FF0000',
+    color: '#FFA500',
     fontSize: 10,
     fontWeight: 'bold',
     letterSpacing: 1,
   },
+  noModelContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#050505',
+    padding: 30,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+  },
+  tacticalIcon: {
+    fontSize: 40,
+    color: theme.colors.primary,
+    marginBottom: 15,
+    opacity: 0.8,
+  },
+  noModelTitle: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: '900',
+    letterSpacing: 2,
+    marginBottom: 10,
+  },
+  noModelDesc: {
+    color: 'rgba(255,255,255,0.5)',
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
+    maxWidth: 250,
+  },
+  skeletonContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pulseContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  loadingTextPrimary: {
+    color: theme.colors.primary,
+    fontSize: 14,
+    fontWeight: '900',
+    letterSpacing: 2,
+    marginBottom: 4,
+  },
+  loadingTextSecondary: {
+    color: 'rgba(255,255,255,0.4)',
+    fontSize: 10,
+    fontStyle: 'italic',
+  },
+  retryBtn: {
+    marginTop: 25,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: theme.colors.primary,
+    borderRadius: 4,
+    backgroundColor: 'rgba(0, 255, 157, 0.05)',
+  },
+  retryBtnText: {
+    color: theme.colors.primary,
+    fontSize: 12,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+  },
+  guideOverlay: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -100 }, { translateY: -40 }],
+    width: 200,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    padding: 20,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 255, 157, 0.2)',
+  },
+  guideText: {
+    color: theme.colors.primary,
+    fontSize: 10,
+    fontWeight: 'bold',
+    marginTop: 10,
+    letterSpacing: 1,
+    textAlign: 'center',
+  }
 });

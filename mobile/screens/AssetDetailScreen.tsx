@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, StatusBar, ActivityIndicator, Text } from 'react-native';
+import { View, StyleSheet, ScrollView, StatusBar, ActivityIndicator, Text, Share } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/NavigationRoot';
@@ -9,13 +9,17 @@ import { AssetHeader } from '../components/asset-detail/AssetHeader';
 import { ImageCarousel } from '../components/asset-detail/ImageCarousel';
 import { SpecsSummary } from '../components/asset-detail/SpecsSummary';
 import { ActionButtons } from '../components/asset-detail/ActionButtons';
+import { WikiSection } from '../components/asset-detail/WikiSection';
+import { PerformanceRadar } from '../components/asset-detail/PerformanceRadar';
 import { useAssetActions } from '../hooks/useAssetActions';
 import { CDN_CONFIG } from '../config/cdnConfig';
+import { useTranslation } from 'react-i18next';
 
 type Props = StackScreenProps<RootStackParamList, 'AssetDetail'>;
 
 export const AssetDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const { assetId } = route.params;
+  const { t } = useTranslation();
   const currentTheme = useStore((state) => state.theme);
   const isDark = currentTheme === 'dark';
   
@@ -37,17 +41,17 @@ export const AssetDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
   if (loading) {
     return (
-      <View style={[styles.loadingContainer, { backgroundColor: isDark ? theme.colors.backgroundDark : theme.colors.backgroundLight }]}>
+      <SafeAreaView style={[styles.loadingContainer, { backgroundColor: isDark ? theme.colors.backgroundDark : theme.colors.backgroundLight }]}>
         <ActivityIndicator size="large" color={theme.colors.primary} />
-      </View>
+      </SafeAreaView>
     );
   }
 
   if (!asset) {
     return (
-      <View style={[styles.loadingContainer, { backgroundColor: isDark ? theme.colors.backgroundDark : theme.colors.backgroundLight }]}>
+      <SafeAreaView style={[styles.loadingContainer, { backgroundColor: isDark ? theme.colors.backgroundDark : theme.colors.backgroundLight }]}>
         <Text style={{ color: isDark ? '#FFF' : '#000' }}>Asset not found</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -76,8 +80,24 @@ export const AssetDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     country: 'N/A'
   };
 
-  const dangerColor = asset.dangerLevel ? 
-    (asset.dangerLevel > 8 ? '#FF3B30' : asset.dangerLevel > 5 ? '#FFCC00' : '#4CD964') : '#999';
+  const rawDanger = asset.dangerLevel || 0;
+  const normalizedDanger = rawDanger > 10 ? rawDanger / 10 : rawDanger;
+  const isNuclear = normalizedDanger >= 9.0;
+
+  const dangerColor = normalizedDanger > 8 ? '#FF3B30' : normalizedDanger > 5 ? '#FFCC00' : '#4CD964';
+
+
+  const handleShare = async () => {
+    try {
+      const mainImage = displayImages[0] || '';
+      await Share.share({
+        message: `[TACTICAL BRIEFING: ${asset.name}]\n\nVisual Recon: ${mainImage}\n\nFull analysis available in War Assets 3D Command Center.`,
+        title: asset.name,
+      });
+    } catch (error: any) {
+      console.error('Sharing failed:', error.message);
+    }
+  };
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: isDark ? theme.colors.backgroundDark : theme.colors.backgroundLight }]} edges={['top', 'bottom']}>
@@ -96,27 +116,46 @@ export const AssetDetailScreen: React.FC<Props> = ({ route, navigation }) => {
              <View style={[styles.badge, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }]}>
                <Text style={[styles.badgeText, { color: isDark ? '#EEE' : '#333' }]}>{asset.threatType || 'Tactical Asset'}</Text>
              </View>
-             <Text style={[styles.dangerValue, { color: dangerColor }]}>DANGER: {asset.dangerLevel || '?'}/10</Text>
+             {isNuclear && (
+               <View style={[styles.badge, { backgroundColor: '#FF3B30', borderColor: '#FF3B30' }]}>
+                 <Text style={[styles.badgeText, { color: '#FFF' }]}>☢ NUCLEAR</Text>
+               </View>
+             )}
+             <Text style={[styles.dangerValue, { color: dangerColor }]}>DANGER: {normalizedDanger.toFixed(1)}/10</Text>
+
           </View>
           
           <View style={styles.progressBackground}>
-            <View style={[styles.progressBar, { width: `${(asset.dangerLevel || 0) * 10}%`, backgroundColor: dangerColor }]} />
+            <View style={[styles.progressBar, { width: `${normalizedDanger * 10}%`, backgroundColor: dangerColor }]} />
           </View>
+
         </View>
 
         <ImageCarousel images={displayImages} />
         
         <SpecsSummary 
-          specs={displaySpecs} 
+          asset={asset}
           isDark={isDark}
           onPress={() => navigation.navigate('TechnicalSpecs', { assetId })}
         />
+
         
         <ActionButtons 
-          hasModel={!!asset.modelUrl}
+          hasModel={!!asset.model}
           isDark={isDark}
           onView3D={() => navigation.navigate('ModelViewer', { assetId })}
           onCompare={() => handleCompare(assetId)}
+          onShare={handleShare}
+        />
+        
+        <PerformanceRadar 
+          metrics={displaySpecs.metrics} 
+          isDark={isDark} 
+        />
+        
+        <WikiSection 
+          wikiUrl={asset.wikiUrl} 
+          isDark={isDark} 
         />
         
         <View style={styles.footerPadding} />

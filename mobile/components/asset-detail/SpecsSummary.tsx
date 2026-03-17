@@ -2,24 +2,41 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../styles/theme';
-import { AssetSpecs } from '../../store/slices/assetSlice';
+import { Asset, AssetSpecs } from '../../store/slices/assetSlice';
+import { getFlagEmoji } from '../../utils/countryUtils';
+import { useTranslation } from 'react-i18next';
 
 interface SpecsSummaryProps {
-  specs: AssetSpecs;
+  asset: Asset;
   isDark: boolean;
   onPress: () => void;
 }
 
-export const SpecsSummary: React.FC<SpecsSummaryProps> = ({ specs, isDark, onPress }) => {
+export const SpecsSummary: React.FC<SpecsSummaryProps> = ({ asset, isDark, onPress }) => {
+  const { i18n } = useTranslation();
+  const currentLang = i18n.language || 'en';
+  
+  // Tactical Intelligence Selector: Priority (Current Lang -> EN)
+  const langSpecs = asset.translations?.[currentLang]?.short_specs || asset.translations?.[currentLang]?.specs;
+  const enFallback = asset.translations?.['en']?.short_specs || asset.translations?.['en']?.specs;
+  
+  const displaySpecs = langSpecs || enFallback || {};
+  const countryCode = asset.translations?.[currentLang]?.countryCode || asset.translations?.['en']?.countryCode || asset.countryCode;
+  const countryName = asset.translations?.[currentLang]?.country || asset.translations?.['en']?.country || asset.country;
+
   const cardBg = isDark ? theme.colors.secondary : '#FFF';
   const textColor = isDark ? '#FFF' : '#000';
   const subTextColor = isDark ? '#AAA' : '#666';
 
   const items = [
-    { label: 'Range', value: specs.range, icon: 'navigate-outline' },
-    { label: 'Speed', value: specs.speed, icon: 'speedometer-outline' },
-    { label: 'Generation', value: specs.generation, icon: 'git-network-outline' },
-    { label: 'Country', value: specs.country, icon: 'globe-outline' },
+    { label: 'Range', value: displaySpecs.range || 'N/A', icon: 'navigate-outline' },
+    { label: 'Speed', value: displaySpecs.speed || 'N/A', icon: 'speedometer-outline' },
+    { label: 'Generation', value: displaySpecs.generation || 'N/A', icon: 'git-network-outline' },
+    { 
+      label: 'Origin', 
+      value: `${getFlagEmoji(countryCode || '')} ${countryName || 'Global'}`.trim(), 
+      icon: 'earth-outline' 
+    },
   ];
 
   return (

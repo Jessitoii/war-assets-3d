@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, Modal, FlatList, TouchableOpacity, StyleSheet, Image, SafeAreaView, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useStore } from '../../store';
 import { theme } from '../../styles/theme';
+import { filterAssets } from '../../utils/assetFilters';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   visible: boolean;
@@ -15,11 +17,15 @@ export const AssetPickerModal: React.FC<Props> = ({ visible, onClose }) => {
   const comparisonQueue = useStore((state) => state.comparisonQueue);
   const addToComparison = useStore((state) => state.addToComparison);
   const isDark = useStore((state) => state.theme) === 'dark';
+  const { i18n } = useTranslation();
 
-  const availableAssets = assets.filter(a => 
-    !comparisonQueue.includes(a.id) && 
-    (a.name.toLowerCase().includes(search.toLowerCase()) || a.categoryId.toLowerCase().includes(search.toLowerCase()))
-  );
+  const availableAssets = useMemo(() => {
+    const filtered = filterAssets(assets, {
+      searchQuery: search,
+      language: i18n.language
+    });
+    return filtered.filter(a => !comparisonQueue.includes(a.id));
+  }, [assets, search, comparisonQueue, i18n.language]);
 
   const handleSelect = (assetId: string) => {
     addToComparison(assetId);

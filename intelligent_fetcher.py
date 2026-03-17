@@ -29,6 +29,8 @@ CEREBRAS_API_KEY = os.getenv("CEREBRAS_API_KEY")
 SKETCHFAB_TOKEN = os.getenv("SKETCHFAB_TOKEN")
 MAX_WORKERS = 4  # Resource limit for Blender/Playwright
 BLENDER_PATH = r"C:\Program Files\Blender Foundation\Blender 5.0\blender.exe"
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
 
 # HYBRID DEPLOYMENT CONFIG
 DEPLOY_MODE = os.getenv("DEPLOY_MODE", "CLOUDFLARE") # LOCAL or CLOUDFLARE
@@ -69,10 +71,42 @@ def safe_log(msg):
 def jitter_sleep(min_s=1, max_s=3):
     time.sleep(random.uniform(min_s, max_s))
 
+def llm_query(system_prompt, user_msg, json_mode=True):
+    """Wrapper for multi-provider LLM access (Groq/Cerebras)."""
+    try:
+        # 1. ATTEMPT GROQ (High Performance)
+        if GROQ_API_KEY:
+            from groq import Groq
+            g_client = Groq(api_key=GROQ_API_KEY)
+            response = g_client.chat.completions.create(
+                messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_msg}],
+                model="llama-3.1-70b-versatile",
+                response_format={"type": "json_object"} if json_mode else None
+            )
+            return response.choices[0].message.content
+        
+        # 2. FALLBACK TO CEREBRAS
+        response = client.chat.completions.create(
+            messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_msg}],
+            model="llama3.1-8b", 
+            response_format={"type": "json_object"} if json_mode else None
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        safe_print(f" [!] LLM Query Failed: {e}")
+        return None
+
 def generate_slug(name):
-    if not name: return ""
-    slug = name.lower()
-    slug = re.sub(r'[^a-z0-9]+', '-', slug)
+    """
+    Standardizes slugs for R2 compatibility.
+    Replaces all non-alphanumeric chars with a single hyphen, strictly lowercase.
+    Does not rely solely on AI output if it's missing.
+    """
+    if not name: return "unknown-asset"
+    
+    # 1. SLUG STANDARDIZATION: Strictly lowercase and replace special chars/spaces with a single hyphen
+    name_str = str(name).strip().lower()
+    slug = re.sub(r'[^a-z0-9]+', '-', name_str)
     return slug.strip('-')
 
 def get_r2_client():
@@ -166,142 +200,362 @@ def trigger_conversion(input_path, asset_id):
     except Exception:
         return None
 
-def download_sketchfab_model(asset_name, asset_id):
+def fetch_3d_model(asset_name, asset_id):
+    """Multi-source 3D model scouting: Sketchfab -> Direct DDG Search"""
     headers = {"Authorization": f"Token {SKETCHFAB_TOKEN}"}
-    search_url = f"https://api.sketchfab.com/v3/search?type=models&q={asset_name}&downloadable=true"
     
+    # SOURCE 1: Sketchfab API
+    search_url = f"https://api.sketchfab.com/v3/search?type=models&q={asset_name}&downloadable=true"
     try:
         r = requests.get(search_url, timeout=15)
         res = r.json().get('results', [])
-        if not res: return None
+        if res:
+            uid = res[0]['uid']
+            dl_url = f"https://api.sketchfab.com/v3/models/{uid}/download"
+            dr = requests.get(dl_url, headers=headers, timeout=15)
+            if dr.status_code == 200:
+                links = dr.json()
+                options = next((links[fmt] for fmt in ['glb', 'gltf', 'source'] if fmt in links), None)
+                if options:
+                    local_raw = os.path.join(RAW_MODEL_DIR, f"{asset_id}_temp")
+                    with requests.get(options['url'], stream=True, timeout=60) as fr:
+                        with open(local_raw, 'wb') as f:
+                            for chunk in fr.iter_content(8192): f.write(chunk)
+                    
+                    # Identification
+                    with open(local_raw, 'rb') as f:
+                        magic = f.read(4)
+                        ext = '.glb' if magic == b'glTF' else ('.zip' if magic[:2] == b'PK' else '.raw')
+                        
+                    final_raw = os.path.join(RAW_MODEL_DIR, f"{asset_id}{ext}")
+                    if os.path.exists(final_raw): os.remove(final_raw)
+                    os.rename(local_raw, final_raw)
+                    
+                    if ext == '.zip':
+                        extract_dir = os.path.join(RAW_MODEL_DIR, asset_id)
+                        with zipfile.ZipFile(final_raw, 'r') as zf: zf.extractall(extract_dir)
+                        for root, _, files in os.walk(extract_dir):
+                            for file in files:
+                                if file.lower().endswith(('.gltf', '.glb', '.obj', '.fbx', '.stl')):
+                                    return os.path.join(root, file)
+                    return final_raw
+    except Exception as e:
+        safe_print(f"    [!] Sketchfab scouting failed: {e}")
+
+    # SOURCE 2: DDG Direct Search for GLB/GLTF/OBJ
+    try:
+        # Enhanced query with requested fallbacks
+        queries = [
+            f"{asset_name} 3d model filetype:glb OR filetype:gltf",
+            f"{asset_name} military 3d model github",
+            f"{asset_name} 3d model google poly archive",
+            f"{asset_name} low poly military model .obj"
+        ]
         
-        uid = res[0]['uid']
-        dl_url = f"https://api.sketchfab.com/v3/models/{uid}/download"
-        dr = requests.get(dl_url, headers=headers, timeout=15)
-        if dr.status_code != 200: return None
-        
-        links = dr.json()
-        options = next((links[fmt] for fmt in ['glb', 'gltf', 'source'] if fmt in links), None)
-        if not options: return None
-        
-        local_raw = os.path.join(RAW_MODEL_DIR, f"{asset_id}_temp")
-        with requests.get(options['url'], stream=True, timeout=60) as fr:
-            with open(local_raw, 'wb') as f:
-                for chunk in fr.iter_content(8192): f.write(chunk)
-        
-        # Identification
-        with open(local_raw, 'rb') as f:
-            magic = f.read(4)
-            ext = '.glb' if magic == b'glTF' else ('.zip' if magic[:2] == b'PK' else '.raw')
-            
-        final_raw = os.path.join(RAW_MODEL_DIR, f"{asset_id}{ext}")
-        if os.path.exists(final_raw): os.remove(final_raw)
-        os.rename(local_raw, final_raw)
-        
-        if ext == '.zip':
-            extract_dir = os.path.join(RAW_MODEL_DIR, asset_id)
-            with zipfile.ZipFile(final_raw, 'r') as zf: zf.extractall(extract_dir)
-            for root, _, files in os.walk(extract_dir):
-                for file in files:
-                    if file.lower().endswith(('.gltf', '.glb', '.obj', '.fbx', '.stl')):
-                        return os.path.join(root, file)
-        return final_raw
-    except: return None
+        for query in queries:
+            with DDGS() as ddgs:
+                results = list(ddgs.text(query, max_results=5))
+                for res in results:
+                    url = res.get('href', '')
+                    if any(url.lower().endswith(ext) for ext in ['.glb', '.gltf', '.obj', '.zip']):
+                        # Filter out common junk
+                        if "github.com" in url and "/blob/" in url:
+                            url = url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/")
+                        
+                        local_raw = os.path.join(RAW_MODEL_DIR, f"{asset_id}_fallback{os.path.splitext(url.split('?')[0])[1] or '.raw'}")
+                        try:
+                            r = requests.get(url, stream=True, timeout=30)
+                            if r.status_code == 200:
+                                with open(local_raw, 'wb') as f:
+                                    for chunk in r.iter_content(8192): f.write(chunk)
+                                safe_print(f"    [+] Fallback model found: {url}")
+                                return local_raw
+                        except: continue
+    except Exception as e:
+        safe_print(f"    [!] Enhanced 3D search failed: {e}")
+
+    return None
 
 def fetch_image_from_ddg(name, asset_id):
     query = f"{name} military vehicle"
+    asset_dir = os.path.join(IMAGE_DIR, asset_id)
+    os.makedirs(asset_dir, exist_ok=True)
+    
+    downloaded_paths = []
     try:
         with DDGS() as ddgs:
-            results = list(ddgs.images(query, max_results=2))
-            if not results: return None
+            # Fetch up to 10 results to increase chances of finding 3 valid images
+            results = list(ddgs.images(query, max_results=10))
+            if not results: return []
             
-            img_url = results[0]['image']
-            local_path = os.path.join(IMAGE_DIR, f"{asset_id}.jpg")
-            r = requests.get(img_url, timeout=10, stream=True)
-            if r.status_code == 200:
-                with open(local_path, 'wb') as f:
-                    for chunk in r.iter_content(8192): f.write(chunk)
-                return local_path
-    except: pass
-    return None
+            count = 0
+            for res in results:
+                if count >= 3: break
+                img_url = res['image']
+                local_path = os.path.join(asset_dir, f"{count + 1}.jpg")
+                
+                try:
+                    r = requests.get(img_url, timeout=10, stream=True)
+                    if r.status_code == 200:
+                        with open(local_path, 'wb') as f:
+                            for chunk in r.iter_content(8192): f.write(chunk)
+                        downloaded_paths.append(local_path)
+                        count += 1
+                        safe_print(f"    [+] Downloaded image {count}/3: {img_url}")
+                except Exception as e:
+                    safe_print(f"    [!] Failed to download {img_url}: {e}")
+                    continue
+            return downloaded_paths
+    except Exception as e:
+        safe_print(f"    [!] DDG Search failed: {e}")
+    return []
 
 def extract_intel(name, cat_id):
     try:
+        # 1. PRE-SEARCH Technical Snippets and Wiki URL
+        search_query = f"{name} military technical specifications wikipedia"
+        snippets = []
+        wiki_url = None
+        
+        with DDGS() as ddgs:
+            # Search for snippets
+            text_results = list(ddgs.text(search_query, max_results=3))
+            for r in text_results:
+                snippets.append(f"Source: {r['href']}\nContent: {r['body']}")
+                if "en.wikipedia.org" in r['href'] and not wiki_url:
+                    wiki_url = r['href']
+            
+            # If no wiki link in text search, try specifically for it
+            if not wiki_url:
+                wiki_results = list(ddgs.text(f"{name} wikipedia", max_results=2))
+                for r in wiki_results:
+                    if "en.wikipedia.org" in r['href']:
+                        wiki_url = r['href']
+                        break
+
+        search_context = "\n\n".join(snippets)
+
         system_prompt = (
-            "You are a Senior Military Intelligence Analyst. Extract technical specifications. "
-            "Output ONLY JSON matching this schema: "
-            "{ \"name\": \"string\", \"range\": \"string\", \"speed\": \"string\", \"rcs\": \"string\", "
-            "\"payload\": \"string\", \"generation\": \"string\", \"role\": \"string\", "
-            "\"dangerLevel\": number, \"threatType\": \"string\" } "
-            "Return {} if civilian or generic."
+            "You are a Senior Military Intelligence Analyst and Polyglot Specialist. "
+            "Extract technical specifications for a military asset in English, and then provide translations for TR (Turkish), RU (Russian), AR (Arabic), and ZH (Chinese).\n\n"
+            "STRICT RULES:\n"
+            "1. TERMINOLOGY: Use precise military terms in all languages (e.g., 'Ana Muharebe Tankı' for TR, 'Основной боевой танк' for RU).\n"
+            "2. VALUES: Extract values in English first (e.g., '1,500 km', 'Mach 2.0').\n"
+            "3. TRANSLATIONS: Translate the 'name', 'role', and the string values of specifications (range, speed, payload, etc.) into TR, RU, AR, and ZH.\n"
+            "4. METRICS: Provide 0-100 values for firepower, mobility, stealth, and durability.\n"
+            "5. NO CLASSIFIED: Use high-confidence estimates instead of 'Classified'.\n"
+            "6. WIKI: Provide the official English Wikipedia URL.\n\n"
+            "Output ONLY JSON matching this schema:\n"
+            "{\n"
+            "  \"name\": \"string (English)\",\n"
+            "  \"role\": \"string (English)\",\n"
+            "  \"range\": \"string (English)\",\n"
+            "  \"speed\": \"string (English)\",\n"
+            "  \"rcs\": \"string (English)\",\n"
+            "  \"payload\": \"string (English)\",\n"
+            "  \"generation\": \"string (English)\",\n"
+            "  \"dangerLevel\": number,\n"
+            "  \"threatType\": \"string (English)\",\n"
+            "  \"wikiUrl\": \"string\",\n"
+            "  \"metrics\": { \"firepower\": number, \"mobility\": number, \"stealth\": number, \"durability\": number },\n"
+            "  \"translations\": {\n"
+            "    \"tr\": { \"name\": \"string\", \"specs\": { \"role\": \"string\", \"range\": \"string\", \"speed\": \"string\", \"payload\": \"string\", \"generation\": \"string\" } },\n"
+            "    \"ru\": { \"name\": \"string\", \"specs\": { \"role\": \"string\", \"range\": \"string\", \"speed\": \"string\", \"payload\": \"string\", \"generation\": \"string\" } },\n"
+            "    \"ar\": { \"name\": \"string\", \"specs\": { \"role\": \"string\", \"range\": \"string\", \"speed\": \"string\", \"payload\": \"string\", \"generation\": \"string\" } },\n"
+            "    \"zh\": { \"name\": \"string\", \"specs\": { \"role\": \"string\", \"range\": \"string\", \"speed\": \"string\", \"payload\": \"string\", \"generation\": \"string\" } }\n"
+            "  }\n"
+            "}"
         )
-        response = client.chat.completions.create(
-            messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": f"Asset: {name}"}],
-            model="llama3.1-8b", 
-            response_format={"type": "json_object"}
-        )
-        intel = json.loads(response.choices[0].message.content)
+
+        
+        user_msg = f"Asset: {name}\n\nSearch Context:\n{search_context}"
+        
+        intel_json = llm_query(system_prompt, user_msg, json_mode=True)
+        if not intel_json: return None
+        intel = json.loads(intel_json)
+        
         if not intel or "name" not in intel: return None
+
+        # 2. DEEP RECON: Check for "Classified" specs and trigger web search
+        classified_fields = []
+        for field in ["range", "speed", "payload", "rcs"]:
+            val = str(intel.get(field, "")).lower()
+            if "classified" in val or "unknown" in val or not val:
+                classified_fields.append(field)
+        
+        if classified_fields:
+            safe_print(f"    [!] Specialized Recon: Researching classified specs {classified_fields}...")
+            deep_search_query = f"{name} military {', '.join(classified_fields)} real specifications OSINT"
+            deep_snippets = []
+            try:
+                with DDGS() as ddgs:
+                    res = list(ddgs.text(deep_search_query, max_results=5))
+                    deep_snippets = [f"Deep Intel: {r['body']}" for r in res]
+                
+                if deep_snippets:
+                    recon_msg = f"Deep Web Search Results for classified fields:\n" + "\n".join(deep_snippets)
+                    recon_msg += f"\n\nPrevious JSON: {json.dumps(intel)}"
+                    recon_msg += "\n\nUpdate the JSON with real OSINT estimates. DO NOT use 'Classified' anymore. Use your best intelligence guess based on the snippets."
+                    
+                    updated_json = llm_query(system_prompt, recon_msg, json_mode=True)
+                    if updated_json:
+                        intel = json.loads(updated_json)
+            except Exception as e:
+                safe_print(f"    [!] Deep Recon failed: {e}")
+        
+        # Override or set wikiUrl if LLM missed it but we found it
+        if wiki_url and not intel.get("wikiUrl"):
+            intel["wikiUrl"] = wiki_url
+            
         return intel
     except Exception as e:
         safe_print(f" [!] Intel extraction failed for {name}: {e}")
         return None
 
-def process_asset_live(asset):
-    """The Master Live-Sync Loop for a single asset."""
+def translate_only(name, specs):
+    """CASE B: Only fetch translations using existing specs to save tokens."""
+    try:
+        system_prompt = (
+            "You are a Senior Military Intelligence Analyst and Polyglot Specialist. "
+            "Translate the provided military asset specifications into TR (Turkish), RU (Russian), AR (Arabic), and ZH (Chinese).\n\n"
+            "STRICT RULES:\n"
+            "1. TERMINOLOGY: Use precise military terms in all languages.\n"
+            "2. TRANSLATIONS: Translate the 'name', 'role', and the string values of specifications (range, speed, payload, etc.) into TR, RU, AR, and ZH.\n"
+            "Output ONLY JSON matching this schema:\n"
+            "{\n"
+            "  \"tr\": { \"name\": \"string\", \"specs\": { \"role\": \"string\", \"range\": \"string\", \"speed\": \"string\", \"payload\": \"string\", \"generation\": \"string\" } },\n"
+            "  \"ru\": { \"name\": \"string\", \"specs\": { \"role\": \"string\", \"range\": \"string\", \"speed\": \"string\", \"payload\": \"string\", \"generation\": \"string\" } },\n"
+            "  \"ar\": { \"name\": \"string\", \"specs\": { \"role\": \"string\", \"range\": \"string\", \"speed\": \"string\", \"payload\": \"string\", \"generation\": \"string\" } },\n"
+            "  \"zh\": { \"name\": \"string\", \"specs\": { \"role\": \"string\", \"range\": \"string\", \"speed\": \"string\", \"payload\": \"string\", \"generation\": \"string\" } }\n"
+            "}"
+        )
+        
+        user_msg = f"Asset Name: {name}\nExisting Specs: {json.dumps(specs, indent=2)}"
+        
+        translations_json = llm_query(system_prompt, user_msg, json_mode=True)
+        if not translations_json: return None
+        translations = json.loads(translations_json)
+        return translations
+    except Exception as e:
+        safe_print(f" [!] Translation-only failed for {name}: {e}")
+        return None
+
+def process_asset_live(asset, existing_assets_map=None):
+    """The Master Live-Sync Loop for a single asset with Smart Incremental Update logic."""
     original_name = asset['name']
-    cat_id = asset['catId']
+    cat_id = asset.get('catId', '1')
     
-    safe_print(f"\n[*] Reconnaissance: {original_name}")
+    # 1. Identify Case
+    asset_id = asset.get('id') or generate_slug(original_name)
+    
+    # Case B: Existing Asset - Missing Translations
+    if existing_assets_map and asset_id in existing_assets_map:
+        existing = existing_assets_map[asset_id]
+        translations = existing.get('translations', {})
+        required_langs = {'tr', 'ru', 'ar', 'zh'}
+        if not translations or not all(l in translations for l in required_langs):
+            safe_print(f"[*] Case B (Update Translations): {original_name}")
+            new_translations = translate_only(existing['name'], existing.get('specs', {}))
+            if new_translations:
+                existing['translations'] = new_translations
+                if save_asset_to_db(existing):
+                    safe_print(f"    [✓] Translations Updated: {asset_id}")
+                    return True
+            return False
+        return True # Case C: Skip complete asset
+
+    # Case A: New Asset - Full Recon
+    safe_print(f"\n[*] Case A (Full Recon): {original_name}")
     
     # 1. Intel Discovery
     intel = extract_intel(original_name, cat_id)
+
     if not intel: 
         safe_print(f"    [-] Aborted: Not military or OSINT failure.")
         return False
+
     
-    real_name = intel['name']
-    # 1. PREVENT EMPTY SLUG / INVALID ASSET ID
+    # 1. SLUG STANDARDIZATION: Use AI name if available, otherwise original
+    real_name = intel.get('name', original_name)
     asset_id = generate_slug(real_name)
+    
     if not asset_id:
         safe_print(f"[INVALID SLUG] name={real_name}")
         return False
 
+    # Extract translations before updating asset
+    translations = intel.pop("translations", {})
+
     asset.update({
-        "id": asset_id,
+        "id": asset_id, # ID-TO-PATH ENFORCEMENT
         "name": real_name,
         "specs": intel,
+        "translations": translations,
         "dangerLevel": intel.get('dangerLevel', 5),
-        "threatType": intel.get('threatType', 'Classified')
+        "threatType": intel.get('threatType', 'Classified'),
+        "wikiUrl": intel.get('wikiUrl', 'https://en.wikipedia.org/wiki/Military_technology')
     })
 
+
     # 2. Image Fetch & Sync
-    img_local = fetch_image_from_ddg(real_name, asset_id)
-    if img_local:
-        if DEPLOY_MODE == "CLOUDFLARE":
-            if upload_to_r2(img_local, f"images/{asset_id}.jpg"):
-                asset['img'] = f"{R2_PUBLIC_URL}images/{asset_id}.jpg"
-        else:
-            asset['img'] = f"{asset_id}.jpg"
-        safe_print(f"    [+] Image Synced: {asset_id}.jpg")
+    # LOCAL PATH ENFORCEMENT: Derived exclusively from asset_id, now in a directory
+    img_paths = fetch_image_from_ddg(real_name, asset_id)
+    if img_paths:
+        asset['images'] = []
+        for i, img_local in enumerate(img_paths):
+            if DEPLOY_MODE == "CLOUDFLARE":
+                # R2 KEY ENFORCEMENT: images/{asset_id}/{i+1}.jpg
+                r2_path = f"images/{asset_id}/{i+1}.jpg"
+                if upload_to_r2(img_local, r2_path):
+                    # DYNAMIC URL SANITIZATION
+                    public_url = f"{R2_PUBLIC_URL.rstrip('/')}/{r2_path}"
+                    asset['images'].append(public_url)
+                    # VERIFICATION LOGS
+                    safe_print(f"    [VERIFICATION] Public Image URL {i+1}: {public_url}")
+            else:
+                asset['images'].append(f"{asset_id}/{i+1}.jpg")
+        if asset['images']:
+            asset['img'] = asset['images'][0]
+            
+        safe_print(f"    [+] {len(asset['images'])} Images Synced: {asset_id}/")
     else:
-        safe_print(f"    [!] Image Acquisition Failed.")
+        safe_print(f"    [!] Multi-Image Acquisition Failed.")
 
     # 3. Model Fetch, Convert & Sync
-    raw_path = download_sketchfab_model(real_name, asset_id)
+    raw_path = fetch_3d_model(real_name, asset_id)
     if raw_path:
+        # GLB LOCAL PATH ENFORCEMENT via trigger_conversion
         glb_local = trigger_conversion(raw_path, asset_id)
         if glb_local:
             if DEPLOY_MODE == "CLOUDFLARE":
-                if upload_to_r2(glb_local, f"models/{asset_id}.glb"):
-                    asset['model'] = f"{R2_PUBLIC_URL}models/{asset_id}.glb"
+                # R2 KEY ENFORCEMENT: models/{asset_id}.glb
+                r2_path = f"models/{asset_id}.glb"
+                if upload_to_r2(glb_local, r2_path):
+                    # DYNAMIC URL SANITIZATION
+                    public_url = f"{R2_PUBLIC_URL.rstrip('/')}/{r2_path}"
+                    asset['model'] = public_url
+                    # VERIFICATION LOGS
+                    safe_print(f"    [VERIFICATION] Public Model URL: {public_url}")
             else:
                 asset['model'] = f"{asset_id}.glb"
             safe_print(f"    [+] Model Materialized: {asset_id}.glb")
         else:
             safe_print(f"    [!] GLB Fusion Failed.")
+            asset['model'] = None
+            
+        # Cleanup temporary raw model files to save space
+        try:
+            if os.path.exists(raw_path):
+                if os.path.isfile(raw_path):
+                    os.remove(raw_path)
+                # If it was a zip extraction, we might want to clean that too, 
+                # but for now let's focus on the main temp raw file
+                safe_print(f"    [CLEANUP] Removed temporary model file: {raw_path}")
+        except Exception as e:
+            safe_print(f"    [!] Cleanup failed: {e}")
     else:
         safe_print(f"    [!] Model Scouting Failed.")
+        asset['model'] = None
 
     # 4. Persistence
     if save_asset_to_db(asset):
@@ -332,16 +586,13 @@ def expand_targets(current_assets, target_count=1000):
             try:
                 prompt = (f"Return a JSON list of exactly {num} UNIQUE, REAL {hint} models from world militaries (USA, Russia, China, NATO). "
                           "Format: {\"list\": [\"Name1\", ...]} No placeholders like 'Classified'.")
-                response = client.chat.completions.create(
-                    messages=[{"role": "user", "content": prompt}],
-                    model="gpt-oss-120b",
-                    response_format={"type": "json_object"}
-                )
-                names = json.loads(response.choices[0].message.content).get("list", [])
-                for n in names:
-                    if n.lower() not in current_ids:
-                        new_targets.append({"catId": cat_id, "name": n, "featured": False})
-                        current_ids.add(n.lower())
+                names_json = llm_query("You are a military discovery assistant.", prompt, json_mode=True)
+                if names_json:
+                    names = json.loads(names_json).get("list", [])
+                    for n in names:
+                        if n.lower() not in current_ids:
+                            new_targets.append({"catId": cat_id, "name": n, "featured": False})
+                            current_ids.add(n.lower())
             except Exception as e: 
                 safe_print(f"    [!] Scouting error for {hint}: {e}")
     return new_targets
@@ -365,17 +616,38 @@ def main():
     # Filter out junk already
     existing_assets = [a for a in existing_assets if len(a.get('name', '')) > 2]
     
-    # Scout New Targets
+    # Map for easy lookup
+    existing_assets_map = {a['id']: a for a in existing_assets if a.get('id')}
+    
+    # Identify assets needing updates (Case B)
+    pending_updates = []
+    required_langs = {'tr', 'ru', 'ar', 'zh'}
+    for a in existing_assets:
+        translations = a.get('translations', {})
+        if not translations or not all(lang in translations for lang in required_langs):
+            pending_updates.append(a)
+    
+    safe_print(f"[*] Smart Discovery: {len(pending_updates)} existing assets need translation updates.")
+    
+    # Scout New Targets (Case A)
     new_targets = expand_targets(existing_assets, 1000)
-    safe_print(f"[*] Intelligence Discovery Found {len(new_targets)} Targets.")
+    safe_print(f"[*] Intelligence Discovery Found {len(new_targets)} New Targets.")
+
+    # Combine tasks
+    all_tasks = pending_updates + new_targets
+    random.shuffle(all_tasks)
 
     # Live Processing Loop
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        futures = {executor.submit(process_asset_live, t): t for t in new_targets}
+        futures = {executor.submit(process_asset_live, t, existing_assets_map): t for t in all_tasks}
         for future in as_completed(futures):
-            future.result()
+            try:
+                future.result()
+            except Exception as e:
+                safe_print(f" [!] Thread error: {e}")
 
     safe_print(f"\n[!] OPERATION LIVE-SYNC COMPLETE.")
 
 if __name__ == "__main__":
     main()
+

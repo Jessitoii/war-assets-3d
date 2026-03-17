@@ -7,8 +7,10 @@ export interface AppState {
   arEnabled: boolean;
   onboardingProgress: number;
   supportsAR: boolean;
+  language: 'en' | 'tr';
   setFirstLaunch: (value: boolean) => void;
   setTheme: (theme: 'light' | 'dark') => void;
+  setLanguage: (lang: 'en' | 'tr') => void;
   setArEnabled: (enabled: boolean) => void;
   setSupportsAR: (supported: boolean) => void;
   setOnboardingProgress: (page: number) => void;
@@ -17,6 +19,7 @@ export interface AppState {
 export const createAppSlice = (set: any): AppState => ({
   firstLaunch: true,
   theme: 'light',
+  language: 'en',
   arEnabled: false,
   supportsAR: false,
   onboardingProgress: 0,
@@ -28,6 +31,13 @@ export const createAppSlice = (set: any): AppState => ({
     SQLite.openDatabaseAsync('war-assets.db').then(db => {
       db.runAsync('UPDATE app_state SET theme = ? WHERE id = 1', [theme])
         .catch(e => console.error('Failed to persist theme:', e));
+    });
+  },
+  setLanguage: (lang) => {
+    set((state: any) => ({ ...state, language: lang }));
+    SQLite.openDatabaseAsync('war-assets.db').then(db => {
+      db.runAsync('UPDATE app_state SET language = ? WHERE id = 1', [lang])
+        .catch(e => console.error('Failed to persist language:', e));
     });
   },
   setArEnabled: (enabled) => 

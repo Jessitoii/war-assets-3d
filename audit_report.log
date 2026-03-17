@@ -1,0 +1,12 @@
+CLOUD INTEGRITY AUDIT REPORT (v26)
+Date: 2026-03-14 23:16:00
+Proxy Node: https://warassets-cdn.alpercanzerr1600.workers.dev
+==================================================
+TOTAL ASSETS SCANNED: 761
+VERIFIED (INCLUDED): 758
+FAILED (EXCLUDED): 3
+==================================================
+
+[CRITICAL] Missing ID for asset: M1A1 Abrams
+[CRITICAL] Missing ID for asset: Unknown
+[CRITICAL] Missing ID for asset: Unknown

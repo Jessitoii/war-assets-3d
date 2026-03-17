@@ -1,0 +1,42 @@
+{
+  "common": {
+    "search": "Varlıkları Ara",
+    "technical_summary": "Teknik Özet",
+    "view_3d": "3D Görüntüle",
+    "comparison": "Karşılaştırma",
+    "settings": "Ayarlar",
+    "appearance": "Görünüm",
+    "dark_mode": "Karanlık Mod",
+    "toggle_theme": "Uygulama temasını değiştir",
+    "data_sync": "Veri ve Senkronizasyon",
+    "offline_ready": "Çevrimdışı Hazır",
+    "online_only": "Sadece Çevrimiçi",
+    "db_size": "VT Boyutu",
+    "last_sync": "Son Senk",
+    "sync_now": "Verileri Şimdi Senkronize Et",
+    "syncing": "Senkronize ediliyor...",
+    "features": "Özellikler",
+    "enable_ar": "AR Özelliklerini Etkinleştir",
+    "ar_not_supported": "AR bu cihazda desteklenmiyor",
+    "allow_ar": "Modelleri AR ortamına yerleştirmeye izin ver",
+    "data_unavailable": "VERİ MEVCUT DEĞİL",
+    "geometry_unavailable": "Bu varlık için 3D Geometri şu anda gizli veya açık kaynaklarda mevcut değil.",
+    "featured_assets": "Öne Çıkan Varlıklar",
+    "no_featured": "Henüz öne çıkan varlık yok",
+    "categories": "Kategoriler",
+    "categories_loading": "Kategoriler yükleniyor...",
+    "history_background": "Tarihçe ve Arkaplan",
+    "fetching_wiki": "İstihbarat Arşivlerine Danışılıyor...",
+    "wiki_error": "Bu varlık imzası için teknik istihbarat mevcut değil.",
+    "view_on_wiki_fallback": "Ham Wikipedia sayfasını görüntüle",
+    "read_full_wiki": "Wikipedia'daki Tüm İstihbaratı Oku",
+    "share_asset": "Varlık İstihbaratını Paylaş"
+  },
+  "specs": {
+    "classified": "GİZLİ",
+    "na": "Mevcut Değil",
+    "title": "Teknik Özellikler",
+    "label": "Özellik",
+    "value": "Değer"
+  }
+}

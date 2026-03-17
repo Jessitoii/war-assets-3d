@@ -7,7 +7,8 @@ import { useStore, selectOnboardingContent, selectOnboardingCurrentPage } from '
 import { useShallow } from 'zustand/react/shallow';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '../styles/theme';
-import * as SQLite from 'expo-sqlite';
+import { initDB } from '../scripts/init-db';
+import { Ionicons } from '@expo/vector-icons';
 
 const { width, height } = Dimensions.get('window');
 
@@ -28,66 +29,63 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
   const setFirstLaunch = useStore((state) => state.setFirstLaunch);
   const setOnboardingProgress = useStore((state) => state.setOnboardingProgress);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<Animated.ScrollView>(null);
   const isInitialScrollDone = useRef(false);
 
-  // Sync content from backend / fallback
-  useEffect(() => {
-    async function fetchContent() {
+  const fetchContent = async () => {
+    try {
+      const db = await initDB();
+      // network fetch simulation
+      let remoteData: any = null;
       try {
-        const db = await SQLite.openDatabaseAsync('war-assets.db');
-        // network fetch simulation
-        let remoteData: any = null;
-        try {
-          // This will fail in dev usually if no server exists -> fallback
-          const res = await fetch('http://localhost:3000/api/v1/onboarding/content');
-          if (res.ok) {
-            remoteData = await res.json();
-          }
-        } catch (e) {
-          console.log('Network failed, using fallback.');
-        }
-
-        if (remoteData) {
-          // Write to DB
-          await db.withTransactionAsync(async () => {
-            for (const item of remoteData) {
-              await db.runAsync(
-                `INSERT OR REPLACE INTO onboarding_content (id, title, subtitle, description, image, orderIndex)
-                 VALUES (?, ?, ?, ?, ?, ?)`,
-                [item.id, item.title, item.subtitle, item.description || '', item.image, item.orderIndex]
-              );
-            }
-          });
-        } else {
-          // Use bundled static JSON
-          const fallback = require('../assets/onboarding.json');
-          remoteData = fallback;
-          await db.withTransactionAsync(async () => {
-             for (const item of fallback) {
-               await db.runAsync(
-                 `INSERT OR REPLACE INTO onboarding_content (id, title, subtitle, description, image, orderIndex)
-                  VALUES (?, ?, ?, ?, ?, ?)`,
-                 [item.id, item.title, item.subtitle, item.description || '', item.image, item.orderIndex]
-               );
-             }
-           });
-        }
-
-        // Read from DB to Zustand
-        const result: any[] = await db.getAllAsync('SELECT * FROM onboarding_content ORDER BY orderIndex ASC');
-        if (result && result.length > 0) {
-          setContent(result);
+        const res = await fetch('http://localhost:3000/api/v1/onboarding/content');
+        if (res.ok) {
+          remoteData = await res.json();
         }
       } catch (e) {
-        console.error('Failed to load onboarding content', e);
-      } finally {
-        setLoading(false);
+        console.log('Network failed, using fallback.');
       }
-    }
 
+      if (remoteData) {
+        // Write to DB
+        await db.withTransactionAsync(async () => {
+          for (const item of remoteData) {
+            await db.runAsync(
+              `INSERT OR REPLACE INTO onboarding_content (id, title, subtitle, description, image, orderIndex)
+               VALUES (?, ?, ?, ?, ?, ?)`,
+              [item.id, item.title, item.subtitle, item.description || '', item.image, item.orderIndex]
+            );
+          }
+        });
+      } else {
+        const fallback = require('../assets/onboarding.json');
+        await db.withTransactionAsync(async () => {
+           for (const item of fallback) {
+             await db.runAsync(
+               `INSERT OR REPLACE INTO onboarding_content (id, title, subtitle, description, image, orderIndex)
+                VALUES (?, ?, ?, ?, ?, ?)`,
+               [item.id, item.title, item.subtitle, item.description || '', item.image, item.orderIndex]
+             );
+           }
+         });
+      }
+
+      const result: any[] = await db.getAllAsync('SELECT * FROM onboarding_content ORDER BY orderIndex ASC');
+      if (result && result.length > 0) {
+        setContent(result);
+      }
+    } catch (e: any) {
+      console.error('Failed to load onboarding content', e);
+      setError(e.message || 'Unknown initialization error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchContent();
-  }, [setContent]);
+  }, []);
 
   // Initial scroll to persisted progress
   useEffect(() => {
@@ -105,7 +103,7 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
     if (isInitialScrollDone.current) {
       async function persistProgress() {
         try {
-          const db = await SQLite.openDatabaseAsync('war-assets.db');
+          const db = await initDB();
           await db.execAsync(`UPDATE app_state SET onboardingProgress = ${currentPage} WHERE id = 1;`);
           setOnboardingProgress(currentPage);
         } catch (e) {
@@ -118,7 +116,7 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleComplete = async () => {
     try {
-      const db = await SQLite.openDatabaseAsync('war-assets.db');
+      const db = await initDB();
       await db.execAsync(`UPDATE app_state SET firstLaunch = 0, onboardingProgress = 0 WHERE id = 1;`);
       setFirstLaunch(false);
       setOnboardingProgress(0);
@@ -126,7 +124,6 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
       navigation.replace('Home');
     } catch(e) {
       console.error(e);
-      // Fallback
       setFirstLaunch(false);
       navigation.replace('Home');
     }
@@ -146,10 +143,28 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
     },
   });
 
+  if (error) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Ionicons name="alert-circle" size={64} color={theme.colors.error} style={styles.loaderIcon} />
+        <Text style={styles.loadingTitle}>SYSTEM CRITICAL ERROR</Text>
+        <Text style={styles.loadingSubtitle}>{error}</Text>
+        <TouchableOpacity 
+          style={[styles.getStartedBtn, { marginTop: 30 }]} 
+          onPress={() => { setError(null); setLoading(true); fetchContent(); }}
+        >
+          <Text style={styles.getStartedText}>RETRY INITIALIZATION</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   if (loading || content.length === 0) {
      return (
-       <View style={styles.container}>
-         <Text style={styles.subtitle}>Loading...</Text>
+       <View style={styles.loadingContainer}>
+         <Ionicons name="shield-checkmark" size={64} color={theme.colors.primary} style={styles.loaderIcon} />
+         <Text style={styles.loadingTitle}>INITIALIZING SYSTEM</Text>
+         <Text style={styles.loadingSubtitle}>Establishing secure database connection...</Text>
        </View>
      );
   }
@@ -300,5 +315,29 @@ const styles = StyleSheet.create({
   },
   placeholderBtn: {
     height: 50, // same as getStartedBtn
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: theme.colors.backgroundDark,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loaderIcon: {
+    marginBottom: 20,
+    opacity: 0.8,
+  },
+  loadingTitle: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: '900',
+    letterSpacing: 2,
+    marginBottom: 8,
+  },
+  loadingSubtitle: {
+    color: '#888',
+    fontSize: 14,
+    textAlign: 'center',
+    fontStyle: 'italic',
   }
 });

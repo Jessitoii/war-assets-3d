@@ -5,6 +5,8 @@ import * as SQLite from 'expo-sqlite';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
+import i18n from '../locales';
 
 export const SettingsScreen = () => {
   const theme = useStore((state) => state.theme);
@@ -12,6 +14,10 @@ export const SettingsScreen = () => {
   const arEnabled = useStore((state) => state.arEnabled);
   const setArEnabled = useStore((state) => state.setArEnabled);
   const supportsAR = useStore((state) => state.supportsAR);
+  const language = useStore((state) => state.language);
+  const setLanguage = useStore((state) => state.setLanguage);
+
+  const { t } = useTranslation();
 
   const [isSyncing, setIsSyncing] = useState(false);
   const [offlineStatus, setOfflineStatus] = useState({
@@ -62,6 +68,12 @@ export const SettingsScreen = () => {
     }
     setArEnabled(!arEnabled);
   };
+  
+  const handleToggleLanguage = () => {
+    const newLang = language === 'en' ? 'tr' : 'en';
+    setLanguage(newLang);
+    i18n.changeLanguage(newLang);
+  };
 
   const handleDataSync = async () => {
     setIsSyncing(true);
@@ -92,16 +104,16 @@ export const SettingsScreen = () => {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
       <View style={styles.header}>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>Settings</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>{t('common.settings')}</Text>
       </View>
 
       <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        <Text style={[styles.sectionTitle, { color: colors.subtext }]}>Appearance</Text>
+        <Text style={[styles.sectionTitle, { color: colors.subtext }]}>{t('common.appearance')}</Text>
         
         <View style={styles.row}>
           <View style={styles.rowText}>
-            <Text style={[styles.rowTitle, { color: colors.text }]}>Dark Mode</Text>
-            <Text style={[styles.rowSubtitle, { color: colors.subtext }]}>Toggle application theme</Text>
+            <Text style={[styles.rowTitle, { color: colors.text }]}>{t('common.dark_mode')}</Text>
+            <Text style={[styles.rowSubtitle, { color: colors.subtext }]}>{t('common.toggle_theme')}</Text>
           </View>
           <Switch 
             value={isDark} 
@@ -110,24 +122,39 @@ export const SettingsScreen = () => {
             accessibilityHint="Toggles dark mode"
           />
         </View>
+
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+        <View style={styles.row}>
+          <View style={styles.rowText}>
+            <Text style={[styles.rowTitle, { color: colors.text }]}>{language === 'en' ? 'English' : 'Türkçe'}</Text>
+            <Text style={[styles.rowSubtitle, { color: colors.subtext }]}>Change application language</Text>
+          </View>
+          <Switch 
+            value={language === 'tr'} 
+            onValueChange={handleToggleLanguage}
+            trackColor={{ true: colors.primary, false: colors.border }}
+            accessibilityHint="Toggles application language between English and Turkish"
+          />
+        </View>
       </View>
 
       <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        <Text style={[styles.sectionTitle, { color: colors.subtext }]}>Data & Sync</Text>
+        <Text style={[styles.sectionTitle, { color: colors.subtext }]}>{t('common.data_sync')}</Text>
         
         <View style={styles.stateContainer}>
           <View style={styles.stateRow}>
             <Ionicons name={offlineStatus.is_offline_ready ? "cloud-done" : "cloud-offline"} size={24} color={colors.primary} />
             <View style={{ marginLeft: 12 }}>
               <Text style={[styles.rowTitle, { color: colors.text }]}>
-                {offlineStatus.is_offline_ready ? "Offline Ready" : "Online Only"}
+                {offlineStatus.is_offline_ready ? t('common.offline_ready') : t('common.online_only')}
               </Text>
               <Text style={[styles.rowSubtitle, { color: colors.subtext }]}>
-                DB Size: {(offlineStatus.db_size_bytes / 1024).toFixed(1)} KB
+                {t('common.db_size')}: {(offlineStatus.db_size_bytes / 1024).toFixed(1)} KB
               </Text>
               {offlineStatus.last_sync && (
                 <Text style={[styles.rowSubtitle, { color: colors.subtext }]}>
-                  Last Sync: {new Date(offlineStatus.last_sync).toLocaleString()}
+                  {t('common.last_sync')}: {new Date(offlineStatus.last_sync).toLocaleString(language)}
                 </Text>
               )}
             </View>
@@ -141,19 +168,19 @@ export const SettingsScreen = () => {
         >
           <Ionicons name="sync" size={20} color="#fff" style={{ marginRight: 8 }} />
           <Text style={styles.syncButtonText}>
-            {isSyncing ? "Syncing..." : "Sync Data Now"}
+            {isSyncing ? t('common.syncing') : t('common.sync_now')}
           </Text>
         </TouchableOpacity>
       </View>
 
       <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        <Text style={[styles.sectionTitle, { color: colors.subtext }]}>Features</Text>
+        <Text style={[styles.sectionTitle, { color: colors.subtext }]}>{t('common.features')}</Text>
         
         <View style={styles.row}>
           <View style={styles.rowText}>
-            <Text style={[styles.rowTitle, { color: colors.text }]}>Enable AR Features</Text>
+            <Text style={[styles.rowTitle, { color: colors.text }]}>{t('common.enable_ar')}</Text>
             <Text style={[styles.rowSubtitle, { color: colors.subtext }]}>
-              {supportsAR ? "Allow placing models in AR" : "AR not supported on this device"}
+              {supportsAR ? t('common.allow_ar') : t('common.ar_not_supported')}
             </Text>
           </View>
           <Switch 
@@ -233,5 +260,10 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  divider: {
+    height: 1,
+    marginVertical: 16,
+    opacity: 0.1,
   },
 });

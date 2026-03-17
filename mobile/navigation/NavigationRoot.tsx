@@ -13,6 +13,8 @@ import { TechnicalSpecsScreen } from '../screens/TechnicalSpecsScreen';
 import { ModelViewerScreen } from '../screens/ModelViewerScreen';
 import { ComparisonScreen } from '../screens/ComparisonScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
+import i18n from '../locales';
+import * as Localization from 'expo-localization';
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -34,6 +36,7 @@ export const NavigationRoot = () => {
   const setFirstLaunch = useStore((state) => state.setFirstLaunch);
   const setOnboardingProgress = useStore((state) => state.setOnboardingProgress);
   const setTheme = useStore((state) => state.setTheme);
+  const setLanguage = useStore((state) => state.setLanguage);
   const setFavorites = useStore((state) => state.setFavorites);
   const setComparisonQueue = useStore((state) => state.setComparisonQueue);
 
@@ -42,11 +45,24 @@ export const NavigationRoot = () => {
       try {
         const db = await initDB();
         // Since sqlite is init, might sync to store if needed
-        const result: any = await db.getFirstAsync('SELECT firstLaunch, onboardingProgress, theme, supportsAR FROM app_state WHERE id = 1');
+        const result: any = await db.getFirstAsync('SELECT firstLaunch, onboardingProgress, theme, language, supportsAR FROM app_state WHERE id = 1');
         if (result) {
-          setFirstLaunch(Boolean(result.firstLaunch));
+          const isFirstLaunch = Boolean(result.firstLaunch);
+          setFirstLaunch(isFirstLaunch);
           setOnboardingProgress(result.onboardingProgress || 0);
           setTheme(result.theme || 'light');
+          
+          let lang = result.language;
+          if (isFirstLaunch && !lang) {
+            const systemLanguage = Localization.getLocales()[0].languageCode;
+            lang = systemLanguage === 'tr' ? 'tr' : 'en';
+          } else if (!lang) {
+            lang = 'en';
+          }
+          
+          setLanguage(lang);
+          i18n.changeLanguage(lang);
+
           // Update supportsAR in store
           useStore.getState().setSupportsAR(Boolean(result.supportsAR));
         }

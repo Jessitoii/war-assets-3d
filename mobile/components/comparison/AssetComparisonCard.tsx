@@ -22,7 +22,15 @@ export const AssetComparisonCard: React.FC<Props> = ({ asset, onRemove, onPressM
         <Ionicons name="close-circle" size={24} color={theme.colors.error} />
       </TouchableOpacity>
       
-      <Image source={{ uri: asset.image }} style={styles.thumbnail} resizeMode="cover" />
+      {asset.images && asset.images.length > 0 ? (
+        <Image source={{ uri: asset.images[0] }} style={styles.thumbnail} resizeMode="cover" />
+      ) : asset.image ? (
+        <Image source={{ uri: asset.image }} style={styles.thumbnail} resizeMode="cover" />
+      ) : (
+        <View style={[styles.thumbnail, styles.placeholder, { backgroundColor: isDark ? '#333' : '#EEE' }]}>
+          <Ionicons name="camera-outline" size={32} color={isDark ? '#444' : '#CCC'} />
+        </View>
+      )}
       
       <View style={styles.infoContainer}>
         <Text style={[styles.name, { color: isDark ? '#FFF' : '#000' }]} numberOfLines={1}>{asset.name}</Text>
@@ -48,7 +56,7 @@ export const AssetComparisonCard: React.FC<Props> = ({ asset, onRemove, onPressM
       </View>
       
       <TouchableOpacity style={styles.miniPreviewContainer} onPress={onPressMiniPreview}>
-        <ThreeDModelViewer assetId={asset.id} modelUrl={asset.modelUrl || ''} isMini={true} />
+        <ThreeDModelViewer assetId={asset.id} modelUrl={asset.model || ''} isMini={true} />
         <View style={styles.miniPreviewOverlay}>
           <Ionicons name="expand-outline" size={16} color="#FFF" />
         </View>
@@ -130,4 +138,8 @@ const styles = StyleSheet.create({
     padding: 6,
     borderRadius: 8,
   },
+  placeholder: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  }
 });

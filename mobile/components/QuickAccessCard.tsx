@@ -3,6 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { Asset } from '../store/slices/assetSlice';
 import { theme } from '../styles/theme';
 import { useStore } from '../store';
+import { Ionicons } from '@expo/vector-icons';
 import { CDN_CONFIG } from '../config/cdnConfig';
 
 interface Props {
@@ -24,13 +25,32 @@ export const QuickAccessCard: React.FC<Props> = ({ asset, onPress }) => {
       ]}
     >
       <View style={styles.imageContainer}>
-        {asset.image ? (
+        {asset.images && asset.images.length > 0 ? (
+          <Image source={{ uri: CDN_CONFIG.resolveImage(asset.images[0]) }} style={styles.image} />
+        ) : asset.image ? (
           <Image source={{ uri: CDN_CONFIG.resolveImage(asset.image) }} style={styles.image} />
         ) : (
           <View style={[styles.placeholder, { backgroundColor: isDark ? '#333' : '#EEE' }]}>
-            <Text style={{ color: isDark ? '#666' : '#AAA' }}>No Image</Text>
+            <Ionicons name="camera-outline" size={32} color={isDark ? '#444' : '#CCC'} />
+            <Text style={[styles.placeholderText, { color: isDark ? '#666' : '#AAA' }]}>NO VISUAL INTEL</Text>
           </View>
         )}
+        
+        {/* Tactical 3D Availability Badge */}
+        {!!asset.model && (
+          <View style={styles.modelBadge}>
+            <Ionicons name="cube" size={10} color="#000" />
+            <Text style={styles.modelBadgeText}>3D</Text>
+          </View>
+        )}
+
+        {/* Country/Global Badge */}
+        <View style={styles.countryBadge}>
+          <Text style={styles.countryBadgeText}>
+            {asset.countryCode ? asset.countryCode.toUpperCase().replace(/./g, char => String.fromCodePoint(char.charCodeAt(0) + 127397)) : '🌐'}
+          </Text>
+        </View>
+
       </View>
       <View style={styles.info}>
         <Text numberOfLines={1} style={[styles.name, { color: isDark ? '#FFF' : '#000' }]}>
@@ -71,4 +91,45 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
+  placeholderText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    marginTop: 8,
+    letterSpacing: 1,
+  },
+  modelBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: theme.colors.primary,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 4,
+  },
+  modelBadgeText: {
+    color: '#000',
+    fontSize: 9,
+    fontWeight: '900',
+  },
+  countryBadge: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  countryBadgeText: {
+    fontSize: 12,
+  }
+
 });

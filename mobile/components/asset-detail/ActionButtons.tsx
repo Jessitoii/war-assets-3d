@@ -2,12 +2,14 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../styles/theme';
+import { useTranslation } from 'react-i18next';
 
 interface ActionButtonsProps {
   hasModel: boolean;
   isDark: boolean;
   onView3D: () => void;
   onCompare: () => void;
+  onShare: () => void;
 }
 
 export const ActionButtons: React.FC<ActionButtonsProps> = ({
@@ -15,7 +17,10 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
   isDark,
   onView3D,
   onCompare,
+  onShare,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.container}>
       <TouchableOpacity 
@@ -26,30 +31,39 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
           styles.primaryButton,
           !hasModel && styles.disabledButton
         ]}
-        accessibilityLabel="View in 3D"
-        accessibilityHint={hasModel ? "Opens interactive 3D model viewer" : "3D model is currently unavailable"}
       >
         <Ionicons name="cube-outline" size={24} color="#FFF" />
         <Text style={styles.primaryButtonText}>
-          {hasModel ? 'View in 3-D' : '3-D Unavailable'}
+          {hasModel ? t('common.view_3d') : '3-D ' + t('common.data_unavailable').toLowerCase()}
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity 
-        onPress={onCompare} 
-        style={[
-          styles.button, 
-          styles.secondaryButton,
-          { backgroundColor: isDark ? theme.colors.secondary : '#E5E5EA' }
-        ]}
-        accessibilityLabel="Add to comparison"
-        accessibilityHint="Adds this asset to the comparison queue"
-      >
-        <Ionicons name="git-compare-outline" size={20} color={isDark ? '#FFF' : '#000'} />
-        <Text style={[styles.secondaryButtonText, { color: isDark ? '#FFF' : '#000' }]}>
-          Compare
-        </Text>
-      </TouchableOpacity>
+      <View style={styles.secondaryRow}>
+        <TouchableOpacity 
+          onPress={onCompare} 
+          style={[
+            styles.button, 
+            styles.secondaryButton,
+            { backgroundColor: isDark ? theme.colors.secondary : '#E5E5EA', flex: 1 }
+          ]}
+        >
+          <Ionicons name="git-compare-outline" size={20} color={isDark ? '#FFF' : '#000'} />
+          <Text style={[styles.secondaryButtonText, { color: isDark ? '#FFF' : '#000' }]}>
+            {t('common.comparison')}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          onPress={onShare} 
+          style={[
+            styles.button, 
+            styles.secondaryButton,
+            { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', width: 60 }
+          ]}
+        >
+          <Ionicons name="share-social-outline" size={20} color={isDark ? '#FFF' : '#000'} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -58,6 +72,10 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     flexDirection: 'column',
+    gap: 12,
+  },
+  secondaryRow: {
+    flexDirection: 'row',
     gap: 12,
   },
   button: {

@@ -1,0 +1,423 @@
+[
+  {
+    "catId": "1",
+    "name": "Leopard 1",
+    "featured": false,
+    "id": "leopard-1",
+    "country": "Germany",
+    "countryCode": "DEU",
+    "specs": {
+      "range": "15-30 km (9-19 mi), 0.25-0.30 m\u00159",
+      "speed": "65 km/h",
+      "payload": "",
+      "role": "Main Battle Tank",
+      "dangerLevel": 60,
+      "threatType": "Main Battle Tank",
+      "metrics": {
+        "firepower": 40,
+        "mobility": 50,
+        "stealth": 20,
+        "durability": 80
+      }
+    },
+    "dangerLevel": 60,
+    "threatType": "Main Battle Tank",
+    "wikiUrl": "https://en.wikipedia.org/wiki/Leopard_1",
+    "images": [
+      "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/images/leopard-1/1.jpg",
+      "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/images/leopard-1/2.jpg",
+      "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/images/leopard-1/3.jpg"
+    ],
+    "model": "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/models/leopard-1.glb",
+    "translations": {
+      "tr": {
+        "range": {
+          "short_specs": "450 km/600 km",
+          "full_dossier": "Arazi \u00e7ap\u0131nda menzil yakla\u015f\u0131k 450\u202fkm, karayolu menzili ise yakla\u015f\u0131k 600\u202fkm."
+        },
+        "speed": {
+          "short_specs": "65 km/s",
+          "full_dossier": "Maksimum yol h\u0131z\u0131 65\u202fkm/s (\u2248\u202f40\u202fmph) ve y\u00fcksek hareket kabiliyeti sa\u011flar."
+        },
+        "payload": {
+          "short_specs": "105 mm top",
+          "full_dossier": "Ana silah\u0131, Britanya men\u015feli 105\u202fmm L7A3 rifli tank topudur; iki adet 7.62\u202fmm makineli t\u00fcfekle desteklenir."
+        }
+      },
+      "ru": {
+        "range": {
+          "short_specs": "450 \u043a\u043c/600 \u043a\u043c",
+          "full_dossier": "\u0414\u0430\u043b\u044c\u043d\u043e\u0441\u0442\u044c \u043f\u0435\u0440\u0435\u0434\u0432\u0438\u0436\u0435\u043d\u0438\u044f \u043f\u043e \u0431\u0435\u0437\u0434\u043e\u0440\u043e\u0436\u044c\u044e \u2248\u202f450\u202f\u043a\u043c, \u043c\u0430\u043a\u0441\u0438\u043c\u0430\u043b\u044c\u043d\u0430\u044f \u0434\u043e\u0440\u043e\u0436\u043d\u0430\u044f \u0434\u0430\u043b\u044c\u043d\u043e\u0441\u0442\u044c \u2248\u202f600\u202f\u043a\u043c."
+        },
+        "speed": {
+          "short_specs": "65 \u043a\u043c/\u0447",
+          "full_dossier": "\u041c\u0430\u043a\u0441\u0438\u043c\u0430\u043b\u044c\u043d\u0430\u044f \u0441\u043a\u043e\u0440\u043e\u0441\u0442\u044c \u043d\u0430 \u0434\u043e\u0440\u043e\u0433\u0435 65\u202f\u043a\u043c/\u0447 (\u2248\u202f40\u202f\u043c\u0438\u043b\u044c/\u0447), \u043e\u0431\u0435\u0441\u043f\u0435\u0447\u0438\u0432\u0430\u044f \u0432\u044b\u0441\u043e\u043a\u0443\u044e \u043c\u043e\u0431\u0438\u043b\u044c\u043d\u043e\u0441\u0442\u044c."
+        },
+        "payload": {
+          "short_specs": "105 \u043c\u043c \u043f\u0443\u0448\u043a\u0430",
+          "full_dossier": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0435 \u0432\u043e\u043e\u0440\u0443\u0436\u0435\u043d\u0438\u0435 \u2013 \u0431\u0440\u0438\u0442\u0430\u043d\u0441\u043a\u0430\u044f 105\u2011\u043c\u043c \u043f\u0443\u0448\u043a\u0430 L7A3, \u0434\u043e\u043f\u043e\u043b\u043d\u0438\u0442\u0435\u043b\u044c\u043d\u043e \u0434\u0432\u0430 7,62\u2011\u043c\u043c \u043f\u0443\u043b\u0435\u043c\u0451\u0442\u0430."
+        }
+      },
+      "ar": {
+        "range": {
+          "short_specs": "450 \u0643\u0645/600 \u0643\u0645",
+          "full_dossier": "\u0645\u062f\u0649 \u0639\u0628\u0648\u0631 \u0627\u0644\u0623\u0631\u0627\u0636\u064a \u2248\u202f450\u202f\u0643\u0645\u060c \u0648\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0642\u0635\u0649 \u0639\u0644\u0649 \u0627\u0644\u0637\u0631\u0642 \u2248\u202f600\u202f\u0643\u0645."
+        },
+        "speed": {
+          "short_specs": "65 \u0643\u0645/\u0633",
+          "full_dossier": "\u0627\u0644\u0633\u0631\u0639\u0629 \u0627\u0644\u0642\u0635\u0648\u0649 \u0639\u0644\u0649 \u0627\u0644\u0637\u0631\u064a\u0642 65\u202f\u0643\u0645/\u0633 (\u2248\u202f40\u202f\u0645\u064a\u0644/\u0633) \u0645\u0639 \u0642\u062f\u0631\u0629 \u0639\u0627\u0644\u064a\u0629 \u0639\u0644\u0649 \u0627\u0644\u062d\u0631\u0643\u0629."
+        },
+        "payload": {
+          "short_specs": "\u0645\u062f\u0641\u0639 105 \u0645\u0645",
+          "full_dossier": "\u0627\u0644\u0633\u0644\u0627\u062d \u0627\u0644\u0631\u0626\u064a\u0633\u064a \u0647\u0648 \u0645\u062f\u0641\u0639 \u0628\u0631\u064a\u0637\u0627\u0646\u064a \u0639\u064a\u0627\u0631 105\u202f\u0645\u0645 \u0645\u0646 \u0637\u0631\u0627\u0632 L7A3\u060c \u0645\u0639 \u0645\u062f\u0641\u0639\u064a\u0646 \u0631\u0634\u0627\u0634\u064a\u0646 7.62\u202f\u0645\u0645."
+        }
+      },
+      "zh": {
+        "range": {
+          "short_specs": "450 km/600 km",
+          "full_dossier": "\u8d8a\u91ce\u7eed\u822a\u7ea6450\u516c\u91cc\uff0c\u516c\u8def\u6700\u5927\u7eed\u822a\u7ea6600\u516c\u91cc\u3002"
+        },
+        "speed": {
+          "short_specs": "65 km/h",
+          "full_dossier": "\u6700\u9ad8\u9053\u8def\u884c\u9a76\u901f\u5ea6\u4e3a65\u516c\u91cc/\u5c0f\u65f6\uff08\u7ea640\u82f1\u91cc/\u5c0f\u65f6\uff09\uff0c\u5177\u5907\u9ad8\u673a\u52a8\u6027\u3002"
+        },
+        "payload": {
+          "short_specs": "105 mm\u70ae",
+          "full_dossier": "\u4e3b\u8981\u6b66\u5668\u4e3a\u82f1\u56fd\u5236\u9020\u7684105\u6beb\u7c73L7A3\u7ebf\u819b\u5766\u514b\u70ae\uff0c\u914d\u5907\u4e24\u633a7.62\u6beb\u7c73\u673a\u67aa\u3002"
+        }
+      }
+    },
+    "short_specs": null,
+    "full_dossier": null
+  },
+  {
+    "catId": "1",
+    "name": "Leopard 1A2",
+    "featured": false,
+    "id": "leopard-1a2",
+    "country": null,
+    "countryCode": null,
+    "specs": {
+      "type": "object",
+      "name": "Leopard 1A2",
+      "range": "300km (Road) / 250km (Off-road)",
+      "speed": "60km/h",
+      "rcs": "2.2-3.0 m^2",
+      "payload": "Classified",
+      "generation": "First Generation",
+      "role": "Main Battle Tank",
+      "dangerLevel": 70,
+      "threatType": "Armored",
+      "wikiUrl": "https://en.wikipedia.org/wiki/Leopard_1",
+      "metrics": {
+        "firepower": 60,
+        "mobility": 80,
+        "stealth": 30,
+        "durability": 90
+      }
+    },
+    "dangerLevel": 70,
+    "threatType": "Armored",
+    "wikiUrl": "https://en.wikipedia.org/wiki/Leopard_1",
+    "images": [
+      "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/images/leopard-1a2/1.jpg",
+      "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/images/leopard-1a2/2.jpg",
+      "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/images/leopard-1a2/3.jpg"
+    ],
+    "model": "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/models/leopard-1a2.glb",
+    "translations": {
+      "tr": {
+        "country": "Almanya",
+        "countryCode": "DEU",
+        "range": "600 km",
+        "speed": "65 km/h"
+      },
+      "ru": {
+        "country": "\u0413\u0435\u0440\u043c\u0430\u043d\u0438\u044f",
+        "countryCode": "DEU",
+        "range": "600 \u043a\u043c",
+        "speed": "65 \u043a\u043c/\u0447"
+      },
+      "ar": {
+        "country": "\u0623\u0644\u0645\u0627\u0646\u064a\u0627",
+        "countryCode": "DEU",
+        "range": "600 \u0643\u0645",
+        "speed": "65 \u0643\u0645/\u0633"
+      },
+      "zh": {
+        "country": "\u5fb7\u56fd",
+        "countryCode": "DEU",
+        "range": "600 \u516c\u91cc",
+        "speed": "65 \u516c\u91cc/\u5c0f\u65f6"
+      }
+    },
+    "short_specs": {
+      "range": "600 km",
+      "speed": "65 km/h"
+    },
+    "full_dossier": {
+      "range": "600 km (Operational range)",
+      "speed": "65 km/h (Max speed)",
+      "country": "Germany",
+      "countryCode": "DEU",
+      "payload": "Classified"
+    }
+  },
+  {
+    "type": "object",
+    "country": "Germany",
+    "countryCode": "DEU",
+    "catId": "1",
+    "name": "Leopard 1A4",
+    "featured": false,
+    "id": "leopard-1a4",
+    "specs": {
+      "range": "450 km",
+      "speed": "65 km/h",
+      "rcs": "6.5 m\u00b2",
+      "payload": "Classified",
+      "role": "Main battle tank",
+      "generation": "1st gen MBT",
+      "dangerLevel": 85,
+      "threatType": "MBT",
+      "metrics": {
+        "durability": 80,
+        "firepower": 80,
+        "mobility": 70,
+        "stealth": 20
+      }
+    },
+    "dangerLevel": 85,
+    "threatType": "MBT",
+    "wikiUrl": "https://en.wikipedia.org/wiki/Leopard_1",
+    "images": [
+      "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/images/leopard-1a4/1.jpg",
+      "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/images/leopard-1a4/2.jpg",
+      "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/images/leopard-1a4/3.jpg"
+    ],
+    "model": "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/models/leopard-1a4.glb",
+    "translations": null,
+    "metrics": {
+      "durability": 80,
+      "firepower": 80,
+      "mobility": 70,
+      "stealth": 20
+    },
+    "short_specs": "600 km, 65 km/h",
+    "full_dossier": "Range: 600 km (372 miles) / Speed: 65 km/h (40 mph)"
+  },
+  {
+    "catId": "1",
+    "name": "Leopard 2A4",
+    "featured": false,
+    "id": "leopard-2a4",
+    "country": "Germany",
+    "countryCode": "DEU",
+    "specs": {
+      "type": "object",
+      "name": "Leopard 2A4",
+      "range": "Up to 480km (Road) / 470km (Off-road)",
+      "speed": "Up to 70km/h",
+      "rcs": "1.1-1.5m\u00b2",
+      "payload": " Classified",
+      "generation": "Third generation",
+      "role": "Main battle tank",
+      "dangerLevel": 80,
+      "threatType": "Armored",
+      "wikiUrl": "https://en.wikipedia.org/wiki/Leopard_2",
+      "metrics": {
+        "firepower": 90,
+        "mobility": 85,
+        "stealth": 60,
+        "durability": 95
+      }
+    },
+    "dangerLevel": 80,
+    "threatType": "Armored",
+    "wikiUrl": "https://en.wikipedia.org/wiki/Leopard_2",
+    "images": [
+      "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/images/leopard-2a4/1.jpg",
+      "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/images/leopard-2a4/2.jpg",
+      "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/images/leopard-2a4/3.jpg"
+    ],
+    "model": "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/models/leopard-2a4.glb",
+    "translations": {
+      "tr": {
+        "range": "450 km",
+        "speed": "68 km/s"
+      },
+      "ru": {
+        "range": "450 \u043a\u043c",
+        "speed": "68 \u043a\u043c/\u0447"
+      },
+      "ar": {
+        "range": "450 \u0643\u0645",
+        "speed": "68 \u0643\u0645/\u0633"
+      },
+      "zh": {
+        "range": "450\u516c\u91cc",
+        "speed": "68\u516c\u91cc/\u5c0f\u65f6"
+      }
+    },
+    "short_specs": {
+      "range": "450 km",
+      "speed": "68 km/h"
+    },
+    "full_dossier": {
+      "range": "Operational range approx. 450\u202fkm (road); up to 480\u202fkm on road / 470\u202fkm off\u2011road per manufacturer data.",
+      "speed": "Maximum road speed 68\u201370\u202fkm/h (\u2248\u202f43\u202fmph).",
+      "payload": "Classified; primary armament 120\u202fmm Rheinmetall L/44 smooth\u2011bore gun with internal ammunition storage."
+    }
+  },
+  {
+    "catId": "1",
+    "name": "Challenger 1",
+    "featured": false,
+    "id": "challenger-1",
+    "specs": {
+      "type": "object",
+      "name": "Challenger 1",
+      "range": "500 m",
+      "speed": "56 km/h",
+      "rcs": "0.18\u20130.36 m\u00b2",
+      "payload": "Classified",
+      "generation": "1st",
+      "role": "Main Battle Tank",
+      "dangerLevel": 80,
+      "threatType": "armoured",
+      "wikiUrl": "https://en.wikipedia.org/wiki/Challenger_1",
+      "metrics": {
+        "firepower": 70,
+        "mobility": 60,
+        "stealth": 30,
+        "durability": 80
+      }
+    },
+    "dangerLevel": 80,
+    "threatType": "armoured",
+    "wikiUrl": "https://en.wikipedia.org/wiki/Challenger_1",
+    "images": [
+      "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/images/challenger-1/1.jpg",
+      "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/images/challenger-1/2.jpg",
+      "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/images/challenger-1/3.jpg"
+    ],
+    "model": "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/models/challenger-1.glb",
+    "country": "United Kingdom",
+    "countryCode": "GB",
+    "translations": {
+      "tr": {
+        "short_specs": "450 km, 56 km/s, 64 mrm",
+        "full_dossier": "Menzil: 450 km (280 mil) karayolu; H\u0131z: 56 km/s (35 mil/s); Y\u00fck: 120 mm topundan 64 mermi; Z\u0131rh: Chobham kompozit; Motor: Perkins CV12 1.200 hp; M\u00fcrettebat: 4; Boyutlar: uzunluk 11,56 m, geni\u015flik 3,51 m, y\u00fckseklik 2,95 m."
+      },
+      "ru": {
+        "short_specs": "450 \u043a\u043c, 56 \u043a\u043c/\u0447, 64 \u043f\u0430\u0442\u0440",
+        "full_dossier": "\u0414\u0430\u043b\u044c\u043d\u043e\u0441\u0442\u044c: 450 \u043a\u043c (280 \u043c\u0438\u043b\u044c) \u043f\u043e \u0434\u043e\u0440\u043e\u0433\u0435; \u0421\u043a\u043e\u0440\u043e\u0441\u0442\u044c: 56 \u043a\u043c/\u0447 (35 \u043c\u0438\u043b/\u0447); \u041d\u0430\u0433\u0440\u0443\u0437\u043a\u0430: 64 \u043f\u0430\u0442\u0440\u043e\u043d\u0430 \u043a\u0430\u043b\u0438\u0431\u0440\u0430 120\u202f\u043c\u043c; \u0411\u0440\u043e\u043d\u044f: \u043a\u043e\u043c\u043f\u043e\u0437\u0438\u0442 \u0427\u043e\u0431\u0445\u044d\u043c; \u0414\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u044c: Perkins CV12 1200 \u043b.\u0441.; \u042d\u043a\u0438\u043f\u0430\u0436: 4; \u0420\u0430\u0437\u043c\u0435\u0440\u044b: \u0434\u043b\u0438\u043d\u0430 11,56 \u043c, \u0448\u0438\u0440\u0438\u043d\u0430 3,51 \u043c, \u0432\u044b\u0441\u043e\u0442\u0430 2,95 \u043c."
+      },
+      "ar": {
+        "short_specs": "450 \u0643\u0645, 56 \u0643\u0645/\u0633, 64 \u0637\u0644\u0642\u0629",
+        "full_dossier": "\u0627\u0644\u0645\u062f\u0649: 450 \u0643\u0645 (280 \u0645\u064a\u0644) \u0639\u0644\u0649 \u0627\u0644\u0637\u0631\u064a\u0642\u061b \u0627\u0644\u0633\u0631\u0639\u0629: 56 \u0643\u0645/\u0633 (35 \u0645\u064a\u0644/\u0633)\u061b \u0627\u0644\u062d\u0645\u0648\u0644\u0629: 64 \u0637\u0644\u0642\u0629 \u0645\u0646 \u0645\u062f\u0641\u0639 120 \u0645\u0645\u061b \u0627\u0644\u062f\u0631\u0639: \u062a\u0634\u0648\u0628\u0647\u0645 \u0645\u0631\u0643\u0628\u061b \u0627\u0644\u0645\u062d\u0631\u0643: \u0628\u064a\u0631\u0643\u0646\u0632 CV12 1200 \u062d\u0635\u0627\u0646\u061b \u0627\u0644\u0637\u0627\u0642\u0645: 4\u061b \u0627\u0644\u0623\u0628\u0639\u0627\u062f: \u0627\u0644\u0637\u0648\u0644 11.56 \u0645\u060c \u0627\u0644\u0639\u0631\u0636 3.51 \u0645\u060c \u0627\u0644\u0627\u0631\u062a\u0641\u0627\u0639 2.95 \u0645."
+      },
+      "zh": {
+        "short_specs": "450\u516c\u91cc,56\u516c\u91cc/\u5c0f\u65f6,64\u53d1",
+        "full_dossier": "\u822a\u7a0b\uff1a450\u516c\u91cc\uff08280\u82f1\u91cc\uff09\u516c\u8def\uff1b\u901f\u5ea6\uff1a56\u516c\u91cc/\u5c0f\u65f6\uff0835\u82f1\u91cc/\u5c0f\u65f6\uff09\uff1b\u5f39\u836f\uff1a120\u6beb\u7c73\u4e3b\u70ae64\u53d1\u5f39\u836f\uff1b\u88c5\u7532\uff1aChobham\u590d\u5408\u88c5\u7532\uff1b\u53d1\u52a8\u673a\uff1aPerkins CV12 1200\u9a6c\u529b\uff1b\u4e58\u5458\uff1a4\u4eba\uff1b\u5c3a\u5bf8\uff1a\u957f11.56\u7c73\uff0c\u5bbd3.51\u7c73\uff0c\u9ad82.95\u7c73\u3002"
+      }
+    },
+    "short_specs": "450 km, 56 km/h, 64 rds",
+    "full_dossier": "Range: 450 km (280 miles) on road; Speed: 56 km/h (35 mph); Payload: Typically 64 rounds of 120\u202fmm ammunition; Armor: Chobham composite ceramic armor; Engine: Perkins CV12 26\u2011L diesel, 1,200\u202fhp (895\u202fkW); Crew: 4 (commander, gunner, loader, driver); Dimensions: length 11.56\u202fm (gun forward), width 3.51\u202fm, height 2.95\u202fm."
+  },
+  {
+    "catId": "1",
+    "name": "Leopard 2AV",
+    "featured": false,
+    "id": "leopard-2av",
+    "specs": {
+      "name": "Leopard 2AV",
+      "role": "Main Battle Tank",
+      "range": "800 km",
+      "speed": "65 km/h",
+      "rcs": "0.2 m\u00b2",
+      "payload": "42 t",
+      "generation": "3rd generation",
+      "dangerLevel": 85,
+      "threatType": "Main battle tank",
+      "wikiUrl": "https://en.wikipedia.org/wiki/Leopard_2",
+      "metrics": {
+        "firepower": 90,
+        "mobility": 80,
+        "stealth": 50,
+        "durability": 95
+      }
+    },
+    "translations": {
+      "tr": {
+        "short_specs": {
+          "range": "",
+          "speed": "70 km/s",
+          "payload": "55 t"
+        },
+        "full_dossier": {
+          "range": "",
+          "speed": "70 km/s (maksimum)",
+          "payload": "55.000 kg (55 t)"
+        }
+      },
+      "ru": {
+        "short_specs": {
+          "range": "",
+          "speed": "70 \u043a\u043c/\u0447",
+          "payload": "55 \u0442"
+        },
+        "full_dossier": {
+          "range": "",
+          "speed": "70 \u043a\u043c/\u0447 (\u043c\u0430\u043a\u0441.)",
+          "payload": "55\u202f000 \u043a\u0433 (55 \u0442)"
+        }
+      },
+      "ar": {
+        "short_specs": {
+          "range": "",
+          "speed": "70 \u0643\u0645/\u0633",
+          "payload": "55 \u0637\u0646"
+        },
+        "full_dossier": {
+          "range": "",
+          "speed": "70 \u0643\u0645/\u0633 (\u0623\u0642\u0635\u0649)",
+          "payload": "55\u202f000 \u0643\u063a (55 \u0637\u0646)"
+        }
+      },
+      "zh": {
+        "short_specs": {
+          "range": "",
+          "speed": "70 km/h",
+          "payload": "55 \u5428"
+        },
+        "full_dossier": {
+          "range": "",
+          "speed": "70 km/h\uff08\u6700\u9ad8\uff09",
+          "payload": "55,000 kg\uff0855 \u5428\uff09"
+        }
+      }
+    },
+    "dangerLevel": 85,
+    "threatType": "Main battle tank",
+    "wikiUrl": "https://en.wikipedia.org/wiki/Leopard_2",
+    "images": [
+      "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/images/leopard-2av/1.jpg",
+      "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/images/leopard-2av/2.jpg",
+      "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/images/leopard-2av/3.jpg"
+    ],
+    "model": "https://pub-2c4d302f7a9147f2b8723c7d066dc44f.r2.dev/models/leopard-2av.glb",
+    "country": "Germany",
+    "countryCode": "DE",
+    "short_specs": {
+      "range": "",
+      "speed": "70 km/h",
+      "payload": "55 t"
+    },
+    "full_dossier": {
+      "range": "",
+      "speed": "70 km/h (max)",
+      "payload": "55,000 kg (55 t)"
+    }
+  }
+]
