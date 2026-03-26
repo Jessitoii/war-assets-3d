@@ -1,5 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 import * as FileSystem from 'expo-file-system/legacy';
+import { inferMetrics } from '../utils/assetUtils';
 const { documentDirectory } = FileSystem as any;
 
 /**
@@ -11,7 +12,7 @@ let dbInstance: SQLite.SQLiteDatabase | null = null;
 let initializationPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 let isDbReady = false;
 
-const DB_NAME = 'war-assets-v28.db';
+const DB_NAME = 'war-assets-v29.db';
 
 export async function initDB(): Promise<SQLite.SQLiteDatabase> {
   // Return existing instance if available
@@ -195,7 +196,8 @@ async function applyMigrations(db: SQLite.SQLiteDatabase) {
             language TEXT NOT NULL DEFAULT 'en',
             arEnabled BOOLEAN NOT NULL DEFAULT 0,
             onboardingProgress INTEGER NOT NULL DEFAULT 0,
-            supportsAR BOOLEAN NOT NULL DEFAULT 0
+            supportsAR BOOLEAN NOT NULL DEFAULT 0,
+            notificationsEnabled BOOLEAN NOT NULL DEFAULT 1
           );
         `);
         await db.execAsync('INSERT INTO app_state (id) VALUES (1);');
@@ -452,6 +454,96 @@ async function applyMigrations(db: SQLite.SQLiteDatabase) {
       console.error('[DB] Migration v26 FAILED:', e);
     }
   }
+
+  // v29 PROTOCOL: Full Dossier & Translation Re-Mapping
+  if (currentVersion < 29) {
+    console.log('[DB] v29 Migration: Upgrading to military-assets-v29.json...');
+    try {
+      await db.execAsync('PRAGMA foreign_keys = OFF;');
+      await db.withExclusiveTransactionAsync(async () => {
+        // We drop and recreate assets to normalize the schema for v29
+        await db.execAsync('DROP TABLE IF EXISTS assets;');
+        await db.execAsync(`
+          CREATE TABLE assets (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            catId TEXT NOT NULL,
+            img TEXT,
+            model TEXT,
+            dangerLevel INTEGER,
+            threatType TEXT,
+            featured BOOLEAN DEFAULT 0,
+            short_specs TEXT,
+            full_dossier TEXT,
+            translations TEXT,
+            wikiUrl TEXT,
+            images TEXT,
+            country TEXT,
+            countryCode TEXT,
+            metrics TEXT,
+            FOREIGN KEY (catId) REFERENCES categories(id) ON DELETE CASCADE
+          );
+        `);
+
+        const ASSETS_V29 = require('../assets/data/military-assets-v29.json');
+        console.log(`[DB] Seeding ${ASSETS_V29.length} assets into v29 schema...`);
+
+        const assetStmt = await db.prepareAsync(
+          'INSERT OR REPLACE INTO assets (id, name, catId, img, model, dangerLevel, threatType, featured, short_specs, full_dossier, translations, wikiUrl, images, country, countryCode, metrics) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        );
+
+        try {
+          for (const a of ASSETS_V29) {
+            const shortSpecs = a.short_specs || {};
+            const fullDossier = a.full_dossier || {};
+
+            // Critical Requirement: Infer metrics if missing
+            const metrics = a.metrics || inferMetrics(shortSpecs);
+
+            await assetStmt.executeAsync([
+              a.id,
+              a.name,
+              a.catId,
+              a.img || null,
+              a.model || null,
+              a.dangerLevel || 0,
+              a.threatType || '',
+              a.featured ? 1 : 0,
+              JSON.stringify(shortSpecs),
+              JSON.stringify(fullDossier),
+              a.translations ? JSON.stringify(a.translations) : null,
+              a.wikiUrl || null,
+              a.images ? JSON.stringify(a.images) : null,
+              a.country || null,
+              a.countryCode || null,
+              JSON.stringify(metrics)
+            ]);
+          }
+        } finally {
+          await assetStmt.finalizeAsync();
+        }
+
+        await db.execAsync('PRAGMA user_version = 29;');
+        console.log('[DB] Migration v29 complete.');
+      });
+    } catch (e: any) {
+      console.error('[DB] Migration v29 FAILED:', e);
+    } finally {
+      await db.execAsync('PRAGMA foreign_keys = ON;');
+    }
+  }
+
+  // v30 PROTOCOL: Notifications Preference Persistence
+  if (currentVersion < 30) {
+    console.log('[DB] v30 Migration: Adding notificationsEnabled column...');
+    try {
+      await db.execAsync("ALTER TABLE app_state ADD COLUMN notificationsEnabled BOOLEAN NOT NULL DEFAULT 1;");
+      await db.execAsync('PRAGMA user_version = 30;');
+      console.log('[DB] Migration v30 complete.');
+    } catch (e: any) {
+      console.error('[DB] Migration v30 FAILED:', e);
+    }
+  }
 }
 
 /**
@@ -466,6 +558,10 @@ export const dbHelper = {
       return Promise.resolve();
     }
     return runQuery(db => db.runAsync('UPDATE app_state SET theme = ? WHERE id = 1', [theme]));
+  },
+  updateNotificationsEnabled: (enabled: boolean) => {
+    if (!isDbReady) return Promise.resolve();
+    return runQuery(db => db.runAsync('UPDATE app_state SET notificationsEnabled = ? WHERE id = 1', [enabled ? 1 : 0]));
   },
 
   // Reset Function for debugging

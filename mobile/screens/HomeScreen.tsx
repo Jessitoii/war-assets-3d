@@ -72,17 +72,18 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
           const mappedAssets = rawAssets.map(a => ({
             id: a.id,
             name: a.name,
-            categoryId: a.catId,
-            isFeatured: !!a.featured,
-            image: CDN_CONFIG.resolveImage(a.img),
-            images: a.images ? CDN_CONFIG.resolveImage(JSON.parse(a.images)) : [],
+            catId: a.catId, // Correct column mapping
+            featured: !!a.featured, // Correct property name
+            img: a.img ? CDN_CONFIG.resolveImage(a.img) : undefined,
+            images: a.images ? JSON.parse(a.images).map((img: string) => CDN_CONFIG.resolveImage(img)) : [],
             model: a.model ? CDN_CONFIG.resolveModel(a.model) : undefined,
             dangerLevel: a.dangerLevel,
             threatType: a.threatType,
             wikiUrl: a.wikiUrl,
             country: a.country,
             countryCode: a.countryCode,
-            specs: a.specs ? JSON.parse(a.specs) : undefined,
+            short_specs: a.short_specs ? JSON.parse(a.short_specs) : {},
+            full_dossier: a.full_dossier ? JSON.parse(a.full_dossier) : {},
             translations: a.translations ? JSON.parse(a.translations) : undefined,
             metrics: a.metrics ? JSON.parse(a.metrics) : undefined
           }));

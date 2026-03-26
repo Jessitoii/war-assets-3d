@@ -6,8 +6,10 @@ import * as FileSystem from 'expo-file-system/legacy';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import i18n from '../locales';
+import i18n, { ensureLanguageLoaded } from '../locales';
 import { LanguageCode } from '../store/slices/appSlice';
+import * as Linking from 'expo-linking';
+
 
 export const SettingsScreen = () => {
   const theme = useStore((state) => state.theme);
@@ -17,6 +19,8 @@ export const SettingsScreen = () => {
   const supportsAR = useStore((state) => state.supportsAR);
   const language = useStore((state) => state.language);
   const setLanguage = useStore((state) => state.setLanguage);
+  const notificationsEnabled = useStore((state) => state.notificationsEnabled);
+  const setNotificationsEnabled = useStore((state) => state.setNotificationsEnabled);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
 
   const { t } = useTranslation();
@@ -35,8 +39,9 @@ export const SettingsScreen = () => {
     text: isDark ? '#e2e8f0' : '#2d3748',
     subtext: isDark ? '#94a3b8' : '#718096',
     border: isDark ? '#2e3748' : '#e2e8f0',
-    primary: '#3182ce',
+    primary: '#0A84FF',
   };
+
 
   const fetchOfflineStatus = async () => {
     try {
@@ -65,24 +70,45 @@ export const SettingsScreen = () => {
 
   const handleToggleAR = () => {
     if (!supportsAR) {
-      Alert.alert('AR Not Supported', 'Your device does not support AR features.');
+      Alert.alert(t('settings.ar_fail_title'), t('settings.ar_fail_msg'));
       return;
     }
     setArEnabled(!arEnabled);
   };
-  
-  const handleLanguageSelect = (lang: LanguageCode) => {
+
+  const handleToggleNotifications = () => {
+    setNotificationsEnabled(!notificationsEnabled);
+  };
+
+  const handleLanguageSelect = async (lang: LanguageCode) => {
+    await ensureLanguageLoaded(lang);
     setLanguage(lang);
-    i18n.changeLanguage(lang);
+    await i18n.changeLanguage(lang).catch(err => console.error('Failed to change language:', err));
     setShowLanguageModal(false);
   };
 
   const languages: { code: LanguageCode; label: string; native: string }[] = [
     { code: 'en', label: 'English', native: 'English' },
-    { code: 'tr', label: 'Turkish', native: 'Türkçe' },
     { code: 'ru', label: 'Russian', native: 'Русский' },
+    { code: 'uk', label: 'Ukrainian', native: 'Українська' },
+    { code: 'he', label: 'Hebrew', native: 'עברית' },
     { code: 'ar', label: 'Arabic', native: 'العربية' },
+    { code: 'fa', label: 'Persian', native: 'فارسی' },
+    { code: 'tr', label: 'Turkish', native: 'Türkçe' },
+    { code: 'fr', label: 'French', native: 'Français' },
+    { code: 'de', label: 'German', native: 'Deutsch' },
+    { code: 'pl', label: 'Polish', native: 'Polski' },
+    { code: 'el', label: 'Greek', native: 'Ελληνικά' },
     { code: 'zh', label: 'Chinese', native: '中文' },
+    { code: 'ja', label: 'Japanese', native: '日本語' },
+    { code: 'ko', label: 'Korean', native: '한국어' },
+    { code: 'vi', label: 'Vietnamese', native: 'Tiếng Việt' },
+    { code: 'hi', label: 'Hindi', native: 'हिन्दी' },
+    { code: 'es', label: 'Spanish', native: 'Español' },
+    { code: 'pt', label: 'Portuguese', native: 'Português' },
+    { code: 'it', label: 'Italian', native: 'Italiano' },
+    { code: 'nl', label: 'Dutch', native: 'Nederlands' },
+    { code: 'sv', label: 'Swedish', native: 'Svenska' },
   ];
 
   const currentLanguageLabel = languages.find(l => l.code === language)?.native || 'English';
@@ -92,7 +118,7 @@ export const SettingsScreen = () => {
     try {
       // Mock API call to /api/v1/sync
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       const dbInfo = await FileSystem.getInfoAsync((FileSystem.documentDirectory || '') + 'SQLite/war-assets.db');
       const dbSize = dbInfo.exists ? dbInfo.size : 0;
       const timestamp = new Date().toISOString();
@@ -102,16 +128,17 @@ export const SettingsScreen = () => {
         'UPDATE offline_status SET is_offline_ready = 1, db_size_bytes = ?, last_sync = ? WHERE id = 1',
         [dbSize, timestamp]
       );
-      
+
       await fetchOfflineStatus();
-      Alert.alert('Sync Complete', 'Data successfully synchronized.');
+      Alert.alert(t('common.sync_success_title'), t('common.sync_complete'));
     } catch (e) {
-      Alert.alert('Sync Failed', 'Could not synchronize data.');
+      Alert.alert(t('common.sync_fail_title'), t('common.sync_failed'));
       console.error(e);
     } finally {
       setIsSyncing(false);
     }
   };
+
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
@@ -121,14 +148,14 @@ export const SettingsScreen = () => {
 
       <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
         <Text style={[styles.sectionTitle, { color: colors.subtext }]}>{t('common.appearance')}</Text>
-        
+
         <View style={styles.row}>
           <View style={styles.rowText}>
             <Text style={[styles.rowTitle, { color: colors.text }]}>{t('common.dark_mode')}</Text>
             <Text style={[styles.rowSubtitle, { color: colors.subtext }]}>{t('common.toggle_theme')}</Text>
           </View>
-          <Switch 
-            value={isDark} 
+          <Switch
+            value={isDark}
             onValueChange={handleToggleTheme}
             trackColor={{ true: colors.primary, false: colors.border }}
             accessibilityHint="Toggles dark mode"
@@ -137,7 +164,7 @@ export const SettingsScreen = () => {
 
         <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.row}
           onPress={() => setShowLanguageModal(true)}
         >
@@ -155,7 +182,7 @@ export const SettingsScreen = () => {
         animationType="slide"
         onRequestClose={() => setShowLanguageModal(false)}
       >
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
           onPress={() => setShowLanguageModal(false)}
@@ -189,7 +216,7 @@ export const SettingsScreen = () => {
 
       <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
         <Text style={[styles.sectionTitle, { color: colors.subtext }]}>{t('common.data_sync')}</Text>
-        
+
         <View style={styles.stateContainer}>
           <View style={styles.stateRow}>
             <Ionicons name={offlineStatus.is_offline_ready ? "cloud-done" : "cloud-offline"} size={24} color={colors.primary} />
@@ -209,7 +236,7 @@ export const SettingsScreen = () => {
           </View>
         </View>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.syncButton, { backgroundColor: colors.primary, opacity: isSyncing ? 0.7 : 1 }]}
           onPress={handleDataSync}
           disabled={isSyncing}
@@ -223,7 +250,7 @@ export const SettingsScreen = () => {
 
       <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
         <Text style={[styles.sectionTitle, { color: colors.subtext }]}>{t('common.features')}</Text>
-        
+
         <View style={styles.row}>
           <View style={styles.rowText}>
             <Text style={[styles.rowTitle, { color: colors.text }]}>{t('common.enable_ar')}</Text>
@@ -231,15 +258,44 @@ export const SettingsScreen = () => {
               {supportsAR ? t('common.allow_ar') : t('common.ar_not_supported')}
             </Text>
           </View>
-          <Switch 
-            value={arEnabled} 
+          <Switch
+            value={arEnabled}
             onValueChange={handleToggleAR}
             disabled={!supportsAR}
             trackColor={{ true: colors.primary, false: colors.border }}
             accessibilityHint="Toggles augmented reality capability"
           />
         </View>
+
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+        <View style={styles.row}>
+          <View style={styles.rowText}>
+            <Text style={[styles.rowTitle, { color: colors.text }]}>{t('common.notifications')}</Text>
+            <Text style={[styles.rowSubtitle, { color: colors.subtext }]}>{t('common.allow_notifications')}</Text>
+          </View>
+          <Switch
+            value={notificationsEnabled}
+            onValueChange={handleToggleNotifications}
+            trackColor={{ true: colors.primary, false: colors.border }}
+          />
+        </View>
       </View>
+
+      <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <Text style={[styles.sectionTitle, { color: colors.subtext }]}>{t('common.legal')}</Text>
+
+        <TouchableOpacity
+          style={styles.row}
+          onPress={() => Linking.openURL('https://gist.github.com/Jessitoii/e37875a100f4207b3a35505f536039d9')}
+        >
+          <View style={styles.rowText}>
+            <Text style={[styles.rowTitle, { color: colors.text }]}>{t('common.privacy_policy')}</Text>
+          </View>
+          <Ionicons name="open-outline" size={20} color={colors.primary} />
+        </TouchableOpacity>
+      </View>
+
 
     </SafeAreaView>
   );

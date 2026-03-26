@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Text, Dimensions, StatusBar, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, Text, Dimensions, StatusBar, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useStore } from '../store';
 import { ComparisonHeader } from '../components/comparison/ComparisonHeader';
-import { AssetComparisonCard } from '../components/comparison/AssetComparisonCard';
 import { AssetPickerModal } from '../components/comparison/AssetPickerModal';
 import { theme } from '../styles/theme';
 import { useNavigation } from '@react-navigation/native';
@@ -12,6 +11,9 @@ import { RootStackParamList } from '../navigation/NavigationRoot';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { BattleForecastModal } from '../components/comparison/BattleForecastModal';
+import { Asset } from '../store/slices/assetSlice';
+import { t_spec } from '../utils/assetUtils';
+import { CDN_CONFIG } from '../config/cdnConfig';
 
 const { width } = Dimensions.get('window');
 
@@ -20,20 +22,60 @@ type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 export const ComparisonScreen = () => {
   const [pickerVisible, setPickerVisible] = useState(false);
   const [forecastVisible, setForecastVisible] = useState(false);
+  const [deepDive, setDeepDive] = useState(false);
   const comparisonQueue = useStore((state) => state.comparisonQueue);
   const assets = useStore((state) => state.assets);
   const removeFromComparison = useStore((state) => state.removeFromComparison);
   const isDark = useStore((state) => state.theme) === 'dark';
   const navigation = useNavigation<NavigationProp>();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
-  const queuedAssets = comparisonQueue
-    .map(id => assets.find(a => a.id === id))
-    .filter((a): a is any => !!a);
+  const queuedAssets = React.useMemo(() =>
+    comparisonQueue
+      .map(id => assets.find(a => a.id === id))
+      .filter((a): a is Asset => !!a),
+    [comparisonQueue, assets]
+  );
 
-  const handleMiniPreviewPress = (assetId: string) => {
-    navigation.navigate('ModelViewer', { assetId });
+  const getPrioritySpecs = (asset: Asset) => {
+    return {
+      speed: t_spec(asset, 'short_specs', 'speed', i18n.language),
+      armour: t_spec(asset, 'short_specs', 'armour', i18n.language),
+      armament: t_spec(asset, 'short_specs', 'primary_armament', i18n.language) || t_spec(asset, 'short_specs', 'armament', i18n.language),
+    };
   };
+
+  const isBetter = (currentValue: string, otherValues: string[], type: 'speed' | 'armour') => {
+    if (otherValues.length === 0) return false;
+    const currentNum = parseInt(currentValue.match(/\d+/)?.[0] || '0');
+    const others = otherValues.map(v => parseInt(v.match(/\d+/)?.[0] || '0'));
+    return currentNum > 0 && others.every(o => currentNum > o);
+  };
+
+  const renderComparisonRow = (label: string, specKey: string, isPriority: boolean = false) => (
+    <View key={specKey} style={[styles.comparisonRow, { borderBottomColor: isDark ? '#222' : '#EEE' }]}>
+      <Text style={[styles.rowLabel, { color: isDark ? '#888' : '#666' }]}>{label.toUpperCase()}</Text>
+      <View style={styles.valuesContainer}>
+        {queuedAssets.map((asset, idx) => {
+          const val = t_spec(asset, 'short_specs', specKey, i18n.language);
+          const others = queuedAssets.filter((_, i) => i !== idx).map(a => t_spec(a, 'short_specs', specKey, i18n.language));
+          const highlighted = (specKey === 'speed' || specKey === 'armour') && isBetter(val, others, specKey as any);
+
+          return (
+            <View key={asset.id} style={styles.valueCell}>
+              <Text style={[
+                styles.valueText,
+                { color: highlighted ? '#0A84FF' : (isDark ? '#FFF' : '#000') },
+                highlighted && { fontWeight: '900' }
+              ]}>
+                {val}
+              </Text>
+            </View>
+          );
+        })}
+      </View>
+    </View>
+  );
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#000' : '#F2F2F7' }]} edges={['top']}>
@@ -51,48 +93,70 @@ export const ComparisonScreen = () => {
           <Text style={[styles.emptySubtext, { color: isDark ? '#444' : '#999' }]}>
             {t('comparison.empty_subtext')}
           </Text>
-          <View style={styles.spacer} />
         </View>
       ) : (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-          snapToInterval={276} // Card width (260) + margin (16)
-          decelerationRate="fast"
-          pagingEnabled={false}
-        >
-          {queuedAssets.map(asset => (
-            <AssetComparisonCard
-              key={asset.id}
-              asset={asset}
-              isDark={isDark}
-              onRemove={() => removeFromComparison(asset.id)}
-              onPressMiniPreview={() => handleMiniPreviewPress(asset.id)}
-            />
-          ))}
-          {queuedAssets.length < 3 && (
+        <ScrollView style={styles.scrollView}>
+          <View style={styles.assetHeaderRow}>
+            {queuedAssets.map(asset => (
+              <View key={asset.id} style={styles.miniAssetCard}>
+                <TouchableOpacity style={styles.miniRemove} onPress={() => removeFromComparison(asset.id)}>
+                  <Ionicons name="close-circle" size={20} color={theme.colors.error} />
+                </TouchableOpacity>
+                <Image
+                  source={{ uri: CDN_CONFIG.resolveImage(asset.images?.[0] || asset.image || '') }}
+                  style={styles.miniImage}
+                />
+                <Text style={[styles.miniName, { color: isDark ? '#FFF' : '#000' }]} numberOfLines={1}>{asset.name}</Text>
+              </View>
+            ))}
+            {queuedAssets.length < 3 && (
+              <TouchableOpacity
+                style={[styles.miniAddSlot, { backgroundColor: isDark ? '#1C1C1E' : '#FFF' }]}
+                onPress={() => setPickerVisible(true)}
+              >
+                <Ionicons name="add" size={24} color="#0A84FF" />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          <View style={styles.comparisonBox}>
+            <Text style={styles.sectionTitle}>{t('comparison.core_specs')}</Text>
+            {renderComparisonRow(t('asset.speed'), 'speed')}
+            {renderComparisonRow(t('asset.armour'), 'armour')}
+            {renderComparisonRow(t('asset.armament'), 'primary_armament')}
+          </View>
+
+          <TouchableOpacity
+            style={styles.deepDiveToggle}
+            onPress={() => setDeepDive(!deepDive)}
+          >
+            <Text style={styles.deepDiveText}>
+              {deepDive ? t('comparison.hide_details') : t('comparison.deep_dive')}
+            </Text>
+            <Ionicons name={deepDive ? 'chevron-up' : 'chevron-down'} size={16} color="#0A84FF" />
+          </TouchableOpacity>
+
+          {deepDive && (
+            <View style={styles.comparisonBox}>
+              {/* Filter out priority specs already shown */}
+              {Array.from(new Set(queuedAssets.flatMap(a => Object.keys(a.short_specs))))
+                .filter(key => !['speed', 'armour', 'primary_armament'].includes(key))
+                .map(key => renderComparisonRow(t(`asset.${key}`) !== `asset.${key}` ? t(`asset.${key}`) : key.replace(/_/g, ' '), key))
+              }
+            </View>
+          )}
+
+          {queuedAssets.length === 2 && (
             <TouchableOpacity
-              style={[styles.addSlot, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }]}
-              onPress={() => setPickerVisible(true)}
+              style={[styles.simulationButton, { backgroundColor: theme.colors.primary }]}
+              onPress={() => setForecastVisible(true)}
             >
-              <Ionicons name="add" size={48} color={isDark ? '#444' : '#CCC'} />
-              <Text style={[styles.addSlotText, { color: isDark ? '#444' : '#CCC' }]}>{t('comparison.add_asset')}</Text>
+              <Ionicons name="shield-half-outline" size={24} color="#FFF" />
+              <Text style={styles.simulationButtonText}>{t('comparison.initiate_simulation')}</Text>
             </TouchableOpacity>
           )}
+          <View style={{ height: 100 }} />
         </ScrollView>
-      )}
-
-      {queuedAssets.length === 2 && (
-        <View style={styles.simulationContainer}>
-          <TouchableOpacity 
-            style={[styles.simulationButton, { backgroundColor: theme.colors.primary }]}
-            onPress={() => setForecastVisible(true)}
-          >
-            <Ionicons name="shield-half-outline" size={24} color="#FFF" />
-            <Text style={styles.simulationButtonText}>{t('comparison.initiate_simulation')}</Text>
-          </TouchableOpacity>
-        </View>
       )}
 
       <AssetPickerModal
@@ -116,6 +180,9 @@ export const ComparisonScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  scrollView: {
     flex: 1,
   },
   scrollContent: {
@@ -151,6 +218,92 @@ const styles = StyleSheet.create({
   spacer: {
     height: 60,
   },
+  assetHeaderRow: {
+    flexDirection: 'row',
+    padding: 16,
+    gap: 12,
+  },
+  miniAssetCard: {
+    width: (width - 64) / 3,
+    alignItems: 'center',
+  },
+  miniImage: {
+    width: '100%',
+    height: 60,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  miniName: {
+    fontSize: 12,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  miniRemove: {
+    position: 'absolute',
+    top: -5,
+    right: -5,
+    zIndex: 1,
+  },
+  miniAddSlot: {
+    width: (width - 64) / 3,
+    height: 60,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: '#0A84FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  comparisonBox: {
+    margin: 16,
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.03)',
+  },
+  sectionTitle: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: '#0A84FF',
+    letterSpacing: 2,
+    marginBottom: 16,
+    textTransform: 'uppercase',
+  },
+  comparisonRow: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    alignItems: 'center',
+  },
+  rowLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    width: 80,
+  },
+  valuesContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: 12,
+  },
+  valueCell: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  valueText: {
+    fontSize: 13,
+    textAlign: 'center',
+  },
+  deepDiveToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    gap: 8,
+  },
+  deepDiveText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#0A84FF',
+  },
   addSlot: {
     width: 260,
     height: 480, // Approximate height of the card
@@ -173,6 +326,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   simulationButton: {
+    margin: 16,
     height: 56,
     borderRadius: 16,
     flexDirection: 'row',

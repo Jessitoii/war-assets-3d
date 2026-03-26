@@ -1,21 +1,23 @@
 import * as SQLite from 'expo-sqlite';
 
-export type LanguageCode = 'en' | 'tr' | 'ru' | 'ar' | 'zh';
+export type LanguageCode = 'en' | 'ru' | 'uk' | 'he' | 'ar' | 'fa' | 'tr' | 'fr' | 'de' | 'pl' | 'el' | 'zh' | 'ja' | 'ko' | 'vi' | 'hi' | 'es' | 'pt' | 'it' | 'nl' | 'sv';
 
 // Defines the boundary for app state slice
 export interface AppState {
   firstLaunch: boolean;
   theme: 'light' | 'dark';
   arEnabled: boolean;
+  language: LanguageCode;
   onboardingProgress: number;
   supportsAR: boolean;
-  language: LanguageCode;
+  notificationsEnabled: boolean;
   setFirstLaunch: (value: boolean) => void;
   setTheme: (theme: 'light' | 'dark') => void;
   setLanguage: (lang: LanguageCode) => void;
   setArEnabled: (enabled: boolean) => void;
   setSupportsAR: (supported: boolean) => void;
   setOnboardingProgress: (page: number) => void;
+  setNotificationsEnabled: (enabled: boolean) => void;
 }
 
 export const createAppSlice = (set: any): AppState => ({
@@ -25,7 +27,8 @@ export const createAppSlice = (set: any): AppState => ({
   arEnabled: false,
   supportsAR: false,
   onboardingProgress: 0,
-  setFirstLaunch: (value) => 
+  notificationsEnabled: true,
+  setFirstLaunch: (value) =>
     set((state: any) => ({ ...state, firstLaunch: value })),
   setTheme: (theme) => {
     set((state: any) => ({ ...state, theme }));
@@ -41,7 +44,7 @@ export const createAppSlice = (set: any): AppState => ({
         .catch(e => console.error('Failed to persist language:', e));
     });
   },
-  setArEnabled: (enabled) => 
+  setArEnabled: (enabled) =>
     set((state: any) => ({ ...state, arEnabled: enabled })),
   setSupportsAR: (supported) => {
     set((state: any) => ({ ...state, supportsAR: supported }));
@@ -52,4 +55,18 @@ export const createAppSlice = (set: any): AppState => ({
   },
   setOnboardingProgress: (page) =>
     set((state: any) => ({ ...state, onboardingProgress: page })),
+  setNotificationsEnabled: (enabled) => {
+    set((state: any) => ({ ...state, notificationsEnabled: enabled }));
+    import('../../scripts/init-db').then(({ dbHelper }) => {
+      dbHelper.updateNotificationsEnabled(enabled).catch(e => console.error('Failed to persist notificationsEnabled:', e));
+    });
+    // Dynamically manage Firebase registration
+    import('@react-native-firebase/messaging').then(({ default: messaging }) => {
+      if (enabled) {
+        messaging().registerDeviceForRemoteMessages().catch(e => console.warn('FCM Reg Failed:', e));
+      } else {
+        messaging().unregisterDeviceForRemoteMessages().catch(e => console.warn('FCM Unreg Failed:', e));
+      }
+    });
+  },
 });

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, Pressable } from 'reac
 import { Ionicons } from '@expo/vector-icons';
 import { useStore } from '../store';
 import { theme } from '../styles/theme';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   onSearchPress: () => void;
@@ -12,9 +13,9 @@ interface Props {
   onMapPress?: () => void;
 }
 
-export const HeaderBar: React.FC<Props> = ({ 
-  onSearchPress, 
-  onComparePress, 
+export const HeaderBar: React.FC<Props> = ({
+  onSearchPress,
+  onComparePress,
   onFavoritesPress,
   onSettingsPress,
   onMapPress
@@ -24,7 +25,8 @@ export const HeaderBar: React.FC<Props> = ({
   const queueLength = useStore((state) => state.comparisonQueue.length);
   const favoriteCount = useStore((state) => state.favorites.length);
   const isDark = currentTheme === 'dark';
-  
+  const { t } = useTranslation();
+
   const [menuVisible, setMenuVisible] = useState(false);
 
   const toggleTheme = () => {
@@ -45,7 +47,7 @@ export const HeaderBar: React.FC<Props> = ({
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
-        <Text 
+        <Text
           style={[styles.title, { color: isDark ? '#FFF' : '#000' }]}
           numberOfLines={1}
           ellipsizeMode="tail"
@@ -53,14 +55,14 @@ export const HeaderBar: React.FC<Props> = ({
           WAR ASSETS 3D
         </Text>
       </View>
-      
+
       <View style={styles.iconGroup}>
         {/* Primary Icons */}
-        <TouchableOpacity onPress={onSearchPress} style={styles.iconButton} accessibilityLabel="Open search filters">
+        <TouchableOpacity onPress={onSearchPress} style={styles.iconButton} accessibilityLabel={t('search.placeholder')}>
           <Ionicons name="search" size={24} color={isDark ? '#FFF' : '#000'} />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={onFavoritesPress} style={styles.iconButton} accessibilityLabel="Open favorites">
+        <TouchableOpacity onPress={onFavoritesPress} style={styles.iconButton} accessibilityLabel={t('navigation.favorites')}>
           <Ionicons name="heart" size={24} color={favoriteCount > 0 ? theme.colors.error : (isDark ? '#FFF' : '#000')} />
           {favoriteCount > 0 && (
             <View style={[styles.badge, { backgroundColor: theme.colors.error }]}>
@@ -69,7 +71,7 @@ export const HeaderBar: React.FC<Props> = ({
           )}
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={onComparePress} style={styles.iconButton} accessibilityLabel="Open comparison">
+        <TouchableOpacity onPress={onComparePress} style={styles.iconButton} accessibilityLabel={t('common.comparison')}>
           <Ionicons name="git-compare" size={24} color={isDark ? '#FFF' : '#000'} />
           {queueLength > 0 && (
             <View style={styles.badge}>
@@ -79,9 +81,9 @@ export const HeaderBar: React.FC<Props> = ({
         </TouchableOpacity>
 
         {/* More Menu Toggle */}
-        <TouchableOpacity 
-          onPress={() => setMenuVisible(true)} 
-          style={styles.iconButton} 
+        <TouchableOpacity
+          onPress={() => setMenuVisible(true)}
+          style={styles.iconButton}
           accessibilityLabel="More options"
         >
           <Ionicons name="ellipsis-vertical" size={24} color={isDark ? '#FFF' : '#000'} />
@@ -95,26 +97,26 @@ export const HeaderBar: React.FC<Props> = ({
         animationType="fade"
         onRequestClose={() => setMenuVisible(false)}
       >
-    <Pressable 
-          style={styles.modalOverlay} 
+        <Pressable
+          style={styles.modalOverlay}
           onPress={() => setMenuVisible(false)}
         >
           <View style={[
-            styles.menuContent, 
-            { 
+            styles.menuContent,
+            {
               backgroundColor: isDark ? 'rgba(18, 18, 18, 0.95)' : 'rgba(255, 255, 255, 0.95)',
               borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
             }
           ]}>
             <TouchableOpacity style={styles.menuItem} onPress={toggleTheme}>
-              <Ionicons 
-                name={isDark ? 'sunny' : 'moon'} 
-                size={20} 
-                color={theme.colors.primary} 
+              <Ionicons
+                name={isDark ? 'sunny' : 'moon'}
+                size={20}
+                color={theme.colors.primary}
                 style={styles.menuIcon}
               />
               <Text style={[styles.menuText, { color: isDark ? '#FFF' : '#000' }]}>
-                {isDark ? 'Light Mode' : 'Dark Mode'}
+                {isDark ? t('common.light_mode') || 'Light Mode' : t('common.dark_mode') || 'Dark Mode'}
               </Text>
             </TouchableOpacity>
 
@@ -124,7 +126,7 @@ export const HeaderBar: React.FC<Props> = ({
               <>
                 <TouchableOpacity style={styles.menuItem} onPress={handleSettings}>
                   <Ionicons name="settings" size={20} color={theme.colors.primary} style={styles.menuIcon} />
-                  <Text style={[styles.menuText, { color: isDark ? '#FFF' : '#000' }]}>Settings</Text>
+                  <Text style={[styles.menuText, { color: isDark ? '#FFF' : '#000' }]}>{t('common.settings')}</Text>
                 </TouchableOpacity>
                 <View style={[styles.divider, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' }]} />
               </>
@@ -133,7 +135,7 @@ export const HeaderBar: React.FC<Props> = ({
             {onMapPress && (
               <TouchableOpacity style={styles.menuItem} onPress={handleMap}>
                 <Ionicons name="earth" size={20} color={theme.colors.primary} style={styles.menuIcon} />
-                <Text style={[styles.menuText, { color: isDark ? '#FFF' : '#000' }]}>Global Map</Text>
+                <Text style={[styles.menuText, { color: isDark ? '#FFF' : '#000' }]}>{t('common.global_hotspots')}</Text>
               </TouchableOpacity>
             )}
           </View>

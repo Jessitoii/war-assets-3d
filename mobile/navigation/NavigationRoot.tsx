@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import analytics from '@react-native-firebase/analytics';
+import messaging from '@react-native-firebase/messaging';
+import { Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { SplashScreen } from '../screens/SplashScreen';
+import { LoadingScreen } from '../screens/LoadingScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { OnboardingScreen } from '../screens/OnboardingScreen';
 import { SearchFilterScreen } from '../screens/SearchFilterScreen';
@@ -15,8 +18,10 @@ import { ComparisonScreen } from '../screens/ComparisonScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { FavoritesScreen } from '../screens/FavoritesScreen';
 import { GlobalMapScreen } from '../screens/GlobalMapScreen';
-import i18n from '../locales';
+import i18n, { ensureLanguageLoaded } from '../locales';
 import * as Localization from 'expo-localization';
+import * as SplashScreen from 'expo-splash-screen';
+import * as Font from 'expo-font';
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -36,6 +41,8 @@ export type RootStackParamList = {
 const Stack = createStackNavigator<RootStackParamList>();
 
 export const NavigationRoot = () => {
+  const navigationRef = useRef<any>(null);
+  const routeNameRef = useRef<string | undefined>(undefined);
   const [dbReady, setDbReady] = useState(false);
   const setFirstLaunch = useStore((state) => state.setFirstLaunch);
   const setOnboardingProgress = useStore((state) => state.setOnboardingProgress);
@@ -43,19 +50,47 @@ export const NavigationRoot = () => {
   const setLanguage = useStore((state) => state.setLanguage);
   const setFavorites = useStore((state) => state.setFavorites);
   const setComparisonQueue = useStore((state) => state.setComparisonQueue);
+  const setNotificationsEnabled = useStore((state) => state.setNotificationsEnabled);
+  const notificationsEnabled = useStore((state) => state.notificationsEnabled);
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  useEffect(() => {
+    async function loadAssets() {
+      try {
+        // Load custom fonts (if any) or just wait for font subsystem initialization
+        await Font.loadAsync({
+          // Mock some custom fonts or just initialize existing system ones if needed
+          // 'Inter-Bold': require('../assets/fonts/Inter-Bold.ttf'), 
+        });
+      } catch (e) {
+        console.warn('Font loading error:', e);
+      } finally {
+        setFontsLoaded(true);
+      }
+    }
+    loadAssets();
+  }, []);
+
+  useEffect(() => {
+    if (dbReady && fontsLoaded) {
+      // Everything is ready (Fonts + DB hydration + I18n detection)
+      // Hide the native splash screen to start the transition to the custom animation
+      SplashScreen.hideAsync();
+    }
+  }, [dbReady, fontsLoaded]);
 
   useEffect(() => {
     async function setupDb() {
       try {
         const db = await initDB();
         // Since sqlite is init, might sync to store if needed
-        const result: any = await db.getFirstAsync('SELECT firstLaunch, onboardingProgress, theme, language, supportsAR FROM app_state WHERE id = 1');
+        const result: any = await db.getFirstAsync('SELECT firstLaunch, onboardingProgress, theme, language, supportsAR, notificationsEnabled FROM app_state WHERE id = 1');
         if (result) {
           const isFirstLaunch = Boolean(result.firstLaunch);
           setFirstLaunch(isFirstLaunch);
           setOnboardingProgress(result.onboardingProgress || 0);
           setTheme(result.theme || 'light');
-          
+
           let lang = result.language;
           if (isFirstLaunch && !lang) {
             const systemLocales = Localization.getLocales();
@@ -65,9 +100,12 @@ export const NavigationRoot = () => {
           } else if (!lang) {
             lang = 'en';
           }
-          
+
+          await ensureLanguageLoaded(lang);
           setLanguage(lang);
-          i18n.changeLanguage(lang);
+          await i18n.changeLanguage(lang);
+
+          setNotificationsEnabled(result.notificationsEnabled !== undefined ? Boolean(result.notificationsEnabled) : true);
 
           // Update supportsAR in store
           useStore.getState().setSupportsAR(Boolean(result.supportsAR));
@@ -91,10 +129,85 @@ export const NavigationRoot = () => {
     return null; // or a simple loading indicator
   }
 
+  useEffect(() => {
+    // Log app boot/open for 'Active Users' verification
+    analytics().logAppOpen().catch(e => console.warn('App open log failed:', e));
+  }, []);
+
+  useEffect(() => {
+    if (!notificationsEnabled) return;
+
+    const setupMessaging = async () => {
+      try {
+        const authStatus = await messaging().requestPermission();
+        const enabled =
+          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+        if (enabled) {
+          const token = await messaging().getToken();
+          console.log('[FCM] Token:', token);
+        }
+      } catch (e) {
+        console.warn('[FCM] Setup error:', e);
+      }
+    };
+
+    setupMessaging();
+
+    const unsubscribeOnMessage = messaging().onMessage(async remoteMessage => {
+      Alert.alert(
+        remoteMessage.notification?.title || 'Tactical Update',
+        remoteMessage.notification?.body || 'New intelligence available.',
+        [{ text: 'Dismiss', style: 'cancel' }]
+      );
+    });
+
+    // Handle notification click when app is in background but still in memory
+    const unsubscribeOnNotificationOpenedApp = messaging().onNotificationOpenedApp(remoteMessage => {
+      console.log('[FCM] Notification caused app to open from background state:', remoteMessage.notification);
+    });
+
+    // Check if app was opened by a notification when it was completely closed
+    messaging().getInitialNotification().then(remoteMessage => {
+      if (remoteMessage) {
+        console.log('[FCM] Notification caused app to open from quit state:', remoteMessage.notification);
+      }
+    });
+
+    return () => {
+      unsubscribeOnMessage();
+      unsubscribeOnNotificationOpenedApp();
+    };
+  }, [notificationsEnabled]);
+
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      ref={navigationRef}
+      onReady={() => {
+        routeNameRef.current = navigationRef.current?.getCurrentRoute()?.name;
+      }}
+      onStateChange={async () => {
+        const previousRouteName = routeNameRef.current;
+        const currentRouteName = navigationRef.current?.getCurrentRoute()?.name;
+
+        if (previousRouteName !== currentRouteName && currentRouteName) {
+          // Log screen_view using the specific method requested/legacy if available, 
+          // or logScreenView for modern SDKs
+          try {
+            await analytics().logScreenView({
+              screen_name: currentRouteName,
+              screen_class: currentRouteName,
+            });
+          } catch (e) {
+            console.warn('Analytics error:', e);
+          }
+        }
+        routeNameRef.current = currentRouteName;
+      }}
+    >
       <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Splash" component={SplashScreen} />
+        <Stack.Screen name="Splash" component={LoadingScreen} />
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Group screenOptions={{ presentation: 'modal' }}>

@@ -15,12 +15,13 @@ import { PerformanceRadar } from '../components/asset-detail/PerformanceRadar';
 import { useAssetActions } from '../hooks/useAssetActions';
 import { CDN_CONFIG } from '../config/cdnConfig';
 import { useTranslation } from 'react-i18next';
+import { t_spec } from '../utils/assetUtils';
 
 type Props = StackScreenProps<RootStackParamList, 'AssetDetail'>;
 
 export const AssetDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const { assetId } = route.params;
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const currentTheme = useStore((state) => state.theme);
   const isDark = currentTheme === 'dark';
 
@@ -77,7 +78,7 @@ export const AssetDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     return specs;
   };
 
-  const displaySpecs = getParsedSpecs(asset?.specs) || {
+  const displaySpecs = asset.short_specs || {
     range: 'N/A',
     speed: 'N/A',
     generation: 'N/A',
@@ -158,6 +159,28 @@ export const AssetDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
         </View>
 
+        {/* 'Big Three' Tactical Badges */}
+        <View style={styles.bigThreeContainer}>
+          <View style={styles.bigThreeBadge}>
+            <Text style={styles.bigThreeLabel}>{t('asset.speed')}</Text>
+            <Text style={[styles.bigThreeValue, { color: isDark ? '#FFF' : '#333' }]}>
+              {t_spec(asset, 'short_specs', 'speed', i18n.language) || 'N/A'}
+            </Text>
+          </View>
+          <View style={styles.bigThreeBadge}>
+            <Text style={styles.bigThreeLabel}>{t('asset.armour')}</Text>
+            <Text style={[styles.bigThreeValue, { color: isDark ? '#FFF' : '#333' }]}>
+              {t_spec(asset, 'short_specs', 'armour', i18n.language) || 'N/A'}
+            </Text>
+          </View>
+          <View style={styles.bigThreeBadge}>
+            <Text style={styles.bigThreeLabel}>{t('asset.armament')}</Text>
+            <Text style={[styles.bigThreeValue, { color: isDark ? '#FFF' : '#333' }]}>
+              {t_spec(asset, 'short_specs', 'primary_armament', i18n.language) || t_spec(asset, 'short_specs', 'armament', i18n.language) || 'N/A'}
+            </Text>
+          </View>
+        </View>
+
         <ImageCarousel images={displayImages} />
 
         <SpecsSummary
@@ -165,6 +188,16 @@ export const AssetDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           isDark={isDark}
           onPress={() => navigation.navigate('TechnicalSpecs', { assetId })}
         />
+
+        {/* Classified Intel Box */}
+        <View style={styles.dossierContainer}>
+          <Text style={styles.dossierTitle}>[{t('asset.dossier_intel')}]</Text>
+          {Object.entries(asset.full_dossier).map(([key, value]) => (
+            <Text key={key} style={styles.dossierText}>
+              • {t_spec(asset, 'full_dossier', key, i18n.language)}
+            </Text>
+          ))}
+        </View>
 
 
         <ActionButtons
@@ -265,6 +298,58 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '900',
     letterSpacing: 2,
+  },
+  bigThreeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 10,
+  },
+  bigThreeBadge: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(10, 132, 255, 0.3)',
+    backgroundColor: 'rgba(10, 132, 255, 0.05)',
+  },
+  bigThreeLabel: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: '#0A84FF',
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
+  bigThreeValue: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  dossierContainer: {
+    margin: 16,
+    padding: 20,
+    backgroundColor: '#050505',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#1A1A1A',
+    borderLeftWidth: 4,
+    borderLeftColor: '#0A84FF',
+  },
+  dossierTitle: {
+    color: '#0A84FF',
+    fontSize: 12,
+    fontWeight: '900',
+    letterSpacing: 2,
+    marginBottom: 12,
+    textTransform: 'uppercase',
+  },
+  dossierText: {
+    color: '#EEE',
+    fontSize: 14,
+    lineHeight: 22,
+    fontFamily: 'Courier', // Typewriter style
   },
   trendReason: {
     fontSize: 14,

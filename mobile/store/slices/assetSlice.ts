@@ -2,20 +2,16 @@ import { dbHelper } from '../../scripts/init-db';
 import { XMLParser } from 'fast-xml-parser';
 
 export interface AssetSpecs {
-  range: string;
-  speed: string;
-  generation: string;
-  country: string;
+  [key: string]: string | undefined;
+}
+
+export interface AssetDossier {
   [key: string]: string | undefined;
 }
 
 export interface Translation {
-  name: string;
-  country?: string;
-  countryCode?: string;
-  specs: Partial<AssetSpecs>;
-  short_specs?: Partial<AssetSpecs>;
-  full_dossier?: Partial<AssetSpecs>;
+  short_specs: AssetSpecs;
+  full_dossier: AssetDossier;
 }
 
 export interface AssetMetrics {
@@ -28,26 +24,20 @@ export interface AssetMetrics {
 export interface Asset {
   id: string;
   name: string;
-  categoryId: string;
-  isFeatured: boolean;
+  catId: string;
+  featured: boolean;
   image?: string;
   images?: string[];
-  specs?: AssetSpecs;
-  short_specs?: AssetSpecs;
-  full_dossier?: AssetSpecs;
-  model?: string;
+  short_specs: AssetSpecs;
+  full_dossier: AssetDossier;
+  model?: string | null;
   metrics?: AssetMetrics;
-  hasModel?: boolean;
   dangerLevel?: number;
   threatType?: string;
   wikiUrl?: string;
   country?: string;
   countryCode?: string;
   translations?: {
-    tr?: Translation;
-    ru?: Translation;
-    ar?: Translation;
-    zh?: Translation;
     [key: string]: Translation | undefined;
   };
   trendingReason?: string;
@@ -186,7 +176,7 @@ export const createAssetSlice = (set: any, get: any): AssetState => ({
         setTrendingAssets(trendingMatches);
       } else {
         console.log('[Trending] No live matches found. Falling back to featured assets.');
-        const featured = assets.filter((a: Asset) => a.isFeatured).slice(0, 5);
+        const featured = assets.filter((a: Asset) => a.featured).slice(0, 5);
         setTrendingAssets(featured);
       }
 
@@ -194,7 +184,7 @@ export const createAssetSlice = (set: any, get: any): AssetState => ({
     } catch (error) {
       console.error('[Trending] Synchronization failed:', error);
       // Fallback
-      const featured = assets.filter((a: Asset) => a.isFeatured).slice(0, 5);
+      const featured = assets.filter((a: Asset) => a.featured).slice(0, 5);
       setTrendingAssets(featured);
     }
   },

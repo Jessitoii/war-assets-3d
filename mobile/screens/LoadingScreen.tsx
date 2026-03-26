@@ -6,15 +6,15 @@ import { RootStackParamList } from '../navigation/NavigationRoot';
 import { useStore } from '../store';
 import { theme } from '../styles/theme';
 
-type SplashScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Splash'>;
+type LoadingScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Splash'>;
 
 interface Props {
-  navigation: SplashScreenNavigationProp;
+  navigation: LoadingScreenNavigationProp;
 }
 
-export const SplashScreen: React.FC<Props> = ({ navigation }) => {
+export const LoadingScreen: React.FC<Props> = ({ navigation }) => {
   const isFirstLaunch = useStore((state) => state.firstLaunch);
-  
+
   const opacity = useSharedValue(0);
   const scale = useSharedValue(0.5);
   const rotation = useSharedValue(0);
@@ -28,10 +28,10 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
   }, [isFirstLaunch, navigation]);
 
   useEffect(() => {
-    // fade‑in (0‑0.5 s), scale (0.5‑1 s), rotate (1‑2 s).
-    opacity.value = withTiming(1, { duration: 500 });
-    scale.value = withDelay(500, withTiming(1, { duration: 500 }));
-    rotation.value = withDelay(1000, withTiming(360, { duration: 1000 }, (finished) => {
+    // Initial sequence: wait briefly to ensure native splash is hidden, then fade in and rotate
+    opacity.value = withTiming(1, { duration: 1000 });
+    scale.value = withDelay(200, withTiming(1, { duration: 800 }));
+    rotation.value = withDelay(1000, withTiming(360, { duration: 1500 }, (finished) => {
       if (finished) {
         runOnJS(handleAnimationEnd)();
       }
@@ -49,19 +49,19 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
   });
 
   return (
-    <View style={styles.container} accessible={true} accessibilityLabel="Loading">
+    <View style={styles.container} accessible={true} accessibilityLabel="Loading War Assets 3D">
       <Animated.View style={[styles.logoContainer, animatedStyle]}>
-        {/* Placeholder SVG/Logo component filling 60% of height */}
-        <Text style={styles.logoText}>War Assets 3D</Text>
+        <Text style={styles.logoText}>WAR ASSETS 3D</Text>
       </Animated.View>
     </View>
   );
 };
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.secondary,
+    backgroundColor: '#000000',
     justifyContent: 'center',
     alignItems: 'center',
   },

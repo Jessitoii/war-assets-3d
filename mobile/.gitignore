@@ -43,3 +43,7 @@ yarn-error.*
 *.keystore
 
 .env
+
+# Firebase Configs
+google-services.json
+GoogleService-Info.plist

@@ -4,6 +4,7 @@ import asyncio
 import httpx
 import time
 import re
+import urllib.parse
 from tqdm import tqdm
 from dotenv import load_dotenv
 from groq import Groq
@@ -11,49 +12,44 @@ import orjson
 import sys
 import mwparserfromhell
 from cerebras.cloud.sdk import Cerebras
-import ollama 
 
 load_dotenv()
 
 # --- CONFIG ---
 JSON_PATH = "./mobile/assets/data/military-assets.json"
 OUTPUT_PATH = "./mobile/assets/data/military-assets-v29.json"
-LOG_FILE = "processed_assets.log"
+LOG_FILE = "processed_assets_v2.log"
+MISSING_LOG_FILE = "missing_assets_v2.log"
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 CEREBRAS_API_KEY = os.getenv("CEREBRAS_API_KEY")
-MODE = "GROQ"
 
-if MODE == "GROQ":
-    print("Using Groq")
-    if not GROQ_API_KEY:
-        print("ERROR: GROQ_API_KEY missing.")
-        exit(1)
+# Model Queue Configuration
+MODELS_CONFIG_70B = [
+    {"provider": "GROQ", "model": "llama-3.3-70b-versatile"},
+    {"provider": "GROQ", "model": "openai/gpt-oss-120b"},
+    {"provider": "GROQ", "model": "qwen/qwen3-32b"},
+    {"provider": "GROQ", "model": "moonshotai/kimi-k2-instruct-0905"},
+    {"provider": "GROQ", "model": "qwen/qwen3-coder-32b"},
+    {"provider": "CEREBRAS", "model": "qwen-3-235b-a22b-instruct-2507"},
+]
 
-    client = Groq(api_key=GROQ_API_KEY)
-elif MODE == "CEREBRAS":
-    print("Using Cerebras")
-    if not CEREBRAS_API_KEY:
-        print("ERROR: CEREBRAS_API_KEY missing.")
-        exit(1)
-    client = Cerebras(api_key=CEREBRAS_API_KEY)
-elif MODE == "OLLAMA":
-    print("Using Ollama")
-    client = ollama.Client()
+MODELS_CONFIG_8B = [
+    {"provider": "CEREBRAS", "model": "llama3.1-8b"},
+    {"provider": "GROQ", "model": "llama-3.1-8b-instant"},
+]
 
-if MODE == "GROQ":
-    MODEL_QUEUE = ["llama-3.3-70b-versatile", "qwen-qwq-32b", "llama-3.1-70b-versatile"]
-    current_model_idx = 0
-elif MODE == "CEREBRAS":
-    MODEL_QUEUE = ["qwen-3-235b-a22b-instruct-2507"]
-    current_model_idx = 0
-elif MODE == "OLLAMA":
-    MODEL_QUEUE = ["gemma3:12b"]
-    current_model_idx = 0
+ALL_MODELS = MODELS_CONFIG_70B + MODELS_CONFIG_8B
+current_idx_70b = 0
+current_idx_all = 0
 
-# Rate Limit Ayarları
-REQUESTS_PER_MINUTE = 15  # Güvenli sınır
-SECONDS_PER_REQUEST = 60 / REQUESTS_PER_MINUTE
-WIKI_CONCURRENCY = 5
+clients = {
+    "GROQ": Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None,
+    "CEREBRAS": Cerebras(api_key=CEREBRAS_API_KEY) if CEREBRAS_API_KEY else None,
+}
+
+# Rate Limit Settings
+WIKI_CONCURRENCY = 2
+SECONDS_PER_REQUEST = 1  # Safety delay between assets
 
 
 def get_processed_ids():
@@ -68,244 +64,402 @@ def log_processed_id(asset_id):
         f.write(f"{asset_id}\n")
 
 
+def log_missing_id(asset_id):
+    with open(MISSING_LOG_FILE, "a", encoding="utf-8") as f:
+        f.write(f"{asset_id}\n")
+
+
+def sanitize_content(text):
+    if not text:
+        return ""
+    # re.sub kullanarak kontrol karakterlerini (\u0000-\u001F) ve garip sembolleri temizle
+    text = re.sub(r"[\x00-\x1F\x7F]", "", text)
+    # Aşırı boşlukları ve yeni satır fazlalıklarını temizle
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+
+def fix_json(text):
+    """Try to recover a valid JSON object from a potentially broken LLM response."""
+    if not text:
+        return None
+    # Remove markdown code blocks if they exist
+    text = re.sub(r"```json\s*", "", text)
+    text = re.sub(r"```\s*", "", text)
+    # Find the first { and last }
+    start = text.find("{")
+    end = text.rfind("}")
+    if start != -1 and end != -1:
+        text = text[start : end + 1]
+    return text.strip()
+
+
 def generate_slug(name):
     return re.sub(r"[^a-z0-9]+", "-", str(name).lower()).strip("-")
 
 
-# --- PHASE 1: WIKIPEDIA (Grok'un önerdiği Parser ile) ---
-async def fetch_wiki(session, asset, semaphore):
-    async with semaphore:
-        wiki_url = asset.get("wikiUrl", "")
-        if not wiki_url or "wikipedia.org" not in wiki_url:
-            return asset
+# --- PROMPTS ---
 
-        title = wiki_url.split("/wiki/")[-1].split("#")[0]
-        params = {
-            "action": "query",
-            "titles": title,
-            "prop": "revisions|extracts",  # 'extracts' ekledik
-            "exintro": True,  # Sadece giriş (intro) kısmını al
-            "explaintext": True,  # HTML değil, temiz metin al
-            "rvprop": "content",
-            "format": "json",
-            "redirects": 1,
-        }
+PASS_1_PROMPT = """CRITICAL: Your output must be a PURE JSON object. Do not include markdown code blocks (like ```json). Start with { and end with }. No text before or after.
+
+You are a Senior Technical Intelligence Analyst. 
+Mission: Extract technical parameters and strategic insights from Wikipedia data.
+
+RULES:
+1. "short_specs": Extract ALL technical parameters (e.g., speed, range, crew, armament, weight). Use raw values found in text (don't convert yet).
+2. "full_dossier": Create strategic, insight-driven entries. ONLY if the text provides context/limitations (e.g., "Effective against low-altitude targets but vulnerable to EW"). 
+3. Language: ENGLISH ONLY for this stage.
+4. "specs" object: DO NOT create a separate specs object. Embed everything in "short_specs".
+
+OUTPUT JSON FORMAT:
+{
+  "short_specs": { "key": "value" },
+  "full_dossier": { "key": "insight sentence" }
+}
+"""
+
+PASS_2_PROMPT = """CRITICAL: Your output must be a PURE JSON object. Do not include markdown code blocks (like ```json). Start with { and end with }. No text before or after.
+
+You are a Polyglot Technical Translator and Metric Expert.
+Mission: Translate the provided English technical JSON into Turkish (tr), Russian (ru), Arabic (ar), and Chinese (zh).
+
+RULES:
+1. Do not invent or add new information. Just translate the provided JSON. 
+2. Ensure all quotes are escaped properly.
+3. METRIC SUPREMACY: Convert ALL units to metric during translation:
+   - mph -> km/sa (TR), km/h (other)
+   - ft -> m
+   - lbs -> kg
+   - miles -> km
+4. DICTIONARY (TR): 
+   - "Crew" MUST be "Mürettebat".
+   - "Speed" units MUST be "km/sa".
+5. NO HALLUCINATION: No "made-up" technical terms. Use official military terminology for each language.
+6. STRUCTURE: Output a "translations" object containing the 4 languages.
+
+INPUT: English short_specs and full_dossier.
+OUTPUT JSON FORMAT:
+{
+  "tr": { "short_specs": { ... }, "full_dossier": { ... } },
+  "ru": { ... },
+  "ar": { ... },
+  "zh": { ... }
+}
+"""
+
+# --- LLM WRAPPER ---
+
+
+def call_llm(prompt, content, pass_name="AI", is_pass1=False):
+    global current_idx_70b, current_idx_all
+
+    messages = [
+        {"role": "system", "content": prompt},
+        {"role": "user", "content": content},
+    ]
+
+    # Decide model pool based on pass
+    if is_pass1:
+        model_pool = MODELS_CONFIG_70B
+        pool_key = "current_idx_70b"
+    else:
+        model_pool = ALL_MODELS
+        pool_key = "current_idx_all"
+
+    pool_size = len(model_pool)
+
+    # Start loop from the last known good model index
+    for i in range(pool_size):
+        # Calculate index to rotate through full pool if necessary
+        start_idx = globals()[pool_key]
+        current_attempt_idx = (start_idx + i) % pool_size
+
+        config = model_pool[current_attempt_idx]
+        provider = config["provider"]
+        model = config["model"]
+        client = clients.get(provider)
+
+        if not client:
+            continue
 
         try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=messages,
+                response_format={"type": "json_object"},
+                temperature=0.0,
+            )
+            raw_content = response.choices[0].message.content
+
+            # Successfully got a response: Keep using this model for next asset
+            globals()[pool_key] = current_attempt_idx
+
+            try:
+                return json.loads(raw_content)
+            except Exception:
+                # JSON Fixer Failover
+                fixed = fix_json(raw_content)
+                try:
+                    return json.loads(fixed)
+                except Exception as je:
+                    tqdm.write(f"[JSON-FAIL] {model} gave invalid JSON: {je}")
+                    # If model gives invalid JSON repeatedly, it might be worth moving to the next model
+                    globals()[pool_key] = (current_attempt_idx + 1) % pool_size
+                    continue
+
+        except Exception as e:
+            err_msg = str(e).lower()
+
+            # Handle Quota / Rate Limits
+            if "429" in err_msg or "rate_limit" in err_msg:
+                # Determine if it's a hard Quota Reach (Daily/TPD) or temporary congestion
+                is_hard_quota = any(
+                    x in err_msg
+                    for x in [
+                        "daily",
+                        "tpd",
+                        "per day",
+                        "quota reached",
+                        "limit reached",
+                    ]
+                )
+
+                # Fetch retry-after from headers if possible
+                retry_after = 60
+                if hasattr(e, "response") and e.response:
+                    retry_after = int(e.response.headers.get("retry-after", 60))
+
+                if is_hard_quota or retry_after > 180:
+                    tqdm.write(
+                        f"[QUOTA] {model} exhausted (Hard limit). Moving to next model permanently."
+                    )
+                    # Update global index to permanently skip this model for this session
+                    globals()[pool_key] = (current_attempt_idx + 1) % pool_size
+                    continue
+                else:
+                    tqdm.write(
+                        f"[WAIT] {model} temporary limit, sleeping {retry_after}s..."
+                    )
+                    time.sleep(retry_after + 1)
+                    # We stay on this model for now as it's temporary
+                    return call_llm(
+                        prompt, content, pass_name, is_pass1
+                    )  # Recursive retry once for this model
+            else:
+                tqdm.write(f"[LLM-ERROR] {provider}/{model}: {e}")
+                # Move to next model on other errors too
+                globals()[pool_key] = (current_attempt_idx + 1) % pool_size
+                continue
+
+    return None
+
+    return None
+
+
+# --- WIKI FETCH ---
+
+
+async def fetch_wiki_pro(session, asset, semaphore):
+    async with semaphore:
+        try:
+            await asyncio.sleep(0.5)  # Human-like rhythm
+            wiki_url = asset.get("wikiUrl", "")
+            if not wiki_url or "wikipedia.org" not in wiki_url:
+                return asset
+
+            title = wiki_url.split("/wiki/")[-1].split("#")[0]
+            # Safe URL encoding for titles with spaces or special chars
+            safe_title = urllib.parse.unquote(
+                title
+            )  # First unquote to avoid double encoding
+            encoded_title = urllib.parse.quote(safe_title)
+
+            params = {
+                "action": "query",
+                "titles": safe_title,  # API expects the string, httpx handles encoding usually, but we ensure safe_title
+                "prop": "revisions",
+                "rvprop": "content",
+                "format": "json",
+                "redirects": 1,
+            }
+
             resp = await session.get(
                 "https://en.wikipedia.org/w/api.php",
                 params=params,
                 timeout=20,
                 headers={
-                    "User-Agent": "WarAsset3D_FinalTest/5.0 (alpercanzerr1600@gmail.com)"
+                    "User-Agent": "WarAsset3D_Refiner/6.0 (alpercanzerr1600@gmail.com)"
                 },
             )
-            data = resp.json()
-            page = next(iter(data.get("query", {}).get("pages", {}).values()))
 
+            if resp.status_code != 200:
+                tqdm.write(f"[WIKI-ERROR] {title} - Status: {resp.status_code}")
+                return asset
+
+            if not resp.text.strip():
+                tqdm.write(f"[WIKI-EMPTY] {title} - Response was empty.")
+                return asset
+
+            try:
+                data = resp.json()
+            except Exception as e:
+                tqdm.write(f"[WIKI-JSON-ERROR] {title}: {e}")
+                tqdm.write(f"DEBUG DATA: {resp.text[:500]}")
+                return asset
+
+            page = next(iter(data.get("query", {}).get("pages", {}).values()))
             if "missing" in page:
                 return asset
 
-            # 1. Giriş Metni (Özet)
-            summary = page.get("extract", "")[:1200]  # İlk 1200 karakter yeterli
-
-            # 2. Teknik Şablonlar (Parser ile)
             full_content = page.get("revisions", [{}])[0].get("*", "")
+            if not full_content:
+                return asset
+
             wikicode = mwparserfromhell.parse(full_content)
-            tech_payload = [
-                str(t)
-                for t in wikicode.filter_templates()
-                if any(
-                    k in str(t.name).lower()
-                    for k in ["infobox", "specs", "performance", "armament", "engine"]
-                )
+
+            # Targeted Sections
+            target_sections = [
+                "Design",
+                "Development",
+                "Performance",
+                "Specifications",
+                "Description",
             ]
+            relevant_parts = []
 
-            # 3. Paketleme
-            asset["_wiki_content"] = (
-                f"SUMMARY / DESCRIPTION:\n{summary}\n\nTECHNICAL DATA BLOCKS:\n"
-                + "\n".join(tech_payload)
-            )
+            # Summary
+            sections = wikicode.get_sections(flat=True)
+            if sections:
+                relevant_parts.append(str(sections[0])[:2000])
 
-        except Exception:
-            pass
+            for section in wikicode.get_sections(levels=[2]):
+                header = section.filter_headings()
+                if header and any(t in str(header[0].title) for t in target_sections):
+                    relevant_parts.append(str(section)[:2500])
+
+            # Combine and truncate to ~9000 chars
+            combined_text = "\n\n".join(relevant_parts)
+            asset["_wiki_content"] = combined_text[:9000]
+
+            # Use tqdm.write if tqdm is available, else print
+            msg = f"> * [WIKI] {asset['name']} - {len(asset['_wiki_content'])} karakter veri çekildi."
+            # tqdm.write(msg)
+
+        except Exception as e:
+            tqdm.write(f"[WIKI-FAIL] {asset.get('name', 'Unknown')}: {e}")
+
         return asset
 
 
-SYSTEM_PROMPT = """
-You are a Senior Technical Intelligence Analyst. Your mission is to synthesize raw Wikipedia data (Summary + Wikitext) into a high-fidelity, Metric-only JSON.
-
-### I. EXTRACTION PROTOCOL:
-1. **PARAMETER HARVESTING:** Scour the 'TECHNICAL DATA BLOCKS' for: |span=, |length=, |range=, |max speed=, |empty weight=, |max takeoff weight=, |engine=. If these exist in wikitext, you MUST include them in 'specs'.
-2. **METRIC SUPREMACY:** - Root 'specs': Can include dual units (e.g., '20,000 ft (6,100 m)').
-   - ALL 'translations': Use ONLY pure metric (km, m, kg, km/h). Convert 20,000 ft to 6,100 m. No Miles/Feet/Lbs allowed.
-3. **COUNTRY CODES:** Use strictly ISO 3166-1 alpha-3 (e.g., DEU, ESP, USA, TUR). If multiple, separate with a slash (DEU/ESP).
-
-### II. NARRATIVE SYNTHESIS (full_dossier):
-The 'full_dossier' must be a professional 2-3 sentence technical narrative. 
-- Blend the hard numbers (specs) with the context from the 'SUMMARY' (history, manufacturer, strategic role).
-- Example: "Jointly developed by Germany and Spain, the Barracuda is a stealth UAV..."
-
-### III. LANGUAGE PURITY (CRITICAL):
-- Each translation block must contain ONLY its target language. 
-- DO NOT leak characters from other languages (e.g., No Chinese characters in Turkish text). 
-- If you don't know the technical term in the target language, use the phonetic localization or the standard international term, but never switch alphabets.
-
-### IV. JSON SCHEMA (STRICT TEMPLATE - EXTENDABLE):
-{
-  "country": "...",
-  "countryCode": "...",
-  "specs": { 
-    "role": "...", 
-    "range": "...", 
-    "speed": "...", 
-    "//": "IMPORTANT: The keys below are EXAMPLES. Add ANY other technical parameters found (e.g., 'crew', 'armament', 'weight', 'wingspan', 'ceiling', 'climb_rate', 'radar_type'). Use snake_case for keys."
-  },
-  "short_specs": { 
-    "range": "...", "speed": "...", "payload": "...",
-    "//": "Include the 3-5 most critical tactical specs only."
-  },
-  "full_dossier": "...",
-  "translations": {
-    "tr": { 
-      "full_dossier": "...", 
-      "short_specs": { "//": "Must match the keys in root 'short_specs'" } 
-    },
-    "ru": { ... },
-    "ar": { ... },
-    "zh": { ... }
-  }
-}
-
-### V. CONSTRAINTS:
-- Do not output null keys. If data is missing for a field, omit that key entirely.
-- Output ONLY raw JSON. No markdown, no commentary.
-"""
-
-
-def call_groq(asset_name, wiki_text):
-    global current_model_idx
-
-    user_prompt = f"Asset Name: {asset_name}\n\nContent:\n{wiki_text}"
-
-    for _ in range(3):  # Retry logic
-        try:
-            if MODE == "OLLAMA":
-                response = client.chat(
-                    model=MODEL_QUEUE[current_model_idx],
-                    messages=[
-                        {"role": "system", "content": SYSTEM_PROMPT},
-                        {"role": "user", "content": user_prompt},
-                    ],
-                    format="json",
-                    options={"temperature": 0.1},
-                )
-                return json.loads(response["message"]["content"])
-            response = client.chat.completions.create(
-                model=MODEL_QUEUE[current_model_idx],
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": user_prompt},
-                ],
-                response_format={"type": "json_object"},
-                temperature=0.1,
-            )
-            return json.loads(response.choices[0].message.content)
-        except Exception as e:
-            if "429" in str(e):
-                print(f"Rate limited. Waiting...")
-                time.sleep(30)
-                continue
-            print(f"LLM Error: {e}")
-            return None
-    return None
-
-
-# --- PHASE 3: PROCESSOR ---
+# --- MAIN ---
 
 
 async def main():
     if not os.path.exists(JSON_PATH):
+        print(f"Error: {JSON_PATH} not found.")
         return
 
     with open(JSON_PATH, "r", encoding="utf-8") as f:
         all_assets = json.load(f)
-        #all assets for debugging will be only EADS_Barracuda asset
-        all_assets = [a for a in all_assets if a["name"] == "EADS Barracuda"]
 
-    processed_ids = set()#get_processed_ids()
-    v27_map = {}
-    if os.path.exists(OUTPUT_PATH):
+    v29_map = {}
+    if os.path.exists(OUTPUT_PATH) and os.path.getsize(OUTPUT_PATH) > 0:
         try:
             with open(OUTPUT_PATH, "r", encoding="utf-8") as f:
-                v27_map = {a["id"]: a for a in json.load(f)}
-        except:
-            pass
+                v29_map = {a["id"]: a for a in json.load(f)}
+            print(
+                f"> [RESTORE] {len(v29_map)} assets successfully loaded from existing JSON."
+            )
+        except Exception as e:
+            print(f"Warning: Could not load existing output: {e}")
 
-    targets = [
-        a
-        for a in all_assets
-        if (a.get("id") or generate_slug(a["name"])) not in processed_ids
-    ]
-    print(f"Starting Pipeline: {len(targets)} assets to process.")
+    # Log purely for history, decision is now 100% based on JSON content
+    targets = []
+    for a in all_assets:
+        asset_id = a.get("id") or generate_slug(a["name"])
+        if asset_id not in v29_map:
+            targets.append(a)
 
-    # Phase 1: Wiki Fetch (Async)
+    print(
+        f"Starting Refinement Pipeline: {len(targets)} assets to process (Skipped {len(v29_map)} already in JSON)."
+    )
+
     semaphore = asyncio.Semaphore(WIKI_CONCURRENCY)
-    async with httpx.AsyncClient(headers={"User-Agent": "WarAssetsBot/1.0"}) as session:
-        tasks = [fetch_wiki(session, a, semaphore) for a in targets]
+    async with httpx.AsyncClient() as session:
+        tasks = [fetch_wiki_pro(session, a, semaphore) for a in targets]
         assets_ready = []
         for f in tqdm(
-            asyncio.as_completed(tasks), total=len(tasks), desc="Fetching Wiki"
+            asyncio.as_completed(tasks), total=len(tasks), desc="Wiki Extraction"
         ):
             res = await f
             assets_ready.append(res)
 
-    # Phase 2: LLM Enrichment (Sequential)
-    enriched_count = 0
-    pbar = tqdm(assets_ready, desc="Enriching with AI")
+    processed_count = 0
+    pbar = tqdm(assets_ready, desc="AI Enrichment", total=len(assets_ready))
 
     for asset in pbar:
-        name = asset["name"]
-        wiki_text = asset.get("_wiki_content", "")
-        if not wiki_text:
-            continue
-
-        time.sleep(SECONDS_PER_REQUEST)  # Rate limit respect
-
-        intel = call_groq(name, wiki_text)
-        if intel:
+        try:
+            name = asset["name"]
             asset_id = asset.get("id") or generate_slug(name)
 
-            # Merge logic - keeps your metadata, adds AI data
+            wiki_text = sanitize_content(asset.get("_wiki_content", ""))
+            if not wiki_text:
+                log_missing_id(asset_id)
+                continue
+
+            # PASS 1: EXTRACTION (EN) - Forcing 70B
+            intel_en = call_llm(
+                PASS_1_PROMPT, f"Asset: {name}\nData: {wiki_text}", is_pass1=True
+            )
+            if not intel_en:
+                tqdm.write(f"[FAIL] Pass-1 failed: {name}")
+                log_missing_id(asset_id)
+                continue
+
+            # PASS 2: TRANSLATION (MULTI)
+            content_for_pass2 = orjson.dumps(intel_en).decode("utf-8")
+            intel_multi = call_llm(PASS_2_PROMPT, content_for_pass2, is_pass1=False)
+            if not intel_multi:
+                tqdm.write(f"[FAIL] Pass-2 failed: {name}")
+                log_missing_id(asset_id)
+                continue
+
+            # FINAL ASSEMBLY
             enriched = {
                 **asset,
                 "id": asset_id,
-                "country": intel.get("country"),
-                "countryCode": intel.get("countryCode"),
-                "specs": intel.get("specs"),
-                "short_specs": intel.get("short_specs"),
-                "full_dossier": intel.get("full_dossier"),
-                "translations": intel.get("translations"),
+                "short_specs": intel_en.get("short_specs"),
+                "full_dossier": intel_en.get("full_dossier"),
+                "translations": intel_multi,
             }
-            # Remove helper key
+
+            # Cleanup
+            enriched.pop("specs", None)
             enriched.pop("_wiki_content", None)
 
-            v27_map[asset_id] = enriched
+            v29_map[asset_id] = enriched
             log_processed_id(asset_id)
-            enriched_count += 1
+            processed_count += 1
 
-            # Batch save every 5 items to prevent data loss
-            if enriched_count % 1 == 0:
-                with open(OUTPUT_PATH, "wb") as f:
-                    f.write(
-                        orjson.dumps(list(v27_map.values()), option=orjson.OPT_INDENT_2)
-                    )
+            # Update progress bar description
+            pbar.set_postfix({"processed": processed_count})
 
-    # Final Save
-    with open(OUTPUT_PATH, "wb") as f:
-        f.write(orjson.dumps(list(v27_map.values()), option=orjson.OPT_INDENT_2))
+            # Atomic Save: Save to .tmp first, then rename to prevent OOM corruption
+            temp_path = f"{OUTPUT_PATH}.tmp"
+            with open(temp_path, "wb") as f:
+                f.write(
+                    orjson.dumps(list(v29_map.values()), option=orjson.OPT_INDENT_2)
+                )
+            os.replace(temp_path, OUTPUT_PATH)  # Success! Rename to final path
 
-    print(f"Done! Enriched {enriched_count} assets.")
+        except Exception as e:
+            tqdm.write(f"[CRITICAL] {asset.get('name')}: {e}")
+            log_missing_id(asset_id)
+            continue
+
+        time.sleep(SECONDS_PER_REQUEST)  # Added sleep for rate limiting
+
+    print(f"\nDone! Enriched {processed_count} assets.")
 
 
 if __name__ == "__main__":

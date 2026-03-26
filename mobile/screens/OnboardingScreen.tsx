@@ -9,6 +9,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '../styles/theme';
 import { initDB } from '../scripts/init-db';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
+import { t_spec } from '../utils/assetUtils';
 
 const { width, height } = Dimensions.get('window');
 
@@ -22,7 +24,8 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
   const content = useStore(useShallow(selectOnboardingContent));
   const currentPage = useStore(selectOnboardingCurrentPage);
   const onboardingProgress = useStore((state) => state.onboardingProgress);
-  
+  const { t } = useTranslation();
+
   // Select actions individually to avoid reference changes
   const setCurrentPage = useStore((state) => state.onboarding.setCurrentPage);
   const setContent = useStore((state) => state.onboarding.setContent);
@@ -61,14 +64,14 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
       } else {
         const fallback = require('../assets/onboarding.json');
         await db.withTransactionAsync(async () => {
-           for (const item of fallback) {
-             await db.runAsync(
-               `INSERT OR REPLACE INTO onboarding_content (id, title, subtitle, description, image, orderIndex)
+          for (const item of fallback) {
+            await db.runAsync(
+              `INSERT OR REPLACE INTO onboarding_content (id, title, subtitle, description, image, orderIndex)
                 VALUES (?, ?, ?, ?, ?, ?)`,
-               [item.id, item.title, item.subtitle, item.description || '', item.image, item.orderIndex]
-             );
-           }
-         });
+              [item.id, item.title, item.subtitle, item.description || '', item.image, item.orderIndex]
+            );
+          }
+        });
       }
 
       const result: any[] = await db.getAllAsync('SELECT * FROM onboarding_content ORDER BY orderIndex ASC');
@@ -122,7 +125,7 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
       setOnboardingProgress(0);
       setCurrentPage(0);
       navigation.replace('Home');
-    } catch(e) {
+    } catch (e) {
       console.error(e);
       setFirstLaunch(false);
       navigation.replace('Home');
@@ -147,26 +150,26 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
     return (
       <View style={styles.loadingContainer}>
         <Ionicons name="alert-circle" size={64} color={theme.colors.error} style={styles.loaderIcon} />
-        <Text style={styles.loadingTitle}>SYSTEM CRITICAL ERROR</Text>
+        <Text style={styles.loadingTitle}>{t('onboarding.error_title')}</Text>
         <Text style={styles.loadingSubtitle}>{error}</Text>
-        <TouchableOpacity 
-          style={[styles.getStartedBtn, { marginTop: 30 }]} 
+        <TouchableOpacity
+          style={[styles.getStartedBtn, { marginTop: 30 }]}
           onPress={() => { setError(null); setLoading(true); fetchContent(); }}
         >
-          <Text style={styles.getStartedText}>RETRY INITIALIZATION</Text>
+          <Text style={styles.getStartedText}>{t('onboarding.retry_init')}</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   if (loading || content.length === 0) {
-     return (
-       <View style={styles.loadingContainer}>
-         <Ionicons name="shield-checkmark" size={64} color={theme.colors.primary} style={styles.loaderIcon} />
-         <Text style={styles.loadingTitle}>INITIALIZING SYSTEM</Text>
-         <Text style={styles.loadingSubtitle}>Establishing secure database connection...</Text>
-       </View>
-     );
+    return (
+      <View style={styles.loadingContainer}>
+        <Ionicons name="shield-checkmark" size={64} color={theme.colors.primary} style={styles.loaderIcon} />
+        <Text style={styles.loadingTitle}>{t('onboarding.initializing')}</Text>
+        <Text style={styles.loadingSubtitle}>{t('onboarding.establishing_connection')}</Text>
+      </View>
+    );
   }
 
   const isLastPage = currentPage === content.length - 1;
@@ -175,8 +178,8 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.skipBtn} onPress={handleComplete} accessibilityLabel="Skip Onboarding" accessibilityRole="button">
-          <Text style={styles.skipText}>Skip</Text>
+        <TouchableOpacity style={styles.skipBtn} onPress={handleComplete} accessibilityLabel={t('onboarding.skip')} accessibilityRole="button">
+          <Text style={styles.skipText}>{t('onboarding.skip')}</Text>
         </TouchableOpacity>
       </View>
       <Animated.ScrollView
@@ -190,28 +193,33 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
       >
         {content.map((item) => (
           <View key={item.id} style={styles.slide} accessible={true} accessibilityLabel={`Page ${item.orderIndex + 1}`} accessibilityLiveRegion="polite">
-            <Image source={{ uri: item.image }} style={styles.image} resizeMode="contain" accessible={false} />
-            <Text style={styles.title}>{item.title}</Text>
-            <Text style={styles.subtitle}>{item.subtitle}</Text>
+            <Image
+              source={item.orderIndex === 0 ? require('../assets/images/onboarding_1.png') : { uri: item.image }}
+              style={item.orderIndex === 0 ? [styles.image, { width: width, height: height * 0.6, marginTop: -20 }] : styles.image}
+              resizeMode={item.orderIndex === 0 ? "cover" : "contain"}
+              accessible={false}
+            />
+            <Text style={styles.title}>{t_spec(item as any, 'short_specs', 'name') || item.title}</Text>
+            <Text style={styles.subtitle}>{t_spec(item as any, 'short_specs', 'subtitle') || item.subtitle}</Text>
           </View>
         ))}
       </Animated.ScrollView>
-      
+
       <View style={styles.footer}>
         <View style={styles.indicators}>
-           {content.map((_, index) => (
-             <View key={index} style={[styles.dot, currentPage === index && styles.dotActive]} />
-           ))}
+          {content.map((_, index) => (
+            <View key={index} style={[styles.dot, currentPage === index && styles.dotActive]} />
+          ))}
         </View>
-        
+
         <View style={styles.footerControls}>
           {isLastPage ? (
-            <TouchableOpacity style={styles.getStartedBtn} onPress={handleComplete} accessibilityLabel="Get Started" accessibilityRole="button">
-              <Text style={styles.getStartedText}>Get Started</Text>
+            <TouchableOpacity style={styles.getStartedBtn} onPress={handleComplete} accessibilityLabel={t('onboarding.get_started')} accessibilityRole="button">
+              <Text style={styles.getStartedText}>{t('onboarding.get_started')}</Text>
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity style={styles.nextBtn} onPress={handleNext} disabled={isLastPage} accessibilityLabel="Next Page" accessibilityRole="button">
-              <Text style={styles.nextText}>Next</Text>
+            <TouchableOpacity style={styles.nextBtn} onPress={handleNext} disabled={isLastPage} accessibilityLabel={t('onboarding.next')} accessibilityRole="button">
+              <Text style={styles.nextText}>{t('onboarding.next')}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -219,6 +227,7 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
     </SafeAreaView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

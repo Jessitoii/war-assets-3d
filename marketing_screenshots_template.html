@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Play Screenshots - 1080x1920</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(145deg, #0a1128 0%, #010308 100%);
+            --accent-cyan: #00e5ff;
+            --text-main: #ffffff;
+            --grid-color: rgba(0, 229, 255, 0.05);
+            /* Google Play Standart Boyutu: 1080x1920 (9:16 Aspect Ratio) */
+            --frame-width: 1080px;
+            --frame-height: 1920px;
+        }
+
+        body {
+            margin: 0;
+            padding: 40px;
+            background-color: #1a1a1a;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            gap: 40px;
+            overflow-x: auto;
+            /* Ekranda gorunumu kucultup rahata rahat bakabilmen icin scale */
+            transform-origin: top left;
+            transform: scale(0.3);
+            width: fit-content;
+        }
+
+        .screenshot-container {
+            width: var(--frame-width);
+            height: var(--frame-height);
+            background: var(--bg-gradient);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            /* Puppeteer'in seffaf arka plani kesmemesi icin hafif stroke */
+            border: 2px solid #1f2937;
+        }
+
+        /* Taktiksel Izgara (Grid) Arka Plani */
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                linear-gradient(var(--grid-color) 2px, transparent 2px),
+                linear-gradient(90deg, var(--grid-color) 2px, transparent 2px);
+            background-size: 60px 60px;
+            opacity: 0.6;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Koselerdeki Hedefleme Nisaangahi Görseli */
+        .hud-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 4px solid rgba(0, 229, 255, 0.1);
+            margin: 30px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .hud-corner {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-color: var(--accent-cyan);
+            border-style: solid;
+        }
+
+        .hud-tl {
+            top: -4px;
+            left: -4px;
+            border-width: 6px 0 0 6px;
+        }
+
+        .hud-tr {
+            top: -4px;
+            right: -4px;
+            border-width: 6px 6px 0 0;
+        }
+
+        .hud-bl {
+            bottom: -4px;
+            left: -4px;
+            border-width: 0 0 6px 6px;
+        }
+
+        .hud-br {
+            bottom: -4px;
+            right: -4px;
+            border-width: 0 6px 6px 0;
+        }
+
+        .text-section {
+            height: 500px;
+            padding: 80px 60px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            z-index: 10;
+            position: relative;
+        }
+
+        .headline {
+            font-size: 7.5rem;
+            font-weight: 900;
+            color: var(--text-main);
+            line-height: 1.15;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            text-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+            margin: 0;
+        }
+
+        .headline .highlight {
+            color: var(--accent-cyan);
+            display: block;
+        }
+
+        .visual-section {
+            flex-grow: 1;
+            position: relative;
+            z-index: 5;
+        }
+
+        /* Gercekci Telefon Çerçevesi */
+        .phone-mockup {
+            width: 880px;
+            height: 1450px;
+            background: #000;
+            border-radius: 80px 80px 0 0;
+            border: 18px solid #2a2c33;
+            border-bottom: none;
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 -20px 80px rgba(0, 0, 0, 0.9);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Çentik (Notch) / Kamera Deligi Simülasyonu */
+        .notch {
+            width: 250px;
+            height: 60px;
+            background: #000;
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 30px;
+            z-index: 20;
+            box-shadow: inset 0 -2px 5px rgba(255, 255, 255, 0.1);
+        }
+
+        .app-content {
+            background: #111;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            border-radius: 65px 65px 0 0;
+            overflow: hidden;
+        }
+
+        /* Kullanicinin Saglayacagi Ekran Goruntuleri ID'si */
+        .app-screenshot {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #222;
+            /* Eger resim bulunamazsa karanlik arkaplan */
+            transform: scale(1.08);
+            /* Ekranin üstündeki saat/şarj (Status bar) ve altindaki telefon geri/ana menü (Nav bar) çubuklarını otomatik olarak çerçevenin dışına itip gizlemek için eklenen sihirli %8'lik Zoom'dur. */
+        }
+
+        /* Eksik gorsel uyarisini css ile yapiyoruz */
+        .placeholder-text {
+            color: #ff3b30;
+            font-size: 2rem;
+            text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            z-index: 0;
+            /* Resmin arkasinda kalir eger resim varsa */
+            width: 80%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Frame 1 -->
+    <div class="screenshot-container">
+        <div class="grid-overlay"></div>
+        <div class="hud-overlay">
+            <div class="hud-corner hud-tl"></div>
+            <div class="hud-corner hud-tr"></div>
+            <div class="hud-corner hud-bl"></div>
+            <div class="hud-corner hud-br"></div>
+        </div>
+
+        <div class="text-section">
+            <h1 class="headline" data-i18n="frame1_text"></h1>
+        </div>
+
+        <div class="visual-section">
+            <div class="phone-mockup">
+                <div class="notch"></div>
+                <div class="app-content">
+                    <div class="placeholder-text">Lutfen raw_screenshots/1.png yukleyin</div>
+                    <!-- Kullanicinin Resmi Buraya Gelecek -->
+                    <img class="app-screenshot" src="raw_screenshots/1.png" onerror="this.style.display='none'">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Frame 2 -->
+    <div class="screenshot-container">
+        <div class="grid-overlay"></div>
+        <div class="hud-overlay">
+            <div class="hud-corner hud-tl"></div>
+            <div class="hud-corner hud-tr"></div>
+            <div class="hud-corner hud-bl"></div>
+            <div class="hud-corner hud-br"></div>
+        </div>
+
+        <div class="text-section">
+            <h1 class="headline" data-i18n="frame2_text"></h1>
+        </div>
+
+        <div class="visual-section">
+            <div class="phone-mockup">
+                <div class="notch"></div>
+                <div class="app-content">
+                    <div class="placeholder-text">Lutfen raw_screenshots/2.png yukleyin</div>
+                    <img class="app-screenshot" src="raw_screenshots/2.png" onerror="this.style.display='none'">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Frame 3 -->
+    <div class="screenshot-container">
+        <div class="grid-overlay"></div>
+        <div class="hud-overlay">
+            <div class="hud-corner hud-tl"></div>
+            <div class="hud-corner hud-tr"></div>
+            <div class="hud-corner hud-bl"></div>
+            <div class="hud-corner hud-br"></div>
+        </div>
+
+        <div class="text-section">
+            <h1 class="headline" data-i18n="frame3_text"></h1>
+        </div>
+
+        <div class="visual-section">
+            <div class="phone-mockup">
+                <div class="notch"></div>
+                <div class="app-content">
+                    <div class="placeholder-text">Lutfen raw_screenshots/3.png yukleyin</div>
+                    <img class="app-screenshot" src="raw_screenshots/3.png" onerror="this.style.display='none'">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Frame 4 -->
+    <div class="screenshot-container">
+        <div class="grid-overlay"></div>
+        <div class="hud-overlay">
+            <div class="hud-corner hud-tl"></div>
+            <div class="hud-corner hud-tr"></div>
+            <div class="hud-corner hud-bl"></div>
+            <div class="hud-corner hud-br"></div>
+        </div>
+
+        <div class="text-section">
+            <h1 class="headline" data-i18n="frame4_text"></h1>
+        </div>
+
+        <div class="visual-section">
+            <div class="phone-mockup">
+                <div class="notch"></div>
+                <div class="app-content">
+                    <div class="placeholder-text">Lutfen raw_screenshots/4.png yukleyin</div>
+                    <img class="app-screenshot" src="raw_screenshots/4.png" onerror="this.style.display='none'">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Frame 5 -->
+    <div class="screenshot-container">
+        <div class="grid-overlay"></div>
+        <div class="hud-overlay">
+            <div class="hud-corner hud-tl"></div>
+            <div class="hud-corner hud-tr"></div>
+            <div class="hud-corner hud-bl"></div>
+            <div class="hud-corner hud-br"></div>
+        </div>
+
+        <div class="text-section">
+            <h1 class="headline" data-i18n="frame5_text"></h1>
+        </div>
+
+        <div class="visual-section">
+            <div class="phone-mockup">
+                <div class="notch"></div>
+                <div class="app-content">
+                    <div class="placeholder-text">Lutfen raw_screenshots/5.png yukleyin</div>
+                    <img class="app-screenshot" src="raw_screenshots/5.png" onerror="this.style.display='none'">
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
