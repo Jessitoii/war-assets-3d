@@ -39,6 +39,7 @@
     "featured_assets": "الأصول المميزة",
     "features": "الميزات",
     "fetching_wiki": "استشارة أرشيف الاستخبارات...",
+    "full_dossier": "ملف تكتيكي",
     "geometry_unavailable": "الهندسة ثلاثية الأبعاد لهذا الأصل مصنفة حاليًا أو غير متوفرة في المستودعات المفتوحة.",
     "global_hotspots": "بؤر الصراع العالمية",
     "history_background": "التاريخ والخلفية",
@@ -65,8 +66,10 @@
     "view_3d": "عرض ثلاثي الأبعاد",
     "view_asset_intel": "عرض استخبارات الأصل",
     "view_on_wiki_fallback": "عرض صفحة ويكيبيديا الخام",
-    "technical_specs": "Technical Specs",
-    "light_mode": "Light Mode"
+    "technical_specs": "المواصفات الفنية",
+    "light_mode": "الوضع الفاتح",
+    "data_disclaimer_title": "دقة البيانات",
+    "data_disclaimer_text": "يتم جمع البيانات الموجودة في هذا التطبيق من مصادر ويب عامة مختلفة. لذلك، قد لا تكون المعلومات دقيقة تمامًا، وقد تكون بعض البيانات المحددة التي تبحث عنها مفقودة."
   },
   "comparison": {
     "add_asset": "إضافة أصل",

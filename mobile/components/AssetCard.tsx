@@ -35,7 +35,7 @@ export const AssetCard: React.FC<Props> = ({ asset, onPress }) => {
             <Text style={[styles.placeholderText, { color: isDark ? '#666' : '#AAA' }]}>NO VISUAL INTEL</Text>
           </View>
         )}
-        
+
         {/* Tactical 3D Availability Badge */}
         {!!asset.model && (
           <View style={styles.modelBadge}>

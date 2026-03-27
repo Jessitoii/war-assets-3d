@@ -42,31 +42,34 @@ export const CDN_CONFIG = {
   resolveImage: (path: string | string[]): any => {
     if (!path) return undefined;
 
-    // Recursive handling for reconnaissance arrays
     if (Array.isArray(path)) {
       return path.map(p => CDN_CONFIG.resolveImage(p));
     }
 
-    // IDEMPOTENCY CHECK
-    const isAbsolute = /workers\.dev|r2\.dev|http/.test(path);
-    if (isAbsolute) return path;
+    if (typeof path !== 'string') return path;
 
-    // SANITIZATION: Strip legacy prefixes if somehow present
-    const cleanPath = path.replace(/^(\/|images\/|public\/images\/)/, '');
+    // Sadece domain kısmını proxy url yapsın başka bir şey yapmasın
+    if (path.startsWith('http')) {
+      return path.replace(/^https?:\/\/[^/]+/, PROXY_DOMAIN);
+    }
 
-    return `${CDN_CONFIG.imageUrl}/${cleanPath}`;
+    return `${PROXY_DOMAIN}/${path.replace(/^\//, '')}`;
   },
 
-  resolveModel: (path: string) => {
+  resolveModel: (path: string | string[]): any => {
     if (!path) return undefined;
 
-    // IDEMPOTENCY CHECK
-    const isAbsolute = /workers\.dev|r2\.dev|http/.test(path);
-    if (isAbsolute) return path;
+    if (Array.isArray(path)) {
+      return path.map(p => CDN_CONFIG.resolveModel(p));
+    }
 
-    // SANITIZATION: Strip legacy prefixes
-    const cleanPath = path.replace(/^(\/|models\/|public\/models\/)/, '');
+    if (typeof path !== 'string') return path;
 
-    return `${CDN_CONFIG.modelUrl}/${cleanPath}`;
+    // Sadece domain kısmını proxy url yapsın başka bir şey yapmasın
+    if (path.startsWith('http')) {
+      return path.replace(/^https?:\/\/[^/]+/, PROXY_DOMAIN);
+    }
+
+    return `${PROXY_DOMAIN}/${path.replace(/^\//, '')}`;
   }
 };

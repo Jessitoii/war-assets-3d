@@ -39,6 +39,7 @@
     "featured_assets": "Khí tài tiêu biểu",
     "features": "Đặc tính",
     "fetching_wiki": "Đang truy xuất kho lưu trữ tình báo...",
+    "full_dossier": "Hồ sơ chiến thuật",
     "geometry_unavailable": "Dữ liệu mô phỏng 3D của khí tài này hiện đang được bảo mật hoặc chưa có trong kho lưu trữ mở.",
     "global_hotspots": "Điểm nóng toàn cầu",
     "history_background": "Lịch sử & Bối cảnh",
@@ -65,8 +66,10 @@
     "view_3d": "Xem dưới dạng 3-D",
     "view_asset_intel": "XEM THÔNG TIN CHIẾN THUẬT",
     "view_on_wiki_fallback": "Xem trang Wikipedia gốc",
-    "technical_specs": "Technical Specs",
-    "light_mode": "Light Mode"
+    "technical_specs": "Thông số kỹ thuật",
+    "light_mode": "Chế độ sáng",
+    "data_disclaimer_title": "Độ chính xác của dữ liệu",
+    "data_disclaimer_text": "Dữ liệu trong ứng dụng này được thu thập từ nhiều nguồn web công cộng khác nhau. Do đó, thôngquan có thể không hoàn toàn chính xác và một số dữ liệu cụ thể mà bạn đang tìm kiếm có thể bị thiếu."
   },
   "comparison": {
     "add_asset": "Thêm khí tài",

@@ -39,6 +39,7 @@
     "featured_assets": "Пріоритетні об'єкти",
     "features": "Особливості",
     "fetching_wiki": "Звернення до архівів розвідки...",
+    "full_dossier": "Тактичне досьє",
     "geometry_unavailable": "3D-геометрія об'єкта засекречена або відсутня у відкритих джерелах.",
     "global_hotspots": "Глобальні гарячі точки",
     "history_background": "History & Background",
@@ -65,8 +66,10 @@
     "view_3d": "Перегляд у 3-D",
     "view_asset_intel": "ПЕРЕГЛЯД РОЗВІДКИ",
     "view_on_wiki_fallback": "Оригінальна сторінка Wikipedia",
-    "technical_specs": "Technical Specs",
-    "light_mode": "Light Mode"
+    "technical_specs": "Технічні характеристики",
+    "light_mode": "Світла тема",
+    "data_disclaimer_title": "Точність даних",
+    "data_disclaimer_text": "Дані в цьому додатку збираються з різних загальнодоступних веб-джерел. Тому інформація може бути не зовсім точною, а деякі конкретні дані, які ви шукаєте, можуть бути відсутніми."
   },
   "comparison": {
     "add_asset": "Додати об'єкт",

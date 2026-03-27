@@ -39,6 +39,7 @@
     "featured_assets": "دارایی‌های برگزیده",
     "features": "ویژگی‌ها",
     "fetching_wiki": "در حال استعلام از آرشیوهای اطلاعاتی...",
+    "full_dossier": "پرونده تاکتیکی",
     "geometry_unavailable": "ساختار سه بعدی این دارایی در حال حاضر طبقه‌بندی شده یا در منابع باز موجود نیست.",
     "global_hotspots": "نقاط داغ جهانی",
     "history_background": "تاریخچه و پیشینه",
@@ -65,8 +66,10 @@
     "view_3d": "مشاهده سه بعدی",
     "view_asset_intel": "مشاهده اطلاعات تاکتیکی",
     "view_on_wiki_fallback": "مشاهده صفحه خام ویکی‌پدیا",
-    "technical_specs": "Technical Specs",
-    "light_mode": "Light Mode"
+    "technical_specs": "مشخصات فنی",
+    "light_mode": "حالت روشن",
+    "data_disclaimer_title": "دقت داده‌ها",
+    "data_disclaimer_text": "داده‌های موجود در این برنامه از منابع وب عمومی مختلف جمع‌آوری شده است. بنابراین، ممکن است اطلاعات کاملاً دقیق نباشد و برخی از داده‌های خاصی که به دنبال آنها هستید وجود نداشته باشد."
   },
   "comparison": {
     "add_asset": "افزودن دارایی",

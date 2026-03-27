@@ -47,3 +47,5 @@ yarn-error.*
 # Firebase Configs
 google-services.json
 GoogleService-Info.plist
+
+AndroidManifes.xml

@@ -38,9 +38,9 @@ export const CategoryScreen: React.FC<Props> = ({ route, navigation }) => {
 
   const displayedAssets = useMemo(() => {
     return assets.filter(asset => {
-      if (selectedCategoryId && asset.categoryId !== selectedCategoryId) return false;
-      if (selectedCountry && asset.specs?.country && asset.specs.country !== selectedCountry) return false;
-      if (selectedGeneration && asset.specs?.generation && asset.specs.generation !== selectedGeneration) return false;
+      if (selectedCategoryId && asset.catId !== selectedCategoryId) return false;
+      if (selectedCountry && asset.country && asset.country !== selectedCountry) return false;
+      if (selectedGeneration && asset.short_specs?.generation && asset.short_specs.generation !== selectedGeneration) return false;
       return true;
     });
   }, [assets, selectedCategoryId, selectedCountry, selectedGeneration]);

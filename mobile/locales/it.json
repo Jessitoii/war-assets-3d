@@ -39,6 +39,7 @@
     "featured_assets": "Asset in Evidenza",
     "features": "Caratteristiche",
     "fetching_wiki": "Consultazione archivi intelligence...",
+    "full_dossier": "Dossier tattico",
     "geometry_unavailable": "La geometria 3D di questo asset è attualmente classificata o non disponibile nei repository aperti.",
     "global_hotspots": "Punti Critici Globali",
     "history_background": "Storia e Background",
@@ -65,8 +66,10 @@
     "view_3d": "Visualizza in 3-D",
     "view_asset_intel": "VEDI INTELLIGENCE ASSET",
     "view_on_wiki_fallback": "Vedi pagina Wikipedia originale",
-    "technical_specs": "Technical Specs",
-    "light_mode": "Light Mode"
+    "technical_specs": "Specifiche tecniche",
+    "light_mode": "Modalità chiara",
+    "data_disclaimer_title": "Accuratezza dei dati",
+    "data_disclaimer_text": "I dati in questa applicazione sono raccolti da varie fonti web pubbliche. Pertanto, le informazioni potrebbero non essere completamente accurate e alcuni specifici dati che stai cercando potrebbero mancare."
   },
   "comparison": {
     "add_asset": "Aggiungi Asset",

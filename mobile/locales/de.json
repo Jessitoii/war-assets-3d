@@ -39,6 +39,7 @@
     "featured_assets": "Hervorgehobene Objekte",
     "features": "Merkmale",
     "fetching_wiki": "Abfrage der Aufklärungsarchive...",
+    "full_dossier": "Taktisches Dossier",
     "geometry_unavailable": "Die 3D-Geometrie für dieses Objekt ist als geheim eingestuft oder nicht in offenen Quellen verfügbar.",
     "global_hotspots": "Globale Krisenherde",
     "history_background": "Geschichte & Hintergrund",
@@ -65,8 +66,10 @@
     "view_3d": "In 3-D anzeigen",
     "view_asset_intel": "AUFKLÄRUNGSDATEN ANZEIGEN",
     "view_on_wiki_fallback": "Wikipedia-Rohseite anzeigen",
-    "technical_specs": "Technical Specs",
-    "light_mode": "Light Mode"
+    "technical_specs": "Technische Spezifikationen",
+    "light_mode": "Heller Modus",
+    "data_disclaimer_title": "Datengenauigkeit",
+    "data_disclaimer_text": "Die Daten in dieser Anwendung werden aus verschiedenen öffentlichen Webquellen gesammelt. Daher sind die Informationen möglicherweise nicht ganz genau und bestimmte, von Ihnen gesuchte Daten fehlen möglicherweise."
   },
   "comparison": {
     "add_asset": "Objekt hinzufügen",

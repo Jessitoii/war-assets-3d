@@ -10,8 +10,13 @@ export interface AssetDossier {
 }
 
 export interface Translation {
-  short_specs: AssetSpecs;
-  full_dossier: AssetDossier;
+  name?: string;
+  country?: string;
+  countryCode?: string;
+  short_specs?: AssetSpecs;
+  full_dossier?: AssetDossier;
+  specs?: AssetSpecs;
+  [key: string]: any;
 }
 
 export interface AssetMetrics {

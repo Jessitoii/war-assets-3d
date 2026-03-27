@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, Alert, Modal, FlatList } from 'react-native';
+import { View, Text, StyleSheet, Switch, TouchableOpacity, Alert, Modal, FlatList, ScrollView } from 'react-native';
 import { useStore } from '../store';
 import * as SQLite from 'expo-sqlite';
 import * as FileSystem from 'expo-file-system/legacy';
@@ -141,160 +141,173 @@ export const SettingsScreen = () => {
 
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]} edges={['top', 'bottom']}>
       <View style={styles.header}>
         <Text style={[styles.headerTitle, { color: colors.text }]}>{t('common.settings')}</Text>
       </View>
+      <ScrollView>
+        <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.sectionTitle, { color: colors.subtext }]}>{t('common.appearance')}</Text>
 
-      <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        <Text style={[styles.sectionTitle, { color: colors.subtext }]}>{t('common.appearance')}</Text>
-
-        <View style={styles.row}>
-          <View style={styles.rowText}>
-            <Text style={[styles.rowTitle, { color: colors.text }]}>{t('common.dark_mode')}</Text>
-            <Text style={[styles.rowSubtitle, { color: colors.subtext }]}>{t('common.toggle_theme')}</Text>
-          </View>
-          <Switch
-            value={isDark}
-            onValueChange={handleToggleTheme}
-            trackColor={{ true: colors.primary, false: colors.border }}
-            accessibilityHint="Toggles dark mode"
-          />
-        </View>
-
-        <View style={[styles.divider, { backgroundColor: colors.border }]} />
-
-        <TouchableOpacity
-          style={styles.row}
-          onPress={() => setShowLanguageModal(true)}
-        >
-          <View style={styles.rowText}>
-            <Text style={[styles.rowTitle, { color: colors.text }]}>{currentLanguageLabel}</Text>
-            <Text style={[styles.rowSubtitle, { color: colors.subtext }]}>{t('settings.language_selection') || 'Change application language'}</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color={colors.subtext} />
-        </TouchableOpacity>
-      </View>
-
-      <Modal
-        visible={showLanguageModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowLanguageModal(false)}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowLanguageModal(false)}
-        >
-          <View style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <Text style={[styles.modalTitle, { color: colors.text }]}>{t('settings.select_language') || 'Select Language'}</Text>
-            <FlatList
-              data={languages}
-              keyExtractor={(item) => item.code}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={[
-                    styles.languageItem,
-                    language === item.code && { backgroundColor: `${colors.primary}20` }
-                  ]}
-                  onPress={() => handleLanguageSelect(item.code)}
-                >
-                  <View>
-                    <Text style={[styles.languageNative, { color: colors.text }]}>{item.native}</Text>
-                    <Text style={[styles.languageLabel, { color: colors.subtext }]}>{item.label}</Text>
-                  </View>
-                  {language === item.code && (
-                    <Ionicons name="checkmark-circle" size={24} color={colors.primary} />
-                  )}
-                </TouchableOpacity>
-              )}
+          <View style={styles.row}>
+            <View style={styles.rowText}>
+              <Text style={[styles.rowTitle, { color: colors.text }]}>{t('common.dark_mode')}</Text>
+              <Text style={[styles.rowSubtitle, { color: colors.subtext }]}>{t('common.toggle_theme')}</Text>
+            </View>
+            <Switch
+              value={isDark}
+              onValueChange={handleToggleTheme}
+              trackColor={{ true: colors.primary, false: colors.border }}
+              accessibilityHint="Toggles dark mode"
             />
           </View>
-        </TouchableOpacity>
-      </Modal>
 
-      <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        <Text style={[styles.sectionTitle, { color: colors.subtext }]}>{t('common.data_sync')}</Text>
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-        <View style={styles.stateContainer}>
-          <View style={styles.stateRow}>
-            <Ionicons name={offlineStatus.is_offline_ready ? "cloud-done" : "cloud-offline"} size={24} color={colors.primary} />
-            <View style={{ marginLeft: 12 }}>
-              <Text style={[styles.rowTitle, { color: colors.text }]}>
-                {offlineStatus.is_offline_ready ? t('common.offline_ready') : t('common.online_only')}
-              </Text>
-              <Text style={[styles.rowSubtitle, { color: colors.subtext }]}>
-                {t('common.db_size')}: {(offlineStatus.db_size_bytes / 1024).toFixed(1)} KB
-              </Text>
-              {offlineStatus.last_sync && (
-                <Text style={[styles.rowSubtitle, { color: colors.subtext }]}>
-                  {t('common.last_sync')}: {new Date(offlineStatus.last_sync).toLocaleString(language)}
+          <TouchableOpacity
+            style={styles.row}
+            onPress={() => setShowLanguageModal(true)}
+          >
+            <View style={styles.rowText}>
+              <Text style={[styles.rowTitle, { color: colors.text }]}>{currentLanguageLabel}</Text>
+              <Text style={[styles.rowSubtitle, { color: colors.subtext }]}>{t('settings.language_selection') || 'Change application language'}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={colors.subtext} />
+          </TouchableOpacity>
+        </View>
+
+        <Modal
+          visible={showLanguageModal}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setShowLanguageModal(false)}
+        >
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPress={() => setShowLanguageModal(false)}
+          >
+            <View style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>{t('settings.select_language') || 'Select Language'}</Text>
+              <FlatList
+                data={languages}
+                keyExtractor={(item) => item.code}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={[
+                      styles.languageItem,
+                      language === item.code && { backgroundColor: `${colors.primary}20` }
+                    ]}
+                    onPress={() => handleLanguageSelect(item.code)}
+                  >
+                    <View>
+                      <Text style={[styles.languageNative, { color: colors.text }]}>{item.native}</Text>
+                      <Text style={[styles.languageLabel, { color: colors.subtext }]}>{item.label}</Text>
+                    </View>
+                    {language === item.code && (
+                      <Ionicons name="checkmark-circle" size={24} color={colors.primary} />
+                    )}
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          </TouchableOpacity>
+        </Modal>
+
+        <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.sectionTitle, { color: colors.subtext }]}>{t('common.data_sync')}</Text>
+
+          <View style={styles.stateContainer}>
+            <View style={styles.stateRow}>
+              <Ionicons name={offlineStatus.is_offline_ready ? "cloud-done" : "cloud-offline"} size={24} color={colors.primary} />
+              <View style={{ marginLeft: 12 }}>
+                <Text style={[styles.rowTitle, { color: colors.text }]}>
+                  {offlineStatus.is_offline_ready ? t('common.offline_ready') : t('common.online_only')}
                 </Text>
-              )}
+                <Text style={[styles.rowSubtitle, { color: colors.subtext }]}>
+                  {t('common.db_size')}: {(offlineStatus.db_size_bytes / 1024).toFixed(1)} KB
+                </Text>
+                {offlineStatus.last_sync && (
+                  <Text style={[styles.rowSubtitle, { color: colors.subtext }]}>
+                    {t('common.last_sync')}: {new Date(offlineStatus.last_sync).toLocaleString(language)}
+                  </Text>
+                )}
+              </View>
             </View>
           </View>
+
+          <TouchableOpacity
+            style={[styles.syncButton, { backgroundColor: colors.primary, opacity: isSyncing ? 0.7 : 1 }]}
+            onPress={handleDataSync}
+            disabled={isSyncing}
+          >
+            <Ionicons name="sync" size={20} color="#fff" style={{ marginRight: 8 }} />
+            <Text style={styles.syncButtonText}>
+              {isSyncing ? t('common.syncing') : t('common.sync_now')}
+            </Text>
+          </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
-          style={[styles.syncButton, { backgroundColor: colors.primary, opacity: isSyncing ? 0.7 : 1 }]}
-          onPress={handleDataSync}
-          disabled={isSyncing}
-        >
-          <Ionicons name="sync" size={20} color="#fff" style={{ marginRight: 8 }} />
-          <Text style={styles.syncButtonText}>
-            {isSyncing ? t('common.syncing') : t('common.sync_now')}
-          </Text>
-        </TouchableOpacity>
-      </View>
+        <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.sectionTitle, { color: colors.subtext }]}>{t('common.features')}</Text>
 
-      <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        <Text style={[styles.sectionTitle, { color: colors.subtext }]}>{t('common.features')}</Text>
+          <View style={styles.row}>
+            <View style={styles.rowText}>
+              <Text style={[styles.rowTitle, { color: colors.text }]}>{t('common.enable_ar')}</Text>
+              <Text style={[styles.rowSubtitle, { color: colors.subtext }]}>
+                {supportsAR ? t('common.allow_ar') : t('common.ar_not_supported')}
+              </Text>
+            </View>
+            <Switch
+              value={arEnabled}
+              onValueChange={handleToggleAR}
+              disabled={!supportsAR}
+              trackColor={{ true: colors.primary, false: colors.border }}
+              accessibilityHint="Toggles augmented reality capability"
+            />
+          </View>
 
-        <View style={styles.row}>
-          <View style={styles.rowText}>
-            <Text style={[styles.rowTitle, { color: colors.text }]}>{t('common.enable_ar')}</Text>
-            <Text style={[styles.rowSubtitle, { color: colors.subtext }]}>
-              {supportsAR ? t('common.allow_ar') : t('common.ar_not_supported')}
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+          <View style={styles.row}>
+            <View style={styles.rowText}>
+              <Text style={[styles.rowTitle, { color: colors.text }]}>{t('common.notifications')}</Text>
+              <Text style={[styles.rowSubtitle, { color: colors.subtext }]}>{t('common.allow_notifications')}</Text>
+            </View>
+            <Switch
+              value={notificationsEnabled}
+              onValueChange={handleToggleNotifications}
+              trackColor={{ true: colors.primary, false: colors.border }}
+            />
+          </View>
+        </View>
+
+        <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.sectionTitle, { color: colors.subtext }]}>{t('common.legal')}</Text>
+
+          <TouchableOpacity
+            style={styles.row}
+            onPress={() => Linking.openURL('https://gist.github.com/Jessitoii/e37875a100f4207b3a35505f536039d9')}
+          >
+            <View style={styles.rowText}>
+              <Text style={[styles.rowTitle, { color: colors.text }]}>{t('common.privacy_policy')}</Text>
+            </View>
+            <Ionicons name="open-outline" size={20} color={colors.primary} />
+          </TouchableOpacity>
+
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+          <View style={styles.disclaimerContainer}>
+            <View style={styles.disclaimerHeader}>
+              <Ionicons name="information-circle-outline" size={18} color={colors.subtext} />
+              <Text style={[styles.disclaimerTitle, { color: colors.text }]}>{t('common.data_disclaimer_title')}</Text>
+            </View>
+            <Text style={[styles.disclaimerText, { color: colors.subtext }]}>
+              {t('common.data_disclaimer_text')}
             </Text>
           </View>
-          <Switch
-            value={arEnabled}
-            onValueChange={handleToggleAR}
-            disabled={!supportsAR}
-            trackColor={{ true: colors.primary, false: colors.border }}
-            accessibilityHint="Toggles augmented reality capability"
-          />
         </View>
-
-        <View style={[styles.divider, { backgroundColor: colors.border }]} />
-
-        <View style={styles.row}>
-          <View style={styles.rowText}>
-            <Text style={[styles.rowTitle, { color: colors.text }]}>{t('common.notifications')}</Text>
-            <Text style={[styles.rowSubtitle, { color: colors.subtext }]}>{t('common.allow_notifications')}</Text>
-          </View>
-          <Switch
-            value={notificationsEnabled}
-            onValueChange={handleToggleNotifications}
-            trackColor={{ true: colors.primary, false: colors.border }}
-          />
-        </View>
-      </View>
-
-      <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        <Text style={[styles.sectionTitle, { color: colors.subtext }]}>{t('common.legal')}</Text>
-
-        <TouchableOpacity
-          style={styles.row}
-          onPress={() => Linking.openURL('https://gist.github.com/Jessitoii/e37875a100f4207b3a35505f536039d9')}
-        >
-          <View style={styles.rowText}>
-            <Text style={[styles.rowTitle, { color: colors.text }]}>{t('common.privacy_policy')}</Text>
-          </View>
-          <Ionicons name="open-outline" size={20} color={colors.primary} />
-        </TouchableOpacity>
-      </View>
+      </ScrollView>
 
 
     </SafeAreaView>
@@ -402,5 +415,24 @@ const styles = StyleSheet.create({
   },
   languageLabel: {
     fontSize: 14,
+  },
+  disclaimerContainer: {
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+  disclaimerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  disclaimerTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 6,
+  },
+  disclaimerText: {
+    fontSize: 13,
+    lineHeight: 18,
+    opacity: 0.9,
   },
 });

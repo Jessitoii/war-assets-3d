@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { BattleForecastModal } from '../components/comparison/BattleForecastModal';
 import { Asset } from '../store/slices/assetSlice';
-import { t_spec } from '../utils/assetUtils';
+import { t_spec, getFuzzySpec } from '../utils/assetUtils';
 import { CDN_CONFIG } from '../config/cdnConfig';
 
 const { width } = Dimensions.get('window');
@@ -39,9 +39,9 @@ export const ComparisonScreen = () => {
 
   const getPrioritySpecs = (asset: Asset) => {
     return {
-      speed: t_spec(asset, 'short_specs', 'speed', i18n.language),
-      armour: t_spec(asset, 'short_specs', 'armour', i18n.language),
-      armament: t_spec(asset, 'short_specs', 'primary_armament', i18n.language) || t_spec(asset, 'short_specs', 'armament', i18n.language),
+      speed: getFuzzySpec(asset, 'short_specs', ['speed', t('asset.speed')], i18n.language),
+      armour: getFuzzySpec(asset, 'short_specs', ['armour', t('asset.armour')], i18n.language),
+      armament: getFuzzySpec(asset, 'short_specs', ['armament', t('asset.armament')], i18n.language),
     };
   };
 
@@ -57,8 +57,8 @@ export const ComparisonScreen = () => {
       <Text style={[styles.rowLabel, { color: isDark ? '#888' : '#666' }]}>{label.toUpperCase()}</Text>
       <View style={styles.valuesContainer}>
         {queuedAssets.map((asset, idx) => {
-          const val = t_spec(asset, 'short_specs', specKey, i18n.language);
-          const others = queuedAssets.filter((_, i) => i !== idx).map(a => t_spec(a, 'short_specs', specKey, i18n.language));
+          const val = getFuzzySpec(asset, 'short_specs', [specKey, label], i18n.language);
+          const others = queuedAssets.filter((_, i) => i !== idx).map(a => getFuzzySpec(a, 'short_specs', [specKey, label], i18n.language));
           const highlighted = (specKey === 'speed' || specKey === 'armour') && isBetter(val, others, specKey as any);
 
           return (

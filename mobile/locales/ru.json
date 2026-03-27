@@ -39,6 +39,7 @@
     "featured_assets": "Избранные объекты",
     "features": "Характеристики",
     "fetching_wiki": "Запрос в архивы разведки...",
+    "full_dossier": "Тактическое досье",
     "geometry_unavailable": "3D-геометрия объекта засекречена или отсутствует в открытом доступе.",
     "global_hotspots": "Глобальные горячие точки",
     "history_background": "История и Справка",
@@ -65,8 +66,10 @@
     "view_3d": "Просмотр в 3-D",
     "view_asset_intel": "ПРОСМОТР РАЗВЕДКИ",
     "view_on_wiki_fallback": "Исходная страница Wikipedia",
-    "technical_specs": "Technical Specs",
-    "light_mode": "Light Mode"
+    "technical_specs": "Технические характеристики",
+    "light_mode": "Светлая тема",
+    "data_disclaimer_title": "Точность данных",
+    "data_disclaimer_text": "Данные в этом приложении собираются из различных общедоступных веб-источников. Поэтому информация может быть не совсем точной, а некоторые конкретные данные, которые вы ищете, могут отсутствовать."
   },
   "comparison": {
     "add_asset": "Добавить объект",

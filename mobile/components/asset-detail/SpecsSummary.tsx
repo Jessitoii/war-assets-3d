@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../styles/theme';
 import { Asset, AssetSpecs } from '../../store/slices/assetSlice';
 import { getFlagEmoji } from '../../utils/countryUtils';
+import { getFuzzySpec } from '../../utils/assetUtils';
 import { useTranslation } from 'react-i18next';
 
 interface SpecsSummaryProps {
@@ -28,10 +29,12 @@ export const SpecsSummary: React.FC<SpecsSummaryProps> = ({ asset, isDark, onPre
   const textColor = isDark ? '#FFF' : '#000';
   const subTextColor = isDark ? '#AAA' : '#666';
 
+
+
   const items = [
-    { label: t('asset.range'), value: displaySpecs.range || 'N/A', icon: 'navigate-outline' },
-    { label: t('asset.speed'), value: displaySpecs.speed || 'N/A', icon: 'speedometer-outline' },
-    { label: t('asset.generation'), value: displaySpecs.generation || 'N/A', icon: 'git-network-outline' },
+    { label: t('asset.range'), value: getFuzzySpec(asset, 'short_specs', ['range', t('asset.range')], currentLang) || 'N/A', icon: 'navigate-outline' },
+    { label: t('asset.speed'), value: getFuzzySpec(asset, 'short_specs', ['speed', t('asset.speed')], currentLang) || 'N/A', icon: 'speedometer-outline' },
+    { label: t('asset.generation'), value: getFuzzySpec(asset, 'short_specs', ['gen', t('asset.generation')], currentLang, true) || 'N/A', icon: 'git-network-outline' },
     {
       label: t('asset.origin'),
       value: `${getFlagEmoji(countryCode || '')} ${countryName || 'Global'}`.trim(),

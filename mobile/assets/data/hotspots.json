@@ -4,139 +4,454 @@
     "name": "Kyiv & Northern Ukraine",
     "lat": 50.4501,
     "lng": 30.5234,
-    "keywords": ["Kyiv", "Kiev", "Oblast", "Hostomel", "Bucha", "Northern Ukraine"]
+    "keywords": ["Kyiv", "Kiev", "Oblast", "Hostomel", "Bucha", "Northern Ukraine", "Chernihiv"]
   },
   {
-    "id": "donbas-bakhmut",
-    "name": "Bakhmut / Donbas",
+    "id": "donbas-eastern-ukraine",
+    "name": "Donbas / Eastern Ukraine",
     "lat": 48.595,
     "lng": 38.001,
-    "keywords": ["Bakhmut", "Donetsk", "Donbas", "Wagner", "Artillery", "Avdiivka"]
+    "keywords": ["Bakhmut", "Donetsk", "Donbas", "Wagner", "Artillery", "Avdiivka", "Luhansk", "Kharkiv", "Kupiansk", "Vuhledar", "Pokrovsk", "Chasiv Yar"]
   },
   {
-    "id": "red-sea-strait",
-    "name": "Red Sea / Bab al-Mandab",
-    "lat": 12.58,
-    "lng": 43.33,
-    "keywords": ["Houthi", "Suez", "Bab al-Mandab", "Yemen", "Red Sea", "Cargo ship"]
-  },
-  {
-    "id": "gaza-strip",
-    "name": "Gaza Strip",
-    "lat": 31.35,
-    "lng": 34.30,
-    "keywords": ["Gaza", "Hamas", "IDF", "Rafah", "Khan Younis", "Israel-Hamas"]
-  },
-  {
-    "id": "taiwan-strait",
-    "name": "Taiwan Strait",
-    "lat": 24.47,
-    "lng": 119.34,
-    "keywords": ["Taiwan", "PLA", "Strait", "Taipei", "South China Sea", "Drills"]
-  },
-  {
-    "id": "zaporizhzhia",
-    "name": "Zaporizhzhia",
+    "id": "zaporizhzhia-south-ukraine",
+    "name": "Zaporizhzhia & Southern Ukraine",
     "lat": 47.838,
     "lng": 35.139,
-    "keywords": ["Zaporizhzhia", "Nuclear Plant", "ZNPP", "Dnieper", "Counteroffensive"]
+    "keywords": ["Zaporizhzhia", "Nuclear Plant", "ZNPP", "Dnieper", "Kherson", "Odesa", "Melitopol", "Tokmak"]
   },
   {
-    "id": "kerala-border",
-    "name": "Line of Actual Control (India-China)",
-    "lat": 34.0,
-    "lng": 78.0,
-    "keywords": ["LAC", "Ladakh", "Galwan", "Border", "India-China", "Himalayas"]
+    "id": "crimea-black-sea",
+    "name": "Crimea & Black Sea Fleet",
+    "lat": 44.6,
+    "lng": 33.5,
+    "keywords": ["Sevastopol", "Crimea", "Black Sea", "Drone boat", "Naval", "Fleet", "Kerch", "Crimean Bridge", "Novorossiysk"]
+  },
+  {
+    "id": "odesa-grain-corridor",
+    "name": "Odesa & Grain Corridor",
+    "lat": 46.48,
+    "lng": 30.73,
+    "keywords": ["Odesa port", "Snake Island", "Grain ship", "Chornomorsk", "Danube port", "Izmail"]
+  },
+  {
+    "id": "moscow-russia-interior",
+    "name": "Moscow / Russian Interior",
+    "lat": 55.7558,
+    "lng": 37.6173,
+    "keywords": ["Moscow", "Kremlin", "Belgorod", "Kursk", "Rostov", "Engels", "Russian base", "Russian oil refinery", "Bryansk", "Voronezh", "Ryazan"]
+  },
+  {
+    "id": "baltic-sea-kaliningrad",
+    "name": "Baltic Sea / Kaliningrad",
+    "lat": 54.71,
+    "lng": 20.45,
+    "keywords": ["Kaliningrad", "Baltic", "Suwalki Gap", "NATO border", "Nord Stream", "Baltic Fleet"]
+  },
+  {
+    "id": "transnistria-moldova",
+    "name": "Transnistria / Moldova",
+    "lat": 46.84,
+    "lng": 29.64,
+    "keywords": ["Transnistria", "Moldova", "Tiraspol", "Cobasna", "Pridnestrovie"]
+  },
+  {
+    "id": "belarus-poland",
+    "name": "Belarus Border",
+    "lat": 53.90,
+    "lng": 27.56,
+    "keywords": ["Belarus", "Minsk", "Lukashenko", "Polish border", "Brest", "Grodno"]
+  },
+  {
+    "id": "barents-sea-murmansk",
+    "name": "Barents Sea / Northern Fleet",
+    "lat": 68.97,
+    "lng": 33.08,
+    "keywords": ["Murmansk", "Barents Sea", "Northern Fleet", "Severomorsk", "Kola Peninsula", "Nuclear sub"]
+  },
+  {
+    "id": "romania-nato-flank",
+    "name": "NATO Eastern Flank / Romania",
+    "lat": 44.36,
+    "lng": 28.45,
+    "keywords": ["Mihail Kogalniceanu", "Romania NATO", "Deveselu", "Constanta", "Aegis Ashore"]
+  },
+  {
+    "id": "svalbard-high-north",
+    "name": "High North / Svalbard",
+    "lat": 78.22,
+    "lng": 15.62,
+    "keywords": ["Svalbard", "Arctic Circle", "High North", "Icebreaker", "Barentsburg"]
+  },
+  {
+    "id": "chechnya-caucasus",
+    "name": "North Caucasus",
+    "lat": 43.31,
+    "lng": 45.69,
+    "keywords": ["Chechnya", "Grozny", "Kadyrov", "Dagestan", "Akhmat", "North Caucasus"]
+  },
+  {
+    "id": "abkhazia-ossetia",
+    "name": "Georgia Breakaways",
+    "lat": 43.00,
+    "lng": 41.01,
+    "keywords": ["Abkhazia", "South Ossetia", "Georgia", "Tbilisi", "Sukhumi"]
   },
   {
     "id": "nagorno-karabakh",
-    "name": "Nagorno-Karabakh",
+    "name": "Nagorno-Karabakh / Caucasus",
     "lat": 39.8,
     "lng": 46.7,
-    "keywords": ["Karabakh", "Artsakh", "Azerbaijan", "Armenia", "Lachin"]
-  },
-  {
-    "id": "tigray-region",
-    "name": "Tigray, Ethiopia",
-    "lat": 13.5,
-    "lng": 39.0,
-    "keywords": ["Tigray", "Ethiopia", "Amhara", "TDF", "Mekelle"]
-  },
-  {
-    "id": "sahel-belt",
-    "name": "Sahel Region",
-    "lat": 15.0,
-    "lng": 0.0,
-    "keywords": ["Sahel", "Mali", "Burkina Faso", "Niger", "Jihadist", "Wagner Group"]
-  },
-  {
-    "id": "kashmir",
-    "name": "Kashmir",
-    "lat": 34.08,
-    "lng": 74.79,
-    "keywords": ["Kashmir", "Line of Control", "Srinagar", "India-Pakistan"]
-  },
-  {
-    "id": "korean-dmz",
-    "name": "Korean Peninsula / DMZ",
-    "lat": 37.9,
-    "lng": 126.7,
-    "keywords": ["DMZ", "North Korea", "Pyongyang", "Missile test", "ICBM", "South Korea"]
-  },
-  {
-    "id": "sudan-khartoum",
-    "name": "Sudan (Khartoum)",
-    "lat": 15.5,
-    "lng": 32.5,
-    "keywords": ["Sudan", "Khartoum", "RSF", "SAF", "Darfur"]
-  },
-  {
-    "id": "black-sea",
-    "name": "Black Sea Fleet",
-    "lat": 44.6,
-    "lng": 33.5,
-    "keywords": ["Sevastopol", "Crimea", "Black Sea", "Drone boat", "Naval", "Fleet"]
-  },
-  {
-    "id": "western-guyana",
-    "name": "Essequibo (Guyana-Venezuela)",
-    "lat": 6.8,
-    "lng": -58.2,
-    "keywords": ["Essequibo", "Guyana", "Venezuela", "Maduro", "Territorial"]
-  },
-  {
-    "id": "myanmar-civil-war",
-    "name": "Myanmar / Sagaing",
-    "lat": 22.0,
-    "lng": 95.0,
-    "keywords": ["Myanmar", "Junta", "PDF", "Rebels", "Tatmadaw"]
-  },
-  {
-    "id": "somali-coast",
-    "name": "Gulf of Aden / Somalia",
-    "lat": 11.0,
-    "lng": 50.0,
-    "keywords": ["Piracy", "Somalia", "Al-Shabaab", "Mogadishu", "Gulf of Aden"]
+    "keywords": ["Karabakh", "Artsakh", "Azerbaijan", "Armenia", "Lachin", "Yerevan", "Baku", "Zangezur"]
   },
   {
     "id": "serbia-kosovo",
     "name": "Kosovo / Serbia Border",
     "lat": 42.6,
     "lng": 21.1,
-    "keywords": ["Kosovo", "Pristina", "Serbia", "KFOR", "Balkans"]
+    "keywords": ["Kosovo", "Pristina", "Serbia", "KFOR", "Balkans", "Mitrovica", "Belgrade", "Vucic"]
   },
   {
-    "id": "south-china-sea",
-    "name": "Second Thomas Shoal",
-    "lat": 9.7,
-    "lng": 115.8,
-    "keywords": ["Philippines", "China Sea", "Shoal", "Coast Guard", "Manila"]
+    "id": "gaza-strip",
+    "name": "Gaza Strip",
+    "lat": 31.35,
+    "lng": 34.30,
+    "keywords": ["Gaza", "Hamas", "IDF", "Rafah", "Khan Younis", "Israel-Hamas", "Jabalia", "Al-Shifa"]
+  },
+  {
+    "id": "israel-west-bank",
+    "name": "Israel & West Bank",
+    "lat": 31.76,
+    "lng": 35.21,
+    "keywords": ["Jerusalem", "Tel Aviv", "West Bank", "Jenin", "Nablus", "Iron Dome", "Ramallah"]
+  },
+  {
+    "id": "golan-heights",
+    "name": "Golan Heights",
+    "lat": 33.13,
+    "lng": 35.75,
+    "keywords": ["Golan Heights", "Mount Hermon", "Quneitra", "Shebaa Farms", "Majdal Shams"]
+  },
+  {
+    "id": "lebanon-hezbollah",
+    "name": "Southern Lebanon",
+    "lat": 33.27,
+    "lng": 35.20,
+    "keywords": ["Lebanon", "Hezbollah", "Beirut", "Litani", "Tyre", "Blue Line", "Northern Israel", "Bekaa Valley"]
+  },
+  {
+    "id": "red-sea-strait",
+    "name": "Red Sea / Bab al-Mandab",
+    "lat": 12.58,
+    "lng": 43.33,
+    "keywords": ["Houthi", "Suez", "Bab al-Mandab", "Yemen", "Red Sea", "Cargo ship", "Gulf of Aden", "US Navy destroyer", "Centcom", "Ansarallah"]
+  },
+  {
+    "id": "yemen-interior",
+    "name": "Yemen Interior",
+    "lat": 15.36,
+    "lng": 44.19,
+    "keywords": ["Sanaa", "Hodeidah", "Yemen airstrikes", "Taiz", "Marib"]
+  },
+  {
+    "id": "strait-of-hormuz-iran",
+    "name": "Strait of Hormuz / Persian Gulf",
+    "lat": 26.56,
+    "lng": 56.25,
+    "keywords": ["Strait of Hormuz", "Persian Gulf", "Iran", "IRGC", "Tehran", "Gulf of Oman", "Oil tanker seized", "Bandar Abbas", "Quds Force"]
+  },
+  {
+    "id": "iran-nuclear",
+    "name": "Iran Nuclear Sites",
+    "lat": 32.65,
+    "lng": 51.66,
+    "keywords": ["Isfahan", "Natanz", "Iranian nuclear", "Fordow", "Arak", "Bushehr"]
+  },
+  {
+    "id": "us-fifth-fleet",
+    "name": "US 5th Fleet HQ",
+    "lat": 26.22,
+    "lng": 50.58,
+    "keywords": ["Bahrain", "5th Fleet", "Manama", "US Naval Forces Central Command"]
+  },
+  {
+    "id": "iraq-syria-us-bases",
+    "name": "Iraq/Syria US Bases",
+    "lat": 33.31,
+    "lng": 44.36,
+    "keywords": ["Al Asad", "Tower 22", "Baghdad", "Erbil", "Iraq base", "Syria base", "Islamic Resistance in Iraq", "Kataib Hezbollah", "Hashed al-Shaabi"]
+  },
+  {
+    "id": "al-tanf-garrison",
+    "name": "Al-Tanf Garrison",
+    "lat": 33.43,
+    "lng": 38.83,
+    "keywords": ["Al-Tanf", "Jordan-Syria border", "Rukban", "US base drone attack"]
   },
   {
     "id": "syria-idlib",
     "name": "Northern Syria",
-    "lat": 35.9,
-    "lng": 36.6,
-    "keywords": ["Idlib", "Aleppo", "Rojava", "SDF", "Turkish military", "Airstrike"]
+    "lat": 35.93,
+    "lng": 36.63,
+    "keywords": ["Idlib", "Aleppo", "Rojava", "SDF", "Turkish military", "Airstrike", "Damascus", "YPG", "Assad", "Hasakah"]
+  },
+  {
+    "id": "kurdistan-iraq",
+    "name": "Kurdistan / Northern Iraq",
+    "lat": 36.19,
+    "lng": 43.99,
+    "keywords": ["Erbil", "Kurdistan", "Peshmerga", "Turkish airstrikes in Iraq", "Qandil", "Sulaymaniyah", "Kirkuk"]
+  },
+  {
+    "id": "sinai-peninsula",
+    "name": "Sinai Peninsula",
+    "lat": 29.50,
+    "lng": 33.84,
+    "keywords": ["Sinai", "Egyptian military", "Rafah crossing", "Philadelphi Corridor", "Arish"]
+  },
+  {
+    "id": "libya-conflict",
+    "name": "Libya",
+    "lat": 31.20,
+    "lng": 16.58,
+    "keywords": ["Libya", "LNA", "Haftar", "Tripoli", "Benghazi", "Sirte", "Tobruk"]
+  },
+  {
+    "id": "western-sahara",
+    "name": "Western Sahara",
+    "lat": 27.15,
+    "lng": -13.20,
+    "keywords": ["Western Sahara", "Polisario", "Morocco", "Tindouf", "Laayoune"]
+  },
+  {
+    "id": "taiwan-strait",
+    "name": "Taiwan Strait",
+    "lat": 24.47,
+    "lng": 119.34,
+    "keywords": ["Taiwan", "PLA", "Strait", "Taipei", "Drills", "ADIZ", "Kinmen", "Cross-strait", "Matsu", "Tsai Ing-wen", "Lai Ching-te"]
+  },
+  {
+    "id": "south-china-sea",
+    "name": "South China Sea",
+    "lat": 9.77,
+    "lng": 115.86,
+    "keywords": ["Philippines", "China Sea", "Shoal", "Coast Guard", "Manila", "Second Thomas Shoal", "Spratly", "Paracel", "Water cannon", "Bajo de Masinloc", "Nine-dash line"]
+  },
+  {
+    "id": "korean-dmz",
+    "name": "Korean Peninsula / DMZ",
+    "lat": 37.96,
+    "lng": 126.68,
+    "keywords": ["DMZ", "North Korea", "Pyongyang", "Missile test", "ICBM", "South Korea", "Seoul", "Yellow Sea", "Kim Jong Un", "ROK"]
+  },
+  {
+    "id": "kuril-sea-of-japan",
+    "name": "Sea of Japan / Kuril Islands",
+    "lat": 45.00,
+    "lng": 147.00,
+    "keywords": ["Kuril", "Hokkaido", "Sea of Japan", "Pacific Fleet", "Vladivostok", "Northern Territories"]
+  },
+  {
+    "id": "okinawa-kadena",
+    "name": "Okinawa / USFJ",
+    "lat": 26.35,
+    "lng": 127.76,
+    "keywords": ["Okinawa", "Kadena", "US Forces Japan", "Ryukyu", "US Marine Corps base", "Futenma"]
+  },
+  {
+    "id": "senkaku-islands",
+    "name": "Senkaku / Diaoyu Islands",
+    "lat": 25.74,
+    "lng": 123.47,
+    "keywords": ["Senkaku", "Diaoyu", "East China Sea", "Japanese Coast Guard", "JMSDF"]
+  },
+  {
+    "id": "guam-marianas",
+    "name": "Guam / US Pacific Hub",
+    "lat": 13.44,
+    "lng": 144.79,
+    "keywords": ["Guam", "Andersen AFB", "Marianas", "US Pacific fleet", "Indo-Pacific Command", "Apra Harbor"]
+  },
+  {
+    "id": "malacca-strait",
+    "name": "Strait of Malacca",
+    "lat": 2.50,
+    "lng": 101.30,
+    "keywords": ["Malacca Strait", "Singapore Strait", "Pirates Malacca", "Chokepoint", "Kuala Lumpur"]
+  },
+  {
+    "id": "india-china-lac",
+    "name": "Line of Actual Control (LAC)",
+    "lat": 34.00,
+    "lng": 78.00,
+    "keywords": ["LAC", "Ladakh", "Galwan", "Border", "India-China", "Himalayas", "Arunachal Pradesh", "Aksai Chin", "Tawang"]
+  },
+  {
+    "id": "doklam-plateau",
+    "name": "Doklam Plateau",
+    "lat": 27.32,
+    "lng": 88.93,
+    "keywords": ["Doklam", "Siliguri Corridor", "Bhutan border", "Nathu La"]
+  },
+  {
+    "id": "kashmir",
+    "name": "Kashmir",
+    "lat": 34.08,
+    "lng": 74.79,
+    "keywords": ["Kashmir", "Line of Control", "Srinagar", "India-Pakistan", "Jammu", "POK"]
+  },
+  {
+    "id": "balochistan",
+    "name": "Balochistan / Pak-Afghan",
+    "lat": 28.48,
+    "lng": 65.64,
+    "keywords": ["Balochistan", "BLA", "Durand Line", "TTP", "Gwadar", "Quetta", "Pakistani Taliban", "Chaman"]
+  },
+  {
+    "id": "myanmar-civil-war",
+    "name": "Myanmar Civil War",
+    "lat": 22.00,
+    "lng": 95.00,
+    "keywords": ["Myanmar", "Junta", "PDF", "Rebels", "Tatmadaw", "Sagaing", "Kayin", "Shan State", "Naypyidaw", "Arakan Army", "Rakhine"]
+  },
+  {
+    "id": "sri-lanka-hambantota",
+    "name": "Sri Lanka / Hambantota",
+    "lat": 6.12,
+    "lng": 81.11,
+    "keywords": ["Hambantota", "Sri Lankan navy", "Chinese research vessel", "Colombo", "Indian Ocean base"]
+  },
+  {
+    "id": "diego-garcia",
+    "name": "Diego Garcia",
+    "lat": -7.31,
+    "lng": 72.41,
+    "keywords": ["Diego Garcia", "Chagos", "BIOT", "B-52 deployment", "US Navy base Indian Ocean"]
+  },
+  {
+    "id": "sudan-khartoum",
+    "name": "Sudan (Khartoum / Darfur)",
+    "lat": 15.50,
+    "lng": 32.55,
+    "keywords": ["Sudan", "Khartoum", "RSF", "SAF", "Darfur", "El Fasher", "Sudanese Army", "Hemeti", "Burhan"]
+  },
+  {
+    "id": "tigray-region",
+    "name": "Tigray / Ethiopia",
+    "lat": 13.50,
+    "lng": 39.00,
+    "keywords": ["Tigray", "Ethiopia", "Amhara", "TDF", "Mekelle", "Oromo", "Fano"]
+  },
+  {
+    "id": "eastern-drc",
+    "name": "Eastern DRC",
+    "lat": -1.60,
+    "lng": 29.20,
+    "keywords": ["DRC", "Congo", "M23", "Goma", "North Kivu", "FARDC", "Kigali", "Rwanda border", "MONUSCO", "ADF"]
+  },
+  {
+    "id": "sahel-belt",
+    "name": "Sahel Region",
+    "lat": 15.00,
+    "lng": 0.00,
+    "keywords": ["Sahel", "Mali", "Burkina Faso", "Niger", "Jihadist", "Wagner Group", "Africa Corps", "Niamey", "Bamako", "Ouagadougou", "JNIM"]
+  },
+  {
+    "id": "somali-coast",
+    "name": "Somalia & Horn of Africa",
+    "lat": 2.04,
+    "lng": 45.34,
+    "keywords": ["Piracy", "Somalia", "Al-Shabaab", "Mogadishu", "Puntland", "Somaliland", "ATMIS"]
+  },
+  {
+    "id": "djibouti-bases",
+    "name": "Djibouti Intersect",
+    "lat": 11.58,
+    "lng": 43.14,
+    "keywords": ["Djibouti", "Camp Lemonnier", "PLA Navy base Djibouti", "Choke point", "French forces Djibouti"]
+  },
+  {
+    "id": "lake-chad-basin",
+    "name": "Lake Chad Basin",
+    "lat": 13.00,
+    "lng": 14.00,
+    "keywords": ["Boko Haram", "Lake Chad", "Nigeria", "Maiduguri", "ISWAP", "Cameroon border", "Multinational Joint Task Force"]
+  },
+  {
+    "id": "cabo-delgado",
+    "name": "Mozambique Insurgency",
+    "lat": -12.96,
+    "lng": 39.50,
+    "keywords": ["Cabo Delgado", "Mozambique", "Al-Shabaab Mozambique", "Palma", "SAMIM"]
+  },
+  {
+    "id": "car-conflict",
+    "name": "Central African Republic",
+    "lat": 6.61,
+    "lng": 20.93,
+    "keywords": ["Central African Republic", "CAR", "MINUSCA", "Bangui", "Russian mercenaries", "Wagner Africa", "CPC rebels"]
+  },
+  {
+    "id": "gulf-of-guinea",
+    "name": "Gulf of Guinea",
+    "lat": 2.00,
+    "lng": 4.00,
+    "keywords": ["Gulf of Guinea", "West Africa piracy", "Nigeria coast guard", "Oil theft", "Bight of Bonny"]
+  },
+  {
+    "id": "western-guyana",
+    "name": "Essequibo (Guyana-Venezuela)",
+    "lat": 6.80,
+    "lng": -58.20,
+    "keywords": ["Essequibo", "Guyana", "Venezuela", "Maduro", "Territorial", "Caracas"]
+  },
+  {
+    "id": "haiti",
+    "name": "Haiti",
+    "lat": 18.50,
+    "lng": -72.30,
+    "keywords": ["Haiti", "Port-au-Prince", "Gangs", "Kenyan police", "Caribbean", "Chérizier", "G9"]
+  },
+  {
+    "id": "mexico-cartel-war",
+    "name": "Mexico (Cartel Conflicts)",
+    "lat": 24.80,
+    "lng": -107.40,
+    "keywords": ["Sinaloa", "Cartel", "Culiacan", "Mexican military", "Jalisco New Generation", "CJNG", "Juarez", "Tijuana cartel"]
+  },
+  {
+    "id": "darien-gap",
+    "name": "Darien / Colombia",
+    "lat": 8.12,
+    "lng": -77.30,
+    "keywords": ["Darien Gap", "FARC", "ELN", "Colombia conflict", "Panama border", "Gulf Clan"]
+  },
+  {
+    "id": "mindanao",
+    "name": "Mindanao / Philippines",
+    "lat": 7.00,
+    "lng": 125.00,
+    "keywords": ["Mindanao", "Abu Sayyaf", "Marawi", "Zamboanga", "NPA", "MILF insurgency"]
+  },
+  {
+    "id": "falkland-islands",
+    "name": "Falkland Islands",
+    "lat": -51.79,
+    "lng": -59.52,
+    "keywords": ["Falklands", "Malvinas", "South Atlantic", "Royal Navy Falklands", "Mount Pleasant"]
+  },
+  {
+    "id": "norad",
+    "name": "US Northcom / NORAD",
+    "lat": 38.83,
+    "lng": -104.82,
+    "keywords": ["NORAD", "Colorado Springs", "Cheyenne Mountain", "North American airspace", "Spy balloon", "US Northern Command"]
+  },
+  {
+    "id": "space-military",
+    "name": "Space / ASAT Systems",
+    "lat": 28.39,
+    "lng": -80.60,
+    "keywords": ["Cape Canaveral", "Space Force", "Vandenberg AFB", "Kosmodrom", "ASAT", "Anti-satellite", "X-37B", "Military satellite"]
   }
 ]

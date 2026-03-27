@@ -39,6 +39,7 @@
     "featured_assets": "Ativos em Destaque",
     "features": "Características",
     "fetching_wiki": "Consultando arquivos de inteligência...",
+    "full_dossier": "Dossiê tático",
     "geometry_unavailable": "A geometria 3D deste ativo está atualmente classificada ou indisponível em repositórios abertos.",
     "global_hotspots": "Pontos Críticos Globais",
     "history_background": "História e Contexto",
@@ -65,8 +66,10 @@
     "view_3d": "Ver em 3-D",
     "view_asset_intel": "VER INTELIGÊNCIA DO ATIVO",
     "view_on_wiki_fallback": "Ver página original da Wikipedia",
-    "technical_specs": "Technical Specs",
-    "light_mode": "Light Mode"
+    "technical_specs": "Especificações técnicas",
+    "light_mode": "Modo claro",
+    "data_disclaimer_title": "Precisão dos Dados",
+    "data_disclaimer_text": "Os dados neste aplicativo são recolhidos de várias fontes públicas da web. Portanto, as informações podem não ser totalmente precisas e certos dados específicos que procura podem estar em falta."
   },
   "comparison": {
     "add_asset": "Adicionar Ativo",

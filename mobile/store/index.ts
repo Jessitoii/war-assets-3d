@@ -25,7 +25,7 @@ export const selectOnboardingCurrentPage = (state: StoreState) => state.onboardi
 export const selectAssets = (state: StoreState) => state.assets;
 export const selectCategories = (state: StoreState) => state.categories;
 export const selectFeaturedAssets = (state: StoreState) => {
-  const featured = state.assets.filter(a => a.isFeatured);
+  const featured = state.assets.filter(a => a.featured);
   if (featured.length > 0) return featured;
   // Fallback: Top 10 by danger level
   return [...state.assets]

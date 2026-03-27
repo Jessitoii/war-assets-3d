@@ -96,6 +96,9 @@ const MARKETING_TEXTS = {
         const texts = MARKETING_TEXTS[lang];
 
         await page.evaluate((translation) => {
+            // Ekrandaki kucultme (scale) efektini kaldir ki tam zemin 1080x1920 goruntu alinsin
+            document.body.style.transform = 'none';
+            
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (translation[key]) {

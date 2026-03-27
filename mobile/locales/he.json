@@ -38,8 +38,9 @@
     "enable_ar": "אפשר תכונות AR",
     "featured_assets": "נכסים בולטים",
     "features": "מאפיינים",
-    "fetching_wiki": "מתייעץ עם ארכיוני המודיעין...",
-    "geometry_unavailable": "גיאומטריית ה-3D של נכס זה מסווגת או שאינה זمیנה במאגרים פתוחים.",
+    "fetching_wiki": "מתייعץ עם ארכיוני המודיעין...",
+    "full_dossier": "תיק טקטי",
+    "geometry_unavailable": "גיאומטריית ה-3D של נכס זה מסווגת או שאינה זמינה במאגרים פתוחים.",
     "global_hotspots": "מוקדי סכנה גלובליים",
     "history_background": "היסטוריה ורקע",
     "last_sync": "סנכרון אחרון",
@@ -64,9 +65,11 @@
     "toggle_theme": "החלף ערכת נושא",
     "view_3d": "הצג בתלת-מימד",
     "view_asset_intel": "הצג מודיעין נכס",
-    "view_on_wiki_fallback": "הצג דף ויקיפדיה מקורי",
-    "technical_specs": "Technical Specs",
-    "light_mode": "Light Mode"
+    "view_on_wiki_fallback": "הצג דף ויكيפדיה מקורי",
+    "technical_specs": "מפרט טכני",
+    "light_mode": "מצב בהיר",
+    "data_disclaimer_title": "דיוק הנתונים",
+    "data_disclaimer_text": "הנתונים ביישום זה נאספים ממקורות אינטרנט ציבוריים שונים. לכן, ייתכן שהמידע לא יהיה מדויק לחלוטין, וייתכן שחסרים נתונים ספציפיים מסוימים שאתה מחפש."
   },
   "comparison": {
     "add_asset": "הוסף נכס",

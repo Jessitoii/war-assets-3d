@@ -33,12 +33,15 @@
     "comparison": "Karşılaştırma",
     "dark_mode": "Karanlık Mod",
     "data_sync": "Veri ve Senkronizasyon",
+    "data_disclaimer_title": "Veri Doğruluğu",
+    "data_disclaimer_text": "Bu uygulamadaki veriler çeşitli açık kaynaklardan çekilmiştir. Bu nedenle bilgiler tamamen doğru veya güncel olmayabilir ve aradığınız her spesifik veri bulunmayabilir.",
     "data_unavailable": "VERİ KULLANILAMIYOR",
     "db_size": "VT Boyutu",
     "enable_ar": "AR Özelliklerini Etkinleştir",
     "featured_assets": "Öne Çıkan Varlıklar",
     "features": "Özellikler",
     "fetching_wiki": "İstihbarat Arşivlerine Erişiliyor...",
+    "full_dossier": "Tam Dosya",
     "geometry_unavailable": "Bu varlığın 3D geometrisi gizli tutulmaktadır veya açık kaynaklarda bulunmamaktadır.",
     "global_hotspots": "Küresel Sıcak Noktalar",
     "history_background": "Tarihçe ve Geçmiş",
@@ -65,8 +68,8 @@
     "view_3d": "3 Boyutlu Görüntüle",
     "view_asset_intel": "VARLIK İSTİHBARATINI GÖRÜNTÜLE",
     "view_on_wiki_fallback": "Ham Wikipedia sayfasını görüntüle",
-    "technical_specs": "Technical Specs",
-    "light_mode": "Light Mode"
+    "technical_specs": "Teknik Özellikler",
+    "light_mode": "Aydınlık Mod"
   },
   "comparison": {
     "add_asset": "Varlık Ekle",

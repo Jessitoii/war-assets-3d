@@ -20,6 +20,10 @@ export const TechnicalSpecsScreen: React.FC<Props> = ({ route, navigation }) => 
   const isDark = useStore((state) => state.theme === 'dark');
   const asset = useStore((state) => state.assets.find(a => a.id === assetId));
 
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalContent, setModalContent] = useState('');
+  const [modalTitle, setModalTitle] = useState('');
+
   if (!asset) {
     return (
       <SafeAreaView style={[styles.safeArea, { backgroundColor: isDark ? theme.colors.backgroundDark : theme.colors.backgroundLight }]}>
@@ -30,6 +34,29 @@ export const TechnicalSpecsScreen: React.FC<Props> = ({ route, navigation }) => 
 
   const textColor = isDark ? '#FFF' : '#000';
   const borderColor = isDark ? '#333' : '#E5E5EA';
+
+  const getDossierContent = (specKey: string) => {
+    if (!asset.full_dossier) return null;
+
+    // We search for a corresponding entry in the full_dossier
+    // Heuristic: matching key or key + "_insight" or common prefix + "_insight"
+    const possibleKeys = [
+      specKey,
+      `${specKey}_insight`,
+      `${specKey.split('_')[0]}_insight`,
+      // Some assets use insight_N
+      ...Object.keys(asset.full_dossier).filter(k => k.startsWith('insight_'))
+    ];
+
+    for (const k of possibleKeys) {
+      const content = t_spec(asset, 'full_dossier', k, i18n.language);
+      if (content && content !== 'N/A' && content.length > 10) {
+        return { title: k, content };
+      }
+    }
+
+    return null;
+  };
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: isDark ? theme.colors.backgroundDark : theme.colors.backgroundLight }]} edges={['top']}>
@@ -52,22 +79,73 @@ export const TechnicalSpecsScreen: React.FC<Props> = ({ route, navigation }) => 
 
         {/* 2-Column Specs Grid */}
         <View style={styles.specsGrid}>
-          {Object.entries(asset.short_specs).map(([key, value]) => (
-            <View key={key} style={[styles.specRow, { borderBottomColor: borderColor }]}>
-              <Text style={styles.specLabel}>
-                {key.replace(/_/g, ' ').toUpperCase()}
-              </Text>
-              <Text style={[styles.specValue, { color: textColor }]}>
-                {t_spec(asset, 'short_specs', key, i18n.language)}
-              </Text>
-            </View>
-          ))}
+          {Object.entries(asset.short_specs).map(([key, value]) => {
+            const dossier = getDossierContent(key);
+            const hasDossier = !!dossier;
+
+            return (
+              <View key={key} style={[styles.specRow, { borderBottomColor: borderColor }]}>
+                <Text style={styles.specLabel}>
+                  {key.replace(/_/g, ' ').toUpperCase()}
+                </Text>
+                {hasDossier ? (
+                  <TouchableOpacity
+                    onPress={() => {
+                      setModalTitle(key.replace(/_/g, ' '));
+                      setModalContent(dossier.content);
+                      setModalVisible(true);
+                    }}
+                    style={styles.specValueContainer}
+                  >
+                    <Text style={[styles.specValue, { color: '#0A84FF', textDecorationLine: 'underline' }]}>
+                      {t_spec(asset, 'short_specs', key, i18n.language)}
+                    </Text>
+                  </TouchableOpacity>
+                ) : (
+                  <View style={styles.specValueContainer}>
+                    <Text style={[styles.specValue, { color: textColor }]}>
+                      {t_spec(asset, 'short_specs', key, i18n.language)}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            );
+          })}
         </View>
 
         <View style={styles.chartSection}>
           <PerformanceRadar metrics={asset.metrics} isDark={isDark} />
         </View>
+
+        {/* Full Dossiers Section */}
+        {asset.full_dossier && Object.keys(asset.full_dossier).length > 0 && (
+          <View style={[styles.dossierContainer, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }]}>
+            <View style={styles.dossierHeader}>
+              <Ionicons name="document-text-sharp" size={20} color={theme.colors.primary} />
+              <Text style={[styles.dossierTitle, { color: textColor }]}>{t('common.full_dossier').toUpperCase()}</Text>
+            </View>
+            <View style={[styles.divider, { backgroundColor: theme.colors.primary, opacity: 0.3, height: 1, marginBottom: 16 }]} />
+            {Object.keys(asset.full_dossier).map((key) => {
+              const dossierValue = t_spec(asset, 'full_dossier', key, i18n.language);
+              if (!dossierValue || dossierValue === 'N/A' || dossierValue.length < 5) return null;
+              return (
+                <View key={key} style={styles.dossierItem}>
+                  <Text style={[styles.dossierLabel, { color: theme.colors.primary }]}>{key.replace(/_/g, ' ').toUpperCase()}</Text>
+                  <Text style={[styles.dossierText, { color: textColor }]}>{dossierValue}</Text>
+                </View>
+              );
+            })}
+          </View>
+        )}
       </ScrollView>
+
+      <DossierModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        title={modalTitle}
+        content={modalContent}
+        isDark={isDark}
+      />
     </SafeAreaView>
   );
 };
@@ -107,12 +185,15 @@ const styles = StyleSheet.create({
     color: '#0A84FF',
     letterSpacing: 1,
     flex: 1,
+    paddingRight: 16,
   },
   specValue: {
     fontSize: 15,
     fontWeight: '600',
-    flex: 2,
     textAlign: 'right',
+  },
+  specValueContainer: {
+    flex: 2,
   },
   chartSection: {
     marginTop: 10,
@@ -139,6 +220,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     gap: 10,
     alignSelf: 'flex-start',
+  },
+  divider: {
+    height: 1,
+    width: '100%',
   },
   flagText: {
     fontSize: 24,

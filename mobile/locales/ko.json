@@ -39,6 +39,7 @@
     "featured_assets": "주요 자산",
     "features": "전술적 특징",
     "fetching_wiki": "정보 아카이브 조회 중...",
+    "full_dossier": "전술 문서",
     "geometry_unavailable": "해당 자산의 3D 데이터는 현재 기밀로 분류되어 있거나 공개 저장소에서 사용할 수 없습니다.",
     "global_hotspots": "글로벌 분쟁 지역",
     "history_background": "개발 역사 및 배경",
@@ -65,8 +66,10 @@
     "view_3d": "3D 뷰어 표시",
     "view_asset_intel": "자산 정보 보기",
     "view_on_wiki_fallback": "위키백과 원문 페이지 보기",
-    "technical_specs": "Technical Specs",
-    "light_mode": "Light Mode"
+    "technical_specs": "기술 제원",
+    "light_mode": "라이트 모드",
+    "data_disclaimer_title": "데이터 정확성",
+    "data_disclaimer_text": "이 애플리케이션의 데이터는 다양한 공개 웹 소스에서 수집되었습니다. 따라서 정보가 완전히 정확하지 않을 수 있으며 찾고 있는 특정 데이터가 누락되었을 수도 있습니다."
   },
   "comparison": {
     "add_asset": "자산 추가",

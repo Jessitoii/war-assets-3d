@@ -79,3 +79,33 @@ export const t_spec = (asset: Asset, category: 'short_specs' | 'full_dossier', k
 
     return 'N/A';
 };
+
+/**
+ * Fuzzy search for a specification by key or value.
+ */
+export const getFuzzySpec = (asset: Asset, category: 'short_specs' | 'full_dossier', query: string | string[], lang: string = 'en', searchInValues = false) => {
+    // 1. Determine which specs object to use (Language prioritized)
+    let specs: AssetSpecs = {};
+    if (lang !== 'en' && asset.translations && asset.translations[lang]) {
+        specs = asset.translations[lang]?.[category] || {};
+    }
+    
+    // If empty or language fallback needed, merge with root
+    const rootSpecs = asset[category] || {};
+    const targetSpecs = { ...rootSpecs, ...specs };
+
+    const queryList = Array.isArray(query) ? query : [query];
+    const lowerQueries = queryList.map(q => q.toLowerCase());
+
+    if (searchInValues) {
+        return Object.values(targetSpecs).find(val => 
+            lowerQueries.some(lq => val?.toLowerCase().includes(lq))
+        ) || 'N/A';
+    }
+
+    const matchingKey = Object.keys(targetSpecs).find(key => 
+        lowerQueries.some(lq => key.toLowerCase().includes(lq))
+    );
+    
+    return (matchingKey ? targetSpecs[matchingKey] : 'N/A') || 'N/A';
+};

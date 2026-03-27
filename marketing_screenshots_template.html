@@ -42,6 +42,7 @@
             flex-shrink: 0;
             /* Puppeteer'in seffaf arka plani kesmemesi icin hafif stroke */
             border: 2px solid #1f2937;
+            box-sizing: border-box;
         }
 
         /* Taktiksel Izgara (Grid) Arka Plani */
@@ -140,7 +141,7 @@
 
         /* Gercekci Telefon Çerçevesi */
         .phone-mockup {
-            width: 880px;
+            width: 740px;
             height: 1450px;
             background: #000;
             border-radius: 80px 80px 0 0;
@@ -189,7 +190,8 @@
             left: 0;
             background-color: #222;
             /* Eger resim bulunamazsa karanlik arkaplan */
-            transform: scale(1.08);
+            transform: scale(1.0);
+            overflow: hidden;
             /* Ekranin üstündeki saat/şarj (Status bar) ve altindaki telefon geri/ana menü (Nav bar) çubuklarını otomatik olarak çerçevenin dışına itip gizlemek için eklenen sihirli %8'lik Zoom'dur. */
         }
 
@@ -228,7 +230,7 @@
 
         <div class="visual-section">
             <div class="phone-mockup">
-                <div class="notch"></div>
+
                 <div class="app-content">
                     <div class="placeholder-text">Lutfen raw_screenshots/1.png yukleyin</div>
                     <!-- Kullanicinin Resmi Buraya Gelecek -->
@@ -254,7 +256,7 @@
 
         <div class="visual-section">
             <div class="phone-mockup">
-                <div class="notch"></div>
+
                 <div class="app-content">
                     <div class="placeholder-text">Lutfen raw_screenshots/2.png yukleyin</div>
                     <img class="app-screenshot" src="raw_screenshots/2.png" onerror="this.style.display='none'">
@@ -279,7 +281,7 @@
 
         <div class="visual-section">
             <div class="phone-mockup">
-                <div class="notch"></div>
+
                 <div class="app-content">
                     <div class="placeholder-text">Lutfen raw_screenshots/3.png yukleyin</div>
                     <img class="app-screenshot" src="raw_screenshots/3.png" onerror="this.style.display='none'">
@@ -304,7 +306,7 @@
 
         <div class="visual-section">
             <div class="phone-mockup">
-                <div class="notch"></div>
+
                 <div class="app-content">
                     <div class="placeholder-text">Lutfen raw_screenshots/4.png yukleyin</div>
                     <img class="app-screenshot" src="raw_screenshots/4.png" onerror="this.style.display='none'">
@@ -329,7 +331,7 @@
 
         <div class="visual-section">
             <div class="phone-mockup">
-                <div class="notch"></div>
+
                 <div class="app-content">
                     <div class="placeholder-text">Lutfen raw_screenshots/5.png yukleyin</div>
                     <img class="app-screenshot" src="raw_screenshots/5.png" onerror="this.style.display='none'">

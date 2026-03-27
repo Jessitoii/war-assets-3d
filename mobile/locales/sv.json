@@ -39,6 +39,7 @@
     "featured_assets": "Utvalda Objekt",
     "features": "Egenskaper",
     "fetching_wiki": "Konsulterar underrättelsearkiv...",
+    "full_dossier": "Taktisk dossier",
     "geometry_unavailable": "3D-geometrin för detta objekt är för närvarande klassificerad eller ej tillgänglig i öppna källor.",
     "global_hotspots": "Globala Kris härdar",
     "history_background": "Historia & Bakgrund",
@@ -65,8 +66,10 @@
     "view_3d": "Visa i 3-D",
     "view_asset_intel": "VISA UNDERRÄTTELSEDATA",
     "view_on_wiki_fallback": "Visa ursprunglig Wikipedia-sida",
-    "technical_specs": "Technical Specs",
-    "light_mode": "Light Mode"
+    "technical_specs": "Tekniska specifikationer",
+    "light_mode": "Ljust läge",
+    "data_disclaimer_title": "Datanoggrannhet",
+    "data_disclaimer_text": "Data i denna applikation samlas in från olika offentliga webbkällor. Därför kanske informationen inte är helt korrekt, och vissa specifika data du letar efter kan saknas."
   },
   "comparison": {
     "add_asset": "Lägg till objekt",

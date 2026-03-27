@@ -39,6 +39,7 @@
     "featured_assets": "Actifs à la Une",
     "features": "Caractéristiques",
     "fetching_wiki": "Consultation des Archives du Renseignement...",
+    "full_dossier": "Dossier tactique",
     "geometry_unavailable": "La géométrie 3D de cet actif est actuellement classée ou indisponible dans les répertoires ouverts.",
     "global_hotspots": "Points Chauds Globaux",
     "history_background": "Histoire & Contexte",
@@ -65,8 +66,10 @@
     "view_3d": "Voir en 3-D",
     "view_asset_intel": "VOIR LE RENSEIGNEMENT",
     "view_on_wiki_fallback": "Voir la page Wikipedia brute",
-    "technical_specs": "Technical Specs",
-    "light_mode": "Light Mode"
+    "technical_specs": "Spécifications techniques",
+    "light_mode": "Mode clair",
+    "data_disclaimer_title": "Précision des données",
+    "data_disclaimer_text": "Les données de cette application sont recueillies à partir de diverses sources web publiques. Par conséquent, les informations peuvent ne pas être complètement exactes et certaines données spécifiques que vous recherchez pourraient manquer."
   },
   "comparison": {
     "add_asset": "Ajouter un Actif",

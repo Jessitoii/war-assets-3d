@@ -11,37 +11,44 @@ export interface FilterOptions {
 
 export const filterAssets = (assets: Asset[], options: FilterOptions): Asset[] => {
   const { categoryId, country, generation, searchQuery, sortBy, language = 'en' } = options;
-  
+
   let result = [...assets];
 
   // 1. Tactical Fuzzy Search & Filtering
   result = result.filter((asset) => {
     // Category Filter
-    if (categoryId && asset.categoryId !== categoryId) return false;
+    if (categoryId && asset.catId !== categoryId) return false;
 
     // Country Filter
-    if (country && asset.specs?.country && asset.specs.country !== country) return false;
+    if (country && asset.country && asset.country !== country) return false;
 
     // Generation Filter
-    if (generation && asset.specs?.generation && !asset.specs.generation.toLowerCase().includes(generation.toLowerCase())) return false;
+    if (generation && asset.short_specs?.generation && !asset.short_specs.generation.toLowerCase().includes(generation.toLowerCase())) return false;
 
     // Deep Fuzzy Search Logic
     if (searchQuery) {
       const query = searchQuery.toLowerCase().trim();
-      
+
       const matchesName = asset.name.toLowerCase().includes(query);
       const matchesId = asset.id.toLowerCase().includes(query);
       const matchesRole = asset.threatType?.toLowerCase().includes(query);
-      
-      const matchesSpecs = asset.specs ? Object.values(asset.specs).some(val => 
+
+      const matchesSpecs = asset.short_specs ? Object.values(asset.short_specs).some(val =>
         val?.toString().toLowerCase().includes(query)
       ) : false;
 
-      const matchesTranslations = asset.translations 
-        ? Object.values(asset.translations).some(t => 
-            t?.name?.toLowerCase().includes(query) || 
-            (t?.specs && Object.values(t.specs).some(v => v?.toString().toLowerCase().includes(query)))
-          ) 
+      const matchesTranslations = asset.translations
+        ? Object.values(asset.translations).some(t => {
+          if (!t) return false;
+          const inName = t.name?.toLowerCase().includes(query);
+          const inSpecs = t.specs && Object.values(t.specs).some(val =>
+            val?.toString().toLowerCase().includes(query)
+          );
+          const inShortSpecs = t.short_specs && Object.values(t.short_specs).some(val =>
+            val?.toString().toLowerCase().includes(query)
+          );
+          return !!(inName || inSpecs || inShortSpecs);
+        })
         : false;
 
       if (!matchesName && !matchesId && !matchesRole && !matchesSpecs && !matchesTranslations) return false;
@@ -56,7 +63,7 @@ export const filterAssets = (assets: Asset[], options: FilterOptions): Asset[] =
       switch (sortBy) {
         case 'danger_high':
           return (b.dangerLevel || 0) - (a.dangerLevel || 0);
-        
+
         case 'generation_modern': {
           const getGenRank = (g?: string) => {
             if (!g) return 0;
@@ -69,13 +76,13 @@ export const filterAssets = (assets: Asset[], options: FilterOptions): Asset[] =
             if (s.includes('ww2') || s.includes('vintage')) return 5;
             return 0;
           };
-          return getGenRank(b.specs?.generation) - getGenRank(a.specs?.generation);
+          return getGenRank(b.short_specs?.generation) - getGenRank(a.short_specs?.generation);
         }
 
         case 'alpha_asc': {
-          const nameA = a.translations?.[language]?.name || a.name;
-          const nameB = b.translations?.[language]?.name || b.name;
-          return nameA.localeCompare(nameB);
+          const nameA = a.translations?.[language]?.name || a.name || '';
+          const nameB = b.translations?.[language]?.name || b.name || '';
+          return nameA.localeCompare(nameB, language);
         }
 
         case 'danger_low':

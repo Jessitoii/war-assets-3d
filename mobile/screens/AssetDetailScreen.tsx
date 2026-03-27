@@ -159,28 +159,6 @@ export const AssetDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
         </View>
 
-        {/* 'Big Three' Tactical Badges */}
-        <View style={styles.bigThreeContainer}>
-          <View style={styles.bigThreeBadge}>
-            <Text style={styles.bigThreeLabel}>{t('asset.speed')}</Text>
-            <Text style={[styles.bigThreeValue, { color: isDark ? '#FFF' : '#333' }]}>
-              {t_spec(asset, 'short_specs', 'speed', i18n.language) || 'N/A'}
-            </Text>
-          </View>
-          <View style={styles.bigThreeBadge}>
-            <Text style={styles.bigThreeLabel}>{t('asset.armour')}</Text>
-            <Text style={[styles.bigThreeValue, { color: isDark ? '#FFF' : '#333' }]}>
-              {t_spec(asset, 'short_specs', 'armour', i18n.language) || 'N/A'}
-            </Text>
-          </View>
-          <View style={styles.bigThreeBadge}>
-            <Text style={styles.bigThreeLabel}>{t('asset.armament')}</Text>
-            <Text style={[styles.bigThreeValue, { color: isDark ? '#FFF' : '#333' }]}>
-              {t_spec(asset, 'short_specs', 'primary_armament', i18n.language) || t_spec(asset, 'short_specs', 'armament', i18n.language) || 'N/A'}
-            </Text>
-          </View>
-        </View>
-
         <ImageCarousel images={displayImages} />
 
         <SpecsSummary
@@ -188,17 +166,6 @@ export const AssetDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           isDark={isDark}
           onPress={() => navigation.navigate('TechnicalSpecs', { assetId })}
         />
-
-        {/* Classified Intel Box */}
-        <View style={styles.dossierContainer}>
-          <Text style={styles.dossierTitle}>[{t('asset.dossier_intel')}]</Text>
-          {Object.entries(asset.full_dossier).map(([key, value]) => (
-            <Text key={key} style={styles.dossierText}>
-              • {t_spec(asset, 'full_dossier', key, i18n.language)}
-            </Text>
-          ))}
-        </View>
-
 
         <ActionButtons
           hasModel={!!asset.model}
@@ -217,6 +184,17 @@ export const AssetDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           wikiUrl={asset.wikiUrl}
           isDark={isDark}
         />
+
+        {/* Classified Intel Box */}
+        <View style={styles.dossierContainer}>
+          <Text style={styles.dossierTitle}>[{t('asset.dossier_intel')}]</Text>
+          {Object.entries(asset.full_dossier).map(([key, value]) => (
+            <Text key={key} style={styles.dossierText}>
+              • {t_spec(asset, 'full_dossier', key, i18n.language)}
+            </Text>
+          ))}
+        </View>
+
 
         <View style={styles.footerPadding} />
       </ScrollView>

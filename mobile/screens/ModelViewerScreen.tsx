@@ -32,6 +32,8 @@ export const ModelViewerScreen: React.FC<Props> = ({ route, navigation }) => {
     navigation.goBack();
   }, [navigation]);
 
+
+
   if (!asset || !asset.model) {
     // Should ideally show error state from ThreeDModelViewer
     return (

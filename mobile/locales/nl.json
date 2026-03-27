@@ -39,6 +39,7 @@
     "featured_assets": "Uitgelichte Objecten",
     "features": "Kenmerken",
     "fetching_wiki": "Raadplegen inlichtingenarchieven...",
+    "full_dossier": "Tactisch dossier",
     "geometry_unavailable": "De 3D-geometrie voor dit object is momenteel geclassificeerd of niet beschikbaar in openbare bronnen.",
     "global_hotspots": "Globale Brandhaarden",
     "history_background": "Geschiedenis & Achtergrond",
@@ -65,8 +66,10 @@
     "view_3d": "Toon in 3-D",
     "view_asset_intel": "TOON OBJECTINFORMATIE",
     "view_on_wiki_fallback": "Toon ruwe Wikipedia-pagina",
-    "technical_specs": "Technical Specs",
-    "light_mode": "Light Mode"
+    "technical_specs": "Technische specificaties",
+    "light_mode": "Lichte modus",
+    "data_disclaimer_title": "Gegevensnauwkeurigheid",
+    "data_disclaimer_text": "De gegevens in deze applicatie worden verzameld uit verschillende openbare webbronnen. Daarom is de informatie mogelijk niet helemaal accuraat en ontbreken er mogelijk specifieke gegevens die u zoekt."
   },
   "comparison": {
     "add_asset": "Object Toevoegen",
