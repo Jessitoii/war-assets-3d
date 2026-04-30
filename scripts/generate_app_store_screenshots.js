@@ -43,9 +43,9 @@ const MARKETING_TEXTS = {
 (async () => {
     console.log("🚀 Starting Google Play (1080x1920) Automation Engine...\n");
 
-    const htmlPath = path.join(__dirname, 'marketing_screenshots_template.html');
-    const outputDir = path.join(__dirname, 'app_store_screenshots');
-    const rawDir = path.join(__dirname, 'raw_screenshots');
+    const htmlPath = path.join(__dirname, '..', 'marketing_screenshots_template.html');
+    const outputDir = path.join(__dirname, '..', 'app_store_screenshots');
+    const rawDir = path.join(__dirname, '..', 'raw_screenshots');
 
     // Gerekli klasorlerin varligin kontrolu
     if (!fs.existsSync(rawDir)) {

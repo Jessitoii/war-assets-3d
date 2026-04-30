@@ -5,8 +5,8 @@ import Constants from 'expo-constants';
  * Strictly controlled by environment variable for stability during production testing.
  * Falls back to dev-mode intelligence logic in local development.
  */
-export const IS_PROD = __DEV__;
-export const DATA_VERSION = 26;
+export const IS_PROD = !__DEV__;
+export const DATA_VERSION = 29;
 
 
 // Dynamically extract the IP from the metro bundler host uri

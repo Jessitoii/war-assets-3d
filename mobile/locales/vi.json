@@ -69,7 +69,13 @@
     "technical_specs": "Thông số kỹ thuật",
     "light_mode": "Chế độ sáng",
     "data_disclaimer_title": "Độ chính xác của dữ liệu",
-    "data_disclaimer_text": "Dữ liệu trong ứng dụng này được thu thập từ nhiều nguồn web công cộng khác nhau. Do đó, thôngquan có thể không hoàn toàn chính xác và một số dữ liệu cụ thể mà bạn đang tìm kiếm có thể bị thiếu."
+    "data_disclaimer_text": "Dữ liệu trong ứng dụng này được thu thập từ nhiều nguồn web công cộng khác nhau. Do đó, thôngquan có thể không hoàn toàn chính xác và một số dữ liệu cụ thể mà bạn đang tìm kiếm có thể bị thiếu.",
+    "live_feed": "BẢN TIN TRỰC TIẾP",
+    "active_hotspots": "ĐIỂM NÓNG ĐANG HOẠT ĐỘNG",
+    "global": "Toàn cầu",
+    "low": "Thấp",
+    "medium": "Trung bình",
+    "high": "Cao"
   },
   "comparison": {
     "add_asset": "Thêm khí tài",
@@ -110,13 +116,27 @@
     "initializing": "ĐANG KHỞI TẠO HỆ THỐNG",
     "next": "TIẾP THEO",
     "retry_init": "THỬ LẠI",
-    "skip": "BỎ QUA"
+    "skip": "BỎ QUA",
+    "subtitle_1": "Khám phá các mô hình 3D chi tiết về tài sản quân sự lịch sử.",
+    "subtitle_2": "Xoay, thu phóng và kiểm tra mọi chi tiết trong 3D đầy đủ.",
+    "subtitle_3": "Đưa lịch sử vào căn phòng của bạn với Thực Tế Tăng Cường.",
+    "title_1": "Chào mừng đến với War Assets 3D",
+    "title_2": "Xem Tương Tác",
+    "title_3": "Trải Nghiệm AR"
   },
   "search": {
     "no_match": "Không tìm thấy khí tài phù hợp với tiêu chí",
     "placeholder": "Tìm kiếm khí tài...",
     "reset": "Đặt lại",
-    "results": "Kết quả"
+    "results": "Kết quả",
+    "filter": "BỘ LỌC",
+    "origin": "NGUỒN GỐC",
+    "threat_type": "LOẠI ĐE DỌA",
+    "level": "CẤP ĐỘ",
+    "clear_all": "XÓA TẤT CẢ BỘ LỌC",
+    "no_assets_db": "KHÔNG TÌM THẤY TÀI SẢN TRONG CƠ SỞ DỮ LIỆU",
+    "adjust_filters": "Hãy thử điều chỉnh các bộ lọc chiến thuật của bạn",
+    "reset_filters": "Đặt lại bộ lọc"
   },
   "settings": {
     "ar_fail_msg": "Thiết bị của bạn không hỗ trợ các tính năng AR.",

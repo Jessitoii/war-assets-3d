@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const localesDir = path.join(__dirname, 'mobile', 'locales');
+const localesDir = path.join(__dirname, '..', 'mobile', 'locales');
 
 const translations = {
   ar: {

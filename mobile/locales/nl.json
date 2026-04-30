@@ -69,7 +69,13 @@
     "technical_specs": "Technische specificaties",
     "light_mode": "Lichte modus",
     "data_disclaimer_title": "Gegevensnauwkeurigheid",
-    "data_disclaimer_text": "De gegevens in deze applicatie worden verzameld uit verschillende openbare webbronnen. Daarom is de informatie mogelijk niet helemaal accuraat en ontbreken er mogelijk specifieke gegevens die u zoekt."
+    "data_disclaimer_text": "De gegevens in deze applicatie worden verzameld uit verschillende openbare webbronnen. Daarom is de informatie mogelijk niet helemaal accuraat en ontbreken er mogelijk specifieke gegevens die u zoekt.",
+    "live_feed": "LIVE FEED",
+    "active_hotspots": "ACTIEVE HOTSPOTS",
+    "global": "Globaal",
+    "low": "Laag",
+    "medium": "Gemiddeld",
+    "high": "Hoog"
   },
   "comparison": {
     "add_asset": "Object Toevoegen",
@@ -110,13 +116,27 @@
     "initializing": "SYSTEEM INITIALISEREN",
     "next": "VOLGENDE",
     "retry_init": "INITIALISATIE OPNIEUW PROBEREN",
-    "skip": "OVERSLAAN"
+    "skip": "OVERSLAAN",
+    "subtitle_1": "Ontdek gedetailleerde 3D-modellen van historische militaire middelen.",
+    "subtitle_2": "Roteer, zoom en bekijk elk detail in volledig 3D.",
+    "subtitle_3": "Breng geschiedenis naar uw kamer met Augmented Reality.",
+    "title_1": "Welkom bij War Assets 3D",
+    "title_2": "Interactief Bekijken",
+    "title_3": "AR-ervaring"
   },
   "search": {
     "no_match": "Geen objecten gevonden die voldoen aan je criteria",
     "placeholder": "Zoek objecten...",
     "reset": "Resetten",
-    "results": "Resultaten"
+    "results": "Resultaten",
+    "filter": "FILTER",
+    "origin": "OORSPRONG",
+    "threat_type": "DREIGINGSTYPE",
+    "level": "NIVEAU",
+    "clear_all": "ALLE FILTERS WISSEN",
+    "no_assets_db": "GEEN MIDDELEN GEVONDEN IN DATABASE",
+    "adjust_filters": "Probeer uw tactische filters aan te passen",
+    "reset_filters": "Filters herstellen"
   },
   "settings": {
     "ar_fail_msg": "Je toestel ondersteunt geen AR-functies.",

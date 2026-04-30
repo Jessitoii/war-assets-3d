@@ -69,7 +69,13 @@
     "technical_specs": "Technische Spezifikationen",
     "light_mode": "Heller Modus",
     "data_disclaimer_title": "Datengenauigkeit",
-    "data_disclaimer_text": "Die Daten in dieser Anwendung werden aus verschiedenen öffentlichen Webquellen gesammelt. Daher sind die Informationen möglicherweise nicht ganz genau und bestimmte, von Ihnen gesuchte Daten fehlen möglicherweise."
+    "data_disclaimer_text": "Die Daten in dieser Anwendung werden aus verschiedenen öffentlichen Webquellen gesammelt. Daher sind die Informationen möglicherweise nicht ganz genau und bestimmte, von Ihnen gesuchte Daten fehlen möglicherweise.",
+    "live_feed": "LIVE-FEED",
+    "active_hotspots": "AKTIVE KRISENHERDE",
+    "global": "Global",
+    "low": "Niedrig",
+    "medium": "Mittel",
+    "high": "Hoch"
   },
   "comparison": {
     "add_asset": "Objekt hinzufügen",
@@ -110,13 +116,27 @@
     "initializing": "SYSTEM INITIALISIERUNG",
     "next": "WEITER",
     "retry_init": "NEU INITIALISIEREN",
-    "skip": "ÜBERSPRINGEN"
+    "skip": "ÜBERSPRINGEN",
+    "subtitle_1": "Entdecken Sie detaillierte 3D-Modelle historischer militärischer Ausrüstung.",
+    "subtitle_2": "Drehen, zoomen und inspizieren Sie jedes Detail in vollem 3D.",
+    "subtitle_3": "Bringen Sie Geschichte mit Augmented Reality in Ihr Zimmer.",
+    "title_1": "Willkommen bei War Assets 3D",
+    "title_2": "Interaktive Betrachtung",
+    "title_3": "AR-Erfahrung"
   },
   "search": {
     "no_match": "Keine Objekte passend zu deinen Kriterien gefunden",
     "placeholder": "Suche...",
     "reset": "Zurücksetzen",
-    "results": "Ergebnisse"
+    "results": "Ergebnisse",
+    "filter": "FILTER",
+    "origin": "HERKUNFT",
+    "threat_type": "BEDROHUNGSTYP",
+    "level": "STUFE",
+    "clear_all": "ALLE FILTER LÖSCHEN",
+    "no_assets_db": "KEINE OBJEKTE IN DER DATENBANK GEFUNDEN",
+    "adjust_filters": "Versuchen Sie, Ihre taktischen Filter anzupassen",
+    "reset_filters": "Filter zurücksetzen"
   },
   "settings": {
     "ar_fail_msg": "Dein Gerät unterstützt keine AR-Funktionen.",

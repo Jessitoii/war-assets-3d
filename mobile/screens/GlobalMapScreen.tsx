@@ -14,9 +14,6 @@ import { XMLParser } from 'fast-xml-parser';
 
 type Props = StackScreenProps<RootStackParamList, 'GlobalMap'>;
 
-// OpenStreetMap Tile Provider (CartoDB Dark Matter)
-const OSM_TILE_URL = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-
 export const GlobalMapScreen: React.FC<Props> = ({ navigation }) => {
   const { t } = useTranslation();
   const assets = useStore((state) => state.assets);
@@ -67,7 +64,7 @@ export const GlobalMapScreen: React.FC<Props> = ({ navigation }) => {
         <Text style={styles.headerTitle}>{t('common.global_hotspots').toUpperCase()}</Text>
         <View style={styles.headerRight}>
           <View style={styles.statusDot} />
-          <Text style={styles.statusText}>LIVE FEED</Text>
+          <Text style={styles.statusText}>{t('common.live_feed')}</Text>
         </View>
       </View>
 
@@ -91,7 +88,7 @@ export const GlobalMapScreen: React.FC<Props> = ({ navigation }) => {
               longitudeDelta: 100,
             }}
           >
-            <UrlTile 
+            <UrlTile
               urlTemplate="https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
               zIndex={1}
               shouldReplaceMapContent={false}
@@ -148,7 +145,7 @@ export const GlobalMapScreen: React.FC<Props> = ({ navigation }) => {
       {/* Put overlay inside a pointerEvents='none' map wrapper or position it absolute */}
       <View style={styles.overlay} pointerEvents="none">
         <View style={styles.intelCount}>
-          <Text style={styles.intelCountText}>{tacticalPoints.length} ACTIVE HOTSPOTS</Text>
+          <Text style={styles.intelCountText}>{tacticalPoints.length} {t('common.active_hotspots')}</Text>
         </View>
       </View>
     </SafeAreaView>

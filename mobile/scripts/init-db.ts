@@ -238,7 +238,7 @@ async function applyMigrations(db: SQLite.SQLiteDatabase) {
           await catStmt.finalizeAsync();
         }
 
-        const MILITARY_ASSETS = require('../assets/data/military-assets-v28-optimized.json');
+        const MILITARY_ASSETS = require('../assets/data/military-assets-v29.json');
         console.log(`[DB] Seeding ${MILITARY_ASSETS.length} assets...`);
 
         const assetStmt = await db.prepareAsync(
@@ -442,7 +442,7 @@ async function applyMigrations(db: SQLite.SQLiteDatabase) {
         } catch (e) { } // Ignore if already exists
 
         // Update existing assets with metrics from JSON
-        const MILITARY_ASSETS = require('../assets/data/military-assets-v28-optimized.json');
+        const MILITARY_ASSETS = require('../assets/data/military-assets-v29.json');
         const updateStmt = await db.prepareAsync('UPDATE assets SET metrics = ? WHERE id = ?');
 
         try {

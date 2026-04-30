@@ -69,7 +69,13 @@
     "technical_specs": "技術仕様",
     "light_mode": "ライトモード",
     "data_disclaimer_title": "データの正確性",
-    "data_disclaimer_text": "このアプリケーションのデータは様々な公開ウェブソースから収集されています。そのため、情報が完全に正確ではない場合があり、お探しの特定のデータが欠落している可能性があります。"
+    "data_disclaimer_text": "このアプリケーションのデータは様々な公開ウェブソースから収集されています。そのため、情報が完全に正確ではない場合があり、お探しの特定のデータが欠落している可能性があります。",
+    "live_feed": "ライブフィード",
+    "active_hotspots": "アクティブなホットスポット",
+    "global": "グローバル",
+    "low": "低い",
+    "medium": "中くらい",
+    "high": "高い"
   },
   "comparison": {
     "add_asset": "資産を追加",
@@ -110,13 +116,27 @@
     "initializing": "システムを初期化中",
     "next": "次へ",
     "retry_init": "初期化を再試行",
-    "skip": "スキップ"
+    "skip": "スキップ",
+    "subtitle_1": "歴史的な軍事資産の詳細な3Dモデルを発見してください。",
+    "subtitle_2": "フル3Dで回転、ズーム、すべての詳細を検査します。",
+    "subtitle_3": "拡張現実で歴史をあなたの部屋にもたらします。",
+    "title_1": "War Assets 3Dへようこそ",
+    "title_2": "インタラクティブな表示",
+    "title_3": "AR体験"
   },
   "search": {
     "no_match": "条件に一致する資産が見つかりません",
     "placeholder": "資産を検索...",
     "reset": "リセット",
-    "results": "検索結果"
+    "results": "検索結果",
+    "filter": "フィルター",
+    "origin": "起源",
+    "threat_type": "脅威の種類",
+    "level": "レベル",
+    "clear_all": "すべてのフィルターをクリア",
+    "no_assets_db": "データベースに資産が見つかりません",
+    "adjust_filters": "戦術フィルターを調整してみてください",
+    "reset_filters": "フィルターをリセット"
   },
   "settings": {
     "ar_fail_msg": "お使いのデバイスはAR戦術機能をサポートしていません。",

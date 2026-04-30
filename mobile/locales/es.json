@@ -69,7 +69,13 @@
     "technical_specs": "Especificaciones técnicas",
     "light_mode": "Modo claro",
     "data_disclaimer_title": "Precisión de los datos",
-    "data_disclaimer_text": "Los datos de esta aplicación se recopilan de diversas fuentes web públicas. Por lo tanto, la información puede no ser completamente precisa y ciertos datos específicos que busca podrían faltar."
+    "data_disclaimer_text": "Los datos de esta aplicación se recopilan de diversas fuentes web públicas. Por lo tanto, la información puede no ser completamente precisa y ciertos datos específicos que busca podrían faltar.",
+    "live_feed": "TRANSMISIÓN EN VIVO",
+    "active_hotspots": "PUNTOS CRÍTICOS ACTIVOS",
+    "global": "Global",
+    "low": "Bajo",
+    "medium": "Medio",
+    "high": "Alto"
   },
   "comparison": {
     "add_asset": "Añadir Activo",
@@ -110,13 +116,27 @@
     "initializing": "INICIALIZANDO SISTEMA",
     "next": "SIGUIENTE",
     "retry_init": "REINTENTAR INICIALIZACIÓN",
-    "skip": "SALTAR"
+    "skip": "SALTAR",
+    "subtitle_1": "Descubra modelos 3D detallados de activos militares históricos.",
+    "subtitle_2": "Rote, haga zoom e inspeccione cada detalle en 3D completo.",
+    "subtitle_3": "Lleve la historia a su habitación con Realidad Aumentada.",
+    "title_1": "Bienvenido a War Assets 3D",
+    "title_2": "Visualización Interactiva",
+    "title_3": "Experiencia AR"
   },
   "search": {
     "no_match": "No se encontraron activos que coincidan con tus criterios",
     "placeholder": "Buscar activos...",
     "reset": "Restablecer",
-    "results": "Resultados"
+    "results": "Resultados",
+    "filter": "FILTRAR",
+    "origin": "ORIGEN",
+    "threat_type": "TIPO DE AMENAZA",
+    "level": "NIVEL",
+    "clear_all": "LIMPIAR TODOS LOS FILTROS",
+    "no_assets_db": "NO SE ENCONTRARON ACTIVOS EN LA BASE DE DATOS",
+    "adjust_filters": "Intente ajustar sus filtros tácticos",
+    "reset_filters": "Restablecer filtros"
   },
   "settings": {
     "ar_fail_msg": "Tu dispositivo no admite funciones de RA.",

@@ -69,7 +69,13 @@
     "technical_specs": "Spécifications techniques",
     "light_mode": "Mode clair",
     "data_disclaimer_title": "Précision des données",
-    "data_disclaimer_text": "Les données de cette application sont recueillies à partir de diverses sources web publiques. Par conséquent, les informations peuvent ne pas être complètement exactes et certaines données spécifiques que vous recherchez pourraient manquer."
+    "data_disclaimer_text": "Les données de cette application sont recueillies à partir de diverses sources web publiques. Par conséquent, les informations peuvent ne pas être complètement exactes et certaines données spécifiques que vous recherchez pourraient manquer.",
+    "live_feed": "FLUX EN DIRECT",
+    "active_hotspots": "ZONES DE TENSION ACTIVES",
+    "global": "Mondial",
+    "low": "Bas",
+    "medium": "Moyen",
+    "high": "Haut"
   },
   "comparison": {
     "add_asset": "Ajouter un Actif",
@@ -110,13 +116,27 @@
     "initializing": "INITIALISATION DU SYSTÈME",
     "next": "SUIVANT",
     "retry_init": "RÉESSAYER L'INITIALISATION",
-    "skip": "PASSER"
+    "skip": "PASSER",
+    "subtitle_1": "Découvrez des modèles 3D détaillés d'équipements militaires historiques.",
+    "subtitle_2": "Faites pivoter, zoomez et inspectez chaque détail en 3D complet.",
+    "subtitle_3": "Faites entrer l'histoire dans votre chambre avec la Réalité Augmentée.",
+    "title_1": "Bienvenue sur War Assets 3D",
+    "title_2": "Visualisation Interactive",
+    "title_3": "Expérience AR"
   },
   "search": {
     "no_match": "Aucun actif ne correspond à vos critères",
     "placeholder": "Rechercher des actifs...",
     "reset": "Réinitialiser",
-    "results": "Résultats"
+    "results": "Résultats",
+    "filter": "FILTRER",
+    "origin": "ORIGINE",
+    "threat_type": "TYPE DE MENACE",
+    "level": "NIVEAU",
+    "clear_all": "EFFACER TOUS LES FILTRES",
+    "no_assets_db": "AUCUN ÉQUIPEMENT TROUVÉ DANS LA BASE DE DONNÉES",
+    "adjust_filters": "Essayez d'ajuster vos filtres tactiques",
+    "reset_filters": "Réinitialiser les filtres"
   },
   "settings": {
     "ar_fail_msg": "Votre appareil ne supporte pas les fonctions RA.",

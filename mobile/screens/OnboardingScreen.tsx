@@ -199,8 +199,8 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
               resizeMode={item.orderIndex === 0 ? "cover" : "contain"}
               accessible={false}
             />
-            <Text style={styles.title}>{t_spec(item as any, 'short_specs', 'name') || item.title}</Text>
-            <Text style={styles.subtitle}>{t_spec(item as any, 'short_specs', 'subtitle') || item.subtitle}</Text>
+            <Text style={styles.title}>{t(`onboarding.title_${item.id}`, { defaultValue: item.title })}</Text>
+            <Text style={styles.subtitle}>{t(`onboarding.subtitle_${item.id}`, { defaultValue: item.subtitle })}</Text>
           </View>
         ))}
       </Animated.ScrollView>

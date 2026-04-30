@@ -69,7 +69,13 @@
     "technical_specs": "Specifiche tecniche",
     "light_mode": "Modalità chiara",
     "data_disclaimer_title": "Accuratezza dei dati",
-    "data_disclaimer_text": "I dati in questa applicazione sono raccolti da varie fonti web pubbliche. Pertanto, le informazioni potrebbero non essere completamente accurate e alcuni specifici dati che stai cercando potrebbero mancare."
+    "data_disclaimer_text": "I dati in questa applicazione sono raccolti da varie fonti web pubbliche. Pertanto, le informazioni potrebbero non essere completamente accurate e alcuni specifici dati che stai cercando potrebbero mancare.",
+    "live_feed": "LIVE FEED",
+    "active_hotspots": "ZONE CALDE ATTIVE",
+    "global": "Globale",
+    "low": "Basso",
+    "medium": "Medio",
+    "high": "Alto"
   },
   "comparison": {
     "add_asset": "Aggiungi Asset",
@@ -110,13 +116,27 @@
     "initializing": "INIZIALIZZAZIONE SISTEMA",
     "next": "AVANTI",
     "retry_init": "RIPROVA INIZIALIZZAZIONE",
-    "skip": "SALTA"
+    "skip": "SALTA",
+    "subtitle_1": "Scopri modelli 3D dettagliati di risorse militari storiche.",
+    "subtitle_2": "Ruota, ingrandisci e ispeziona ogni dettaglio in 3D completo.",
+    "subtitle_3": "Porta la storia nella tua stanza con la Realtà Aumentata.",
+    "title_1": "Benvenuto in War Assets 3D",
+    "title_2": "Visualizzazione Interattiva",
+    "title_3": "Esperienza AR"
   },
   "search": {
     "no_match": "Nessun asset trovato corrispondente ai criteri",
     "placeholder": "Cerca asset...",
     "reset": "Ripristina",
-    "results": "Risultati"
+    "results": "Risultati",
+    "filter": "FILTRA",
+    "origin": "ORIGINE",
+    "threat_type": "TIPO DI MINACCIA",
+    "level": "LIVELLO",
+    "clear_all": "CANCELLA TUTTI I FILTRI",
+    "no_assets_db": "NESSUNA RISORSA TROVATA NEL DATABASE",
+    "adjust_filters": "Prova a regolare i tuoi filtri tattici",
+    "reset_filters": "Ripristina filtri"
   },
   "settings": {
     "ar_fail_msg": "Il tuo dispositivo non supporta le funzioni AR.",

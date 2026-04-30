@@ -67,10 +67,10 @@ export const SearchFilterScreen: React.FC<Props> = ({ navigation }) => {
   }, [filters.searchQuery]);
 
   const getDangerLevel = (danger?: number) => {
-    if (danger === undefined) return 'Low';
-    if (danger < 33) return 'Low';
-    if (danger < 67) return 'Medium';
-    return 'High';
+    if (danger === undefined) return t('common.low');
+    if (danger < 33) return t('common.low');
+    if (danger < 67) return t('common.medium');
+    return t('common.high');
   };
 
   const filteredAssets = useMemo(() => {
@@ -158,7 +158,7 @@ export const SearchFilterScreen: React.FC<Props> = ({ navigation }) => {
 
         <TouchableOpacity onPress={toggleFilterPanel} style={[styles.filterToggle, isFilterVisible && styles.activeToggle]}>
           <Ionicons name="options" size={20} color={isFilterVisible ? '#FFF' : theme.colors.primary} />
-          <Text style={[styles.toggleText, { color: isFilterVisible ? '#FFF' : theme.colors.primary }]}>FILTER</Text>
+          <Text style={[styles.toggleText, { color: isFilterVisible ? '#FFF' : theme.colors.primary }]}>{t('search.filter')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -166,29 +166,29 @@ export const SearchFilterScreen: React.FC<Props> = ({ navigation }) => {
         <View style={[styles.filterPanel, { backgroundColor: isDark ? '#111' : '#F9F9F9' }]}>
           <ScrollView contentContainerStyle={styles.panelScroll}>
             <View style={styles.panelSection}>
-              <Text style={styles.sectionHeader}>ORIGIN</Text>
+              <Text style={styles.sectionHeader}>{t('search.origin')}</Text>
               <View style={styles.chipGrid}>
                 {countries.map(code => renderChip('countryCodes', code))}
               </View>
             </View>
 
             <View style={styles.panelSection}>
-              <Text style={styles.sectionHeader}>THREAT TYPE</Text>
+              <Text style={styles.sectionHeader}>{t('search.threat_type')}</Text>
               <View style={styles.chipGrid}>
                 {threatTypes.map(type => renderChip('threatTypes', type))}
               </View>
             </View>
 
             <View style={styles.panelSection}>
-              <Text style={styles.sectionHeader}>LEVEL</Text>
+              <Text style={styles.sectionHeader}>{t('search.level')}</Text>
               <View style={styles.chipGrid}>
-                {['Low', 'Medium', 'High'].map(level => renderChip('dangerLevels', level))}
+                {[t('common.low'), t('common.medium'), t('common.high')].map(level => renderChip('dangerLevels', level))}
               </View>
             </View>
 
             {hasActiveFilters && (
               <TouchableOpacity onPress={resetAllFilters} style={styles.panelClearAll}>
-                <Text style={styles.clearAllText}>CLEAR ALL FILTERS</Text>
+                <Text style={styles.clearAllText}>{t('search.clear_all')}</Text>
               </TouchableOpacity>
             )}
           </ScrollView>
@@ -212,17 +212,17 @@ export const SearchFilterScreen: React.FC<Props> = ({ navigation }) => {
         ListHeaderComponent={
           <View style={styles.resultsHeader}>
             <Text style={[styles.resultsCount, { color: isDark ? theme.colors.primary : '#333' }]}>
-              {filteredAssets.length} ACTIVE HOTSPOTS
+              {filteredAssets.length} {t('common.active_hotspots')}
             </Text>
           </View>
         }
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Ionicons name="alert-circle-outline" size={64} color={theme.colors.primary} style={{ marginBottom: 16 }} />
-            <Text style={[styles.emptyTitle, { color: isDark ? '#FFF' : '#000' }]}>NO ASSETS FOUND IN DATABASE</Text>
-            <Text style={[styles.emptySubtitle, { color: isDark ? '#888' : '#666' }]}>Try adjusting your tactical filters</Text>
+            <Text style={[styles.emptyTitle, { color: isDark ? '#FFF' : '#000' }]}>{t('search.no_assets_db')}</Text>
+            <Text style={[styles.emptySubtitle, { color: isDark ? '#888' : '#666' }]}>{t('search.adjust_filters')}</Text>
             <TouchableOpacity onPress={resetAllFilters} style={styles.refreshButton}>
-              <Text style={styles.refreshButtonText}>Reset Filters</Text>
+              <Text style={styles.refreshButtonText}>{t('search.reset_filters')}</Text>
             </TouchableOpacity>
           </View>
         }

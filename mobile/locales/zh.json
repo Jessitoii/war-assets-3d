@@ -69,7 +69,13 @@
     "technical_specs": "技术规格",
     "light_mode": "浅色模式",
     "data_disclaimer_title": "数据准确性",
-    "data_disclaimer_text": "本应用中的数据来自各种公开的网络来源。因此，信息可能不完全准确，并且您正在寻找的某些特定数据可能会缺失。"
+    "data_disclaimer_text": "本应用中的数据来自各种公开的网络来源。因此，信息可能不完全准确，并且您正在寻找的某些特定数据可能会缺失。",
+    "live_feed": "实时提要",
+    "active_hotspots": "活跃热点",
+    "global": "全球",
+    "low": "低",
+    "medium": "中",
+    "high": "高"
   },
   "comparison": {
     "add_asset": "添加资产",
@@ -110,13 +116,27 @@
     "initializing": "正在初始化系统",
     "next": "下一步",
     "retry_init": "重试初始化",
-    "skip": "跳过"
+    "skip": "跳过",
+    "subtitle_1": "探索历史军事资产的详细3D模型。",
+    "subtitle_2": "在完整的3D中旋转、缩放和检查每个细节。",
+    "subtitle_3": "通过增强现实将历史带入您的房间。",
+    "title_1": "欢迎来到 War Assets 3D",
+    "title_2": "互动查看",
+    "title_3": "AR体验"
   },
   "search": {
     "no_match": "未找到符合条件的资产",
     "placeholder": "搜索资产库...",
     "reset": "重置过滤器",
-    "results": "检索结果"
+    "results": "检索结果",
+    "filter": "筛选",
+    "origin": "起源",
+    "threat_type": "威胁类型",
+    "level": "等级",
+    "clear_all": "清除所有筛选",
+    "no_assets_db": "数据库中未发现资产",
+    "adjust_filters": "尝试调整您的战术筛选",
+    "reset_filters": "重置筛选"
   },
   "settings": {
     "ar_fail_msg": "您的设备不支持 AR 战术功能。",

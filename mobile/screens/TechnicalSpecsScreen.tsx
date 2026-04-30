@@ -73,7 +73,7 @@ export const TechnicalSpecsScreen: React.FC<Props> = ({ route, navigation }) => 
             {getFlagEmoji(asset.countryCode || '')}
           </Text>
           <Text style={[styles.countryName, { color: textColor }]}>
-            {asset.country || 'Global'}
+            {asset.country || t('common.global')}
           </Text>
         </View>
 
@@ -86,7 +86,7 @@ export const TechnicalSpecsScreen: React.FC<Props> = ({ route, navigation }) => 
             return (
               <View key={key} style={[styles.specRow, { borderBottomColor: borderColor }]}>
                 <Text style={styles.specLabel}>
-                  {key.replace(/_/g, ' ').toUpperCase()}
+                  {t(`asset.${key}`, { defaultValue: key.replace(/_/g, ' ').toUpperCase() })}
                 </Text>
                 {hasDossier ? (
                   <TouchableOpacity
@@ -130,7 +130,7 @@ export const TechnicalSpecsScreen: React.FC<Props> = ({ route, navigation }) => 
               if (!dossierValue || dossierValue === 'N/A' || dossierValue.length < 5) return null;
               return (
                 <View key={key} style={styles.dossierItem}>
-                  <Text style={[styles.dossierLabel, { color: theme.colors.primary }]}>{key.replace(/_/g, ' ').toUpperCase()}</Text>
+                  <Text style={[styles.dossierLabel, { color: theme.colors.primary }]}>{t(`asset.${key}`, { defaultValue: key.replace(/_/g, ' ').toUpperCase() })}</Text>
                   <Text style={[styles.dossierText, { color: textColor }]}>{dossierValue}</Text>
                 </View>
               );

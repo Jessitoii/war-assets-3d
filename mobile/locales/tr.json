@@ -69,7 +69,13 @@
     "view_asset_intel": "VARLIK İSTİHBARATINI GÖRÜNTÜLE",
     "view_on_wiki_fallback": "Ham Wikipedia sayfasını görüntüle",
     "technical_specs": "Teknik Özellikler",
-    "light_mode": "Aydınlık Mod"
+    "light_mode": "Aydınlık Mod",
+    "live_feed": "CANLI YAYIN",
+    "active_hotspots": "AKTİF SICAK NOKTA",
+    "global": "Küresel",
+    "low": "Düşük",
+    "medium": "Orta",
+    "high": "Yüksek"
   },
   "comparison": {
     "add_asset": "Varlık Ekle",
@@ -110,13 +116,27 @@
     "initializing": "SİSTEM BAŞLATILIYOR",
     "next": "İLERİ",
     "retry_init": "BAŞLATMAYI TEKRARLA",
-    "skip": "ATLA"
+    "skip": "ATLA",
+    "subtitle_1": "Tarihi askeri araçların detaylı 3B modellerini keşfedin.",
+    "subtitle_2": "Her bir detayı tam 3B olarak döndürün, yakınlaştırın ve inceleyin.",
+    "subtitle_3": "Artırılmış Gerçeklik ile tarihi odanıza taşıyın.",
+    "title_1": "War Assets 3D'ye Hoş Geldiniz",
+    "title_2": "Etkileşimli Görüntüleme",
+    "title_3": "AR Deneyimi"
   },
   "search": {
     "no_match": "Kriterlerinize uygun varlık bulunamadı",
     "placeholder": "Varlık ara...",
     "reset": "Sıfırla",
-    "results": "Sonuçlar"
+    "results": "Sonuçlar",
+    "filter": "FİLTRE",
+    "origin": "MENŞEİ",
+    "threat_type": "TEHDİT TÜRÜ",
+    "level": "SEVİYE",
+    "clear_all": "TÜM FİLTRELERİ TEMİZLE",
+    "no_assets_db": "VERİTABANINDA VARLIK BULUNAMADI",
+    "adjust_filters": "Taktik filtrelerinizi ayarlamayı deneyin",
+    "reset_filters": "Filtreleri Sıfırla"
   },
   "settings": {
     "ar_fail_msg": "Cihazınız AR özelliklerini desteklemiyor.",

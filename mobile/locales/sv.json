@@ -69,7 +69,13 @@
     "technical_specs": "Tekniska specifikationer",
     "light_mode": "Ljust läge",
     "data_disclaimer_title": "Datanoggrannhet",
-    "data_disclaimer_text": "Data i denna applikation samlas in från olika offentliga webbkällor. Därför kanske informationen inte är helt korrekt, och vissa specifika data du letar efter kan saknas."
+    "data_disclaimer_text": "Data i denna applikation samlas in från olika offentliga webbkällor. Därför kanske informationen inte är helt korrekt, och vissa specifika data du letar efter kan saknas.",
+    "live_feed": "LIVE-FEED",
+    "active_hotspots": "AKTIVA HOTSPOTS",
+    "global": "Global",
+    "low": "Låg",
+    "medium": "Medel",
+    "high": "Hög"
   },
   "comparison": {
     "add_asset": "Lägg till objekt",
@@ -110,13 +116,27 @@
     "initializing": "INITIALISERAR SYSTEM",
     "next": "NÄSTA",
     "retry_init": "FÖRSÖK IGEN",
-    "skip": "HOPPA ÖVER"
+    "skip": "HOPPA ÖVER",
+    "subtitle_1": "Upptäck detaljerade 3D-modeller av historiska militära tillgångar.",
+    "subtitle_2": "Rotera, zooma och inspektera varje detalj i full 3D.",
+    "subtitle_3": "För med dig historien till ditt rum med Augmented Reality.",
+    "title_1": "Välkommen till War Assets 3D",
+    "title_2": "Interaktiv Visning",
+    "title_3": "AR-upplevelse"
   },
   "search": {
     "no_match": "Inga objekt hittades som matchar dina kriterier",
     "placeholder": "Sök objekt...",
     "reset": "Återställ",
-    "results": "Resultat"
+    "results": "Resultat",
+    "filter": "FILTER",
+    "origin": "URSPRUNG",
+    "threat_type": "HOTTYP",
+    "level": "NIVÅ",
+    "clear_all": "RENSA ALLA FILTER",
+    "no_assets_db": "INGA TILLGÅNGAR HITTADES I DATABASEN",
+    "adjust_filters": "Försök att justera dina taktiska filter",
+    "reset_filters": "Återställ filter"
   },
   "settings": {
     "ar_fail_msg": "Din enhet stöder inte AR-funktioner.",

@@ -69,7 +69,13 @@
     "technical_specs": "Specyfikacje techniczne",
     "light_mode": "Tryb jasny",
     "data_disclaimer_title": "Dokładność Danych",
-    "data_disclaimer_text": "Dane w tej aplikacji są gromadzone z różnych publicznych źródeł internetowych. W związku z tym informacje te mogą nie być całkowicie dokładne, a pewnych konkretnych danych, których szukasz, może brakować."
+    "data_disclaimer_text": "Dane w tej aplikacji są gromadzone z różnych publicznych źródeł internetowych. W związku z tym informacje te mogą nie być całkowicie dokładne, a pewnych konkretnych danych, których szukasz, może brakować.",
+    "live_feed": "NA ŻYWO",
+    "active_hotspots": "AKTYWNE HOTSPOTY",
+    "global": "Globalne",
+    "low": "Niski",
+    "medium": "Średni",
+    "high": "Wysoki"
   },
   "comparison": {
     "add_asset": "Dodaj Obiekt",
@@ -110,13 +116,27 @@
     "initializing": "INICJALIZACJA SYSTEMU",
     "next": "DALEJ",
     "retry_init": "PONÓW INICJALIZACJĘ",
-    "skip": "POMIŃ"
+    "skip": "POMIŃ",
+    "subtitle_1": "Odkryj szczegółowe modele 3D historycznych zasobów wojskowych.",
+    "subtitle_2": "Obracaj, przybliżaj i sprawdzaj każdy szczegół w pełnym 3D.",
+    "subtitle_3": "Przenieś historię do swojego pokoju dzięki Rzeczywistości Rozszerzonej.",
+    "title_1": "Witamy w War Assets 3D",
+    "title_2": "Interaktywne Przeglądanie",
+    "title_3": "Doświadczenie AR"
   },
   "search": {
     "no_match": "Nie znaleziono obiektów spełniających kryteria",
     "placeholder": "Szukaj obiektów...",
     "reset": "Resetuj",
-    "results": "Wyniki"
+    "results": "Wyniki",
+    "filter": "FILTR",
+    "origin": "POCHODZENIE",
+    "threat_type": "TYP ZAGROŻENIA",
+    "level": "POZIOM",
+    "clear_all": "WYCZYŚĆ WSZYSTKIE FILTRY",
+    "no_assets_db": "NIE ZNALEZIONO ZASOBÓW W BAZIE DANYCH",
+    "adjust_filters": "Spróbuj dostosować filtry taktyczne",
+    "reset_filters": "Resetuj filtry"
   },
   "settings": {
     "ar_fail_msg": "Twoje urządzenie nie obsługuje funkcji AR.",

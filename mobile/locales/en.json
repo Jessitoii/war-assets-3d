@@ -69,7 +69,13 @@
     "legal": "LEGAL",
     "privacy_policy": "Privacy Policy",
     "technical_specs": "Technical Specs",
-    "light_mode": "Light Mode"
+    "light_mode": "Light Mode",
+    "live_feed": "LIVE FEED",
+    "active_hotspots": "ACTIVE HOTSPOTS",
+    "global": "Global",
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High"
   },
   "comparison": {
     "add_asset": "Add Asset",
@@ -110,13 +116,27 @@
     "initializing": "INITIALIZING SYSTEM",
     "next": "NEXT",
     "retry_init": "RETRY INITIALIZATION",
-    "skip": "SKIP"
+    "skip": "SKIP",
+    "subtitle_1": "Discover detailed 3D models of historical military assets.",
+    "subtitle_2": "Rotate, zoom, and inspect every detail in full 3D.",
+    "subtitle_3": "Bring history to your room with Augmented Reality.",
+    "title_1": "Welcome to War Assets 3D",
+    "title_2": "Interactive Viewing",
+    "title_3": "AR Experience"
   },
   "search": {
     "no_match": "No assets found matching your criteria",
     "placeholder": "Search assets...",
     "reset": "Reset",
-    "results": "Results"
+    "results": "Results",
+    "filter": "FILTER",
+    "origin": "ORIGIN",
+    "threat_type": "THREAT TYPE",
+    "level": "LEVEL",
+    "clear_all": "CLEAR ALL FILTERS",
+    "no_assets_db": "NO ASSETS FOUND IN DATABASE",
+    "adjust_filters": "Try adjusting your tactical filters",
+    "reset_filters": "Reset Filters"
   },
   "settings": {
     "ar_fail_msg": "Your device does not support AR features.",

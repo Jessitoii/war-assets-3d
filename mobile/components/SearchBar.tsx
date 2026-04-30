@@ -3,6 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useStore } from '../store';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   onPress: () => void;
@@ -11,7 +12,8 @@ interface Props {
 export const SearchBar: React.FC<Props> = ({ onPress }) => {
   const currentTheme = useStore((state) => state.theme);
   const isDark = currentTheme === 'dark';
-  
+  const { t } = useTranslation();
+
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -40,7 +42,7 @@ export const SearchBar: React.FC<Props> = ({ onPress }) => {
       >
         <Ionicons name="search" size={20} color={isDark ? '#AAA' : '#888'} style={styles.icon} />
         <Text style={[styles.placeholder, { color: isDark ? '#AAA' : '#888' }]}>
-          Search assets...
+          {t('search.placeholder', { defaultValue: 'Search assets...' })}
         </Text>
       </TouchableOpacity>
     </Animated.View>

@@ -69,7 +69,13 @@
     "technical_specs": "Especificações técnicas",
     "light_mode": "Modo claro",
     "data_disclaimer_title": "Precisão dos Dados",
-    "data_disclaimer_text": "Os dados neste aplicativo são recolhidos de várias fontes públicas da web. Portanto, as informações podem não ser totalmente precisas e certos dados específicos que procura podem estar em falta."
+    "data_disclaimer_text": "Os dados neste aplicativo são recolhidos de várias fontes públicas da web. Portanto, as informações podem não ser totalmente precisas e certos dados específicos que procura podem estar em falta.",
+    "live_feed": "TRANSMISSÃO AO VIVO",
+    "active_hotspots": "PONTOS QUENTES ATIVOS",
+    "global": "Global",
+    "low": "Baixo",
+    "medium": "Médio",
+    "high": "Alto"
   },
   "comparison": {
     "add_asset": "Adicionar Ativo",
@@ -110,13 +116,27 @@
     "initializing": "INICIALIZANDO SISTEMA",
     "next": "PRÓXIMO",
     "retry_init": "REPROTOCOLAR INICIALIZAÇÃO",
-    "skip": "PULAR"
+    "skip": "PULAR",
+    "subtitle_1": "Descubra modelos 3D detalhados de ativos militares históricos.",
+    "subtitle_2": "Gire, aplique zoom e inspecione cada detalhe em 3D completo.",
+    "subtitle_3": "Traga a história para o seu quarto com a Realidade Aumentada.",
+    "title_1": "Bem-vindo ao War Assets 3D",
+    "title_2": "Visualização Interativa",
+    "title_3": "Experiência AR"
   },
   "search": {
     "no_match": "Nenhum ativo corresponde aos seus critérios",
     "placeholder": "Buscar ativos...",
     "reset": "Redefinir",
-    "results": "Resultados"
+    "results": "Resultados",
+    "filter": "FILTRAR",
+    "origin": "ORIGEM",
+    "threat_type": "TIPO DE AMEAÇA",
+    "level": "NÍVEL",
+    "clear_all": "LIMPAR TODOS OS FILTROS",
+    "no_assets_db": "NENHUM ATIVO ENCONTRADO NO BANCO DE DADOS",
+    "adjust_filters": "Tente ajustar seus filtros táticos",
+    "reset_filters": "Redefinir filtros"
   },
   "settings": {
     "ar_fail_msg": "Seu dispositivo não suporta funções de RA.",
